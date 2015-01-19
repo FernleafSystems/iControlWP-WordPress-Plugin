@@ -1,5 +1,4 @@
 <?php
-
 if ( class_exists( 'ICWP_APP_OptionsVO', false ) ) {
 	return;
 }
@@ -226,7 +225,6 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 	 * @param $sKey
 	 * @param mixed $mValueToTest
 	 * @param boolean $bStrict
-	 *
 	 * @return bool
 	 */
 	public function getOptIs( $sKey, $mValueToTest, $bStrict = false ) {
@@ -434,7 +432,7 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 	 */
 	private function readYamlConfiguration( $sName ) {
 		$aConfig = array();
-		$sConfigFile = dirname( __FILE__ ).ICWP_DS.sprintf( 'config'.ICWP_DS.'feature-%s.php', $sName );
+		$sConfigFile = dirname( __FILE__ ).ICWP_DS.'..'.ICWP_DS.sprintf( 'config'.ICWP_DS.'feature-%s.php', $sName );
 		$sContents = include( $sConfigFile );
 		if ( !empty( $sContents ) ) {
 			$oYaml = $this->loadYamlProcessor();

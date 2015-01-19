@@ -843,7 +843,9 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_V7', false ) ):
 		 * @return ICWP_APP_WpDb
 		 */
 		public function loadDbProcessor() {
-			require_once( 'icwp-wpdb.php' );
+			if ( !class_exists( 'ICWP_APP_WpDb', false ) ) {
+				require_once( 'icwp-wpdb.php' );
+			}
 			return ICWP_APP_WpDb::GetInstance();
 		}
 	}
