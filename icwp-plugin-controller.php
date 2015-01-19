@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2014 iControlWP <support@icontrolwp.com>
+ * Copyright (c) 2015 iControlWP <support@icontrolwp.com>
  * All rights reserved.
  *
  * "iControlWP" is distributed under the GNU General Public License, Version 2,
@@ -19,15 +19,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-if ( class_exists( 'ICWP_APP_Plugin_Controller', false ) ) {
-	return;
-}
+if ( !class_exists( 'ICWP_APP_Plugin_Controller', false ) ) :
 
-if ( !defined( 'ICWP_DS' ) ) {
-	define( 'ICWP_DS', DIRECTORY_SEPARATOR );
-}
-
-require_once(dirname(__FILE__).ICWP_DS.'src'.ICWP_DS.'icwp-foundation.php');
 class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 
 	/**
@@ -952,7 +945,12 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 */
 	public function loadCorePluginFeatureHandler() {
 		if ( !isset( $this->oFeatureHandlerPlugin ) ) {
-			$this->loadFeatureHandler( array( 'slug' => 'plugin' ) );
+			$this->loadFeatureHandler(
+				array(
+					'slug' => 'plugin',
+					'load_priority' => 5
+				)
+			);
 		}
 		return $this->oFeatureHandlerPlugin;
 	}
@@ -1000,11 +998,10 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 
 		$sSourceFile = $this->getPath_SourceFile(
 			sprintf(
-				'%s-optionshandler-%s.php',
-				$this->getParentSlug(),
+				'features/%s.php',
 				$sFeatureSlug
 			)
-		); // e.g. icwp-optionshandler-plugin.php
+		); // e.g. features/firewall.php
 		$sClassName = sprintf(
 			'%s_%s_FeatureHandler_%s',
 			strtoupper( $this->getParentSlug() ),
@@ -1028,7 +1025,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 */
 	private function readPluginConfiguration() {
 		$aConfig = array();
-		$sContents = include( $this->getRootDir().'plugin-spec.php' );
+		$sContents = include( 'plugin-spec.php' ); // these two files always go together
 		if ( !empty( $sContents ) ) {
 			$oYaml = $this->loadYamlProcessor();
 			$aConfig = $oYaml->parseYamlString( $sContents );
@@ -1039,3 +1036,4 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 		return $aConfig;
 	}
 }
+endif;

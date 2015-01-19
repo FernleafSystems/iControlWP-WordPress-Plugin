@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2014 iControlWP <support@icontrolwp.com>
+ * Copyright (c) 2015 iControlWP <support@icontrolwp.com>
  * All rights reserved.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
@@ -15,29 +15,18 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-require_once( dirname(__FILE__).ICWP_DS.'icwp-optionshandler-base.php' );
+require_once( 'base.php' );
 
-if ( !class_exists('ICWP_APP_FeatureHandler_Compatibility') ):
+if ( ! class_exists( 'ICWP_APP_FeatureHandler_GoogleAnalytics', false ) ) :
 
-	class ICWP_APP_FeatureHandler_Compatibility extends ICWP_APP_FeatureHandler_Base {
-
-		/**
-		 * @var ICWP_APP_Processor_Compatibility
-		 */
-		protected $oFeatureProcessor;
+	class ICWP_APP_FeatureHandler_GoogleAnalytics extends ICWP_APP_FeatureHandler_Base {
 
 		/**
-		 * @return ICWP_APP_Processor_Compatibility|null
+		 * @return string
 		 */
-		protected function loadFeatureProcessor() {
-			if ( !isset( $this->oFeatureProcessor ) ) {
-				require_once( $this->getController()->getPath_SourceFile( sprintf( 'icwp-processor-%s.php', $this->getFeatureSlug() ) ) );
-				$this->oFeatureProcessor = new ICWP_APP_Processor_Compatibility( $this );
-			}
-			return $this->oFeatureProcessor;
+		protected function getProcessorClassName() {
+			return 'ICWP_APP_Processor_GoogleAnalytics';
 		}
-
-		public function doPrePluginOptionsSave() { }
 	}
 
 endif;
