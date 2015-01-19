@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2014 iControlWP <support@icontrolwp.com>
+ * Copyright (c) 2015 iControlWP <support@icontrolwp.com>
  * All rights reserved.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
@@ -15,10 +15,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-require_once( 'icwp-options-vo.php' );
-if ( !class_exists('ICWP_APP_FeatureHandler_Base_V2') ):
+require_once( 'options-vo.php' );
 
-	abstract class ICWP_APP_FeatureHandler_Base_V2 extends ICWP_APP_Foundation {
+if ( !class_exists( 'ICWP_APP_FeatureHandler_Base_V3', false ) ):
+
+	abstract class ICWP_APP_FeatureHandler_Base_V3 extends ICWP_APP_Foundation {
 
 		/**
 		 * @var ICWP_APP_Plugin_Controller
@@ -108,18 +109,27 @@ if ( !class_exists('ICWP_APP_FeatureHandler_Base_V2') ):
 			add_action( $this->doPluginPrefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureShutdown' ) );
 			add_action( $this->doPluginPrefix( 'delete_plugin' ), array( $this, 'deletePluginOptions' )  );
 			add_filter( $this->doPluginPrefix( 'aggregate_all_plugin_options' ), array( $this, 'aggregateOptionsValues' ) );
+
+			$this->doPostConstruction();
+		}
+
+		protected function doPostConstruction() {
+			add_filter( $this->doPluginPrefix( 'override_off' ), array( $this, 'aDoCheckForForceOffFile' ) );
 		}
 
 		/**
 		 * A action added to WordPress 'plugins_loaded' hook
 		 */
 		public function onWpPluginsLoaded() {
-
 			if ( $this->getIsMainFeatureEnabled() ) {
-				$oProcessor = $this->getProcessor();
-				if ( is_object( $oProcessor ) && $oProcessor instanceof ICWP_APP_Processor_Base ) {
-					$oProcessor->run();
-				}
+				$this->doExecuteProcessor();
+			}
+		}
+
+		protected function doExecuteProcessor() {
+			$oProcessor = $this->getProcessor();
+			if ( is_object( $oProcessor ) && $oProcessor instanceof ICWP_APP_Processor_Base ) {
+				$oProcessor->run();
 			}
 		}
 
@@ -134,7 +144,23 @@ if ( !class_exists('ICWP_APP_FeatureHandler_Base_V2') ):
 		 * Override this and adapt per feature
 		 * @return ICWP_APP_Processor_Base
 		 */
-		abstract protected function loadFeatureProcessor();
+		protected function loadFeatureProcessor() {
+			if ( !isset( $this->oFeatureProcessor ) ) {
+				require_once( $this->getController()->getPath_SourceFile( sprintf( 'processors/%s.php', $this->getFeatureSlug() ) ) );
+				$sClassName = $this->getProcessorClassName();
+				if ( !class_exists( $sClassName, false ) ) {
+					return null;
+				}
+				$this->oFeatureProcessor = new $sClassName( $this );
+			}
+			return $this->oFeatureProcessor;
+		}
+
+		/**
+		 * Override this and adapt per feature
+		 * @return string
+		 */
+		abstract protected function getProcessorClassName();
 
 		/**
 		 * @return ICWP_APP_OptionsVO
@@ -219,7 +245,7 @@ if ( !class_exists('ICWP_APP_FeatureHandler_Base_V2') ):
 		 * @return mixed
 		 */
 		public function getIsMainFeatureEnabled() {
-			$bOverride = $this->getIfOverride();
+			$bOverride = $this->getIfOverrideOff();
 			if ( $bOverride ) {
 				return !$bOverride;
 			}
@@ -230,21 +256,25 @@ if ( !class_exists('ICWP_APP_FeatureHandler_Base_V2') ):
 		}
 
 		/**
+		 * @param $bOverrideOff
+		 *
+		 * @return boolean
+		 */
+		public function aDoCheckForForceOffFile( $bOverrideOff ) {
+			if ( $bOverrideOff ) {
+				return $bOverrideOff;
+			}
+			return $this->loadFileSystemProcessor()->fileExistsInDir( 'forceOff', $this->getController()->getRootDir(), false );
+		}
+
+		/**
 		 * Returns true if you're overriding OFF.  We don't do override ON any more (as of 3.5.1)
 		 */
-		public function getIfOverride() {
-
+		public function getIfOverrideOff() {
 			if ( !is_null( $this->bOverrideState ) ) {
 				return $this->bOverrideState;
 			}
-
-			$oWpFs = $this->loadFileSystemProcessor();
-			if ( $oWpFs->fileExistsInDir( 'forceOff', $this->getController()->getRootDir(), false ) ) {
-				$this->bOverrideState = true;
-			}
-			else {
-				$this->bOverrideState = false;
-			}
+			$this->bOverrideState = apply_filters( $this->doPluginPrefix( 'override_off' ), false );
 			return $this->bOverrideState;
 		}
 
@@ -435,17 +465,18 @@ if ( !class_exists('ICWP_APP_FeatureHandler_Base_V2') ):
 
 		/**
 		 * Saves the options to the WordPress Options store.
-		 *
 		 * It will also update the stored plugin options version.
+		 *
+		 * @return bool
 		 */
 		public function savePluginOptions() {
 			$this->doPrePluginOptionsSave();
 			$this->updateOptionsVersion();
-			$this->getOptionsVo()->doOptionsSave();
+			return $this->getOptionsVo()->doOptionsSave();
 		}
 
 		/**
-		 * @param $aAggregatedOptions
+		 * @param array $aAggregatedOptions
 		 * @return array
 		 */
 		public function aggregateOptionsValues( $aAggregatedOptions ) {
@@ -482,6 +513,15 @@ if ( !class_exists('ICWP_APP_FeatureHandler_Base_V2') ):
 
 					if ( $sOptionType == 'password' && !empty( $mCurrentOptionVal ) ) {
 						$mCurrentOptionVal = '';
+					}
+					else if ( $sOptionType == 'array' ) {
+
+						if ( empty( $mCurrentOptionVal ) ) {
+							$mCurrentOptionVal = '';
+						}
+						else {
+							$mCurrentOptionVal = implode( "\n", $mCurrentOptionVal );
+						}
 					}
 					else if ( $sOptionType == 'ip_addresses' ) {
 
@@ -658,6 +698,16 @@ if ( !class_exists('ICWP_APP_FeatureHandler_Base_V2') ):
 		protected function doExtraSubmitProcessing() { }
 
 		/**
+		 * Should be used sparingly - it allows immediate on-demand saving of plugin options that by-passes checking from
+		 * the admin access restriction feature.
+		 */
+		protected function doSaveByPassAdminProtection() {
+			add_filter( $this->doPluginPrefix( 'has_permission_to_submit' ), '__return_true' );
+			$this->savePluginOptions();
+			remove_filter( $this->doPluginPrefix( 'has_permission_to_submit' ), '__return_true' );
+		}
+
+		/**
 		 * @param string $sAllOptionsInput - comma separated list of all the input keys to be processed from the $_POST
 		 * @return void|boolean
 		 */
@@ -700,6 +750,9 @@ if ( !class_exists('ICWP_APP_FeatureHandler_Base_V2') ):
 						}
 						$sOptionValue = md5( $sTempValue );
 					}
+					else if ( $sOptionType == 'array' ) { //arrays are textareas, where each is separated by newline
+						$sOptionValue = array_filter( explode( "\n", $sOptionValue ), 'trim' );
+					}
 					else if ( $sOptionType == 'ip_addresses' ) { //ip addresses are textareas, where each is separated by newline
 						$sOptionValue = $oDp->extractIpAddresses( $sOptionValue );
 					}
@@ -727,9 +780,8 @@ if ( !class_exists('ICWP_APP_FeatureHandler_Base_V2') ):
 		 */
 		protected function updateHandler() {
 			if ( version_compare( $this->getVersion(), '3.0.0', '<' ) ) {
-				$oWpFunctions = $this->loadWpFunctionsProcessor();
 				$sKey = $this->doPluginPrefix( $this->getFeatureSlug().'_processor', '_' );
-				$oWpFunctions->deleteOption( $sKey );
+				$this->loadWpFunctionsProcessor()->deleteOption( $sKey );
 			}
 		}
 
@@ -921,4 +973,4 @@ if ( !class_exists('ICWP_APP_FeatureHandler_Base_V2') ):
 
 endif;
 
-abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_FeatureHandler_Base_V2 { }
+abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_FeatureHandler_Base_V3 { }
