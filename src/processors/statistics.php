@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2014 iControlWP <support@icontrolwp.com>
+ * Copyright (c) 2015 iControlWP <support@icontrolwp.com>
  * All rights reserved.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
@@ -15,9 +15,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-require_once( dirname(__FILE__).ICWP_DS.'icwp-processor-basedb.php' );
+require_once( 'basedb.php' );
 
-if ( !class_exists('ICWP_APP_Processor_Statistics_V1') ):
+if ( !class_exists( 'ICWP_APP_Processor_Statistics_V1', false ) ):
 
 	class ICWP_APP_Processor_Statistics_V1 extends ICWP_APP_BaseDbProcessor {
 
@@ -58,9 +58,9 @@ if ( !class_exists('ICWP_APP_Processor_Statistics_V1') ):
 		protected static $bStatRegistered = false;
 
 		/**
-		 * @param ICWP_APP_FeatureHandler_Base $oFeatureOptions
+		 * @param ICWP_APP_FeatureHandler_Statistics $oFeatureOptions
 		 */
-		public function __construct( $oFeatureOptions ) {
+		public function __construct( ICWP_APP_FeatureHandler_Statistics $oFeatureOptions ) {
 			parent::__construct( $oFeatureOptions, $oFeatureOptions->getStatisticsTableName() );
 		}
 
@@ -174,7 +174,7 @@ if ( !class_exists('ICWP_APP_Processor_Statistics_V1') ):
 		}
 
 		/**
-		 * @return void
+		 * @return bool|int
 		 */
 		protected function doPageStats() {
 
@@ -258,13 +258,13 @@ if ( !class_exists('ICWP_APP_Processor_Statistics_V1') ):
 				$this->getMonth(),
 				$this->getYear()
 			);
-			return $this->doSql( $sQuery );
+			return $this->loadDbProcessor()->doSql( $sQuery );
 		}
 
 		/**
 		 * Creates a new stat entry in the table for the current page for TODAY.
 		 *
-		 * @return mixed
+		 * @return bool|int
 		 */
 		public function addNewStatForCurrentPageToday() {
 			return $this->addNewStatForCurrentPage( $this->getDay(), $this->getMonth(), $this->getYear() );
@@ -277,7 +277,7 @@ if ( !class_exists('ICWP_APP_Processor_Statistics_V1') ):
 		 * @param $nMonth
 		 * @param $nYear
 		 *
-		 * @return mixed
+		 * @return bool|int
 		 */
 		protected function addNewStatForCurrentPage( $nDay = 0, $nMonth = 0, $nYear = 0 ) {
 			return $this->addNewStatForPage(
@@ -420,7 +420,7 @@ if ( !class_exists('ICWP_APP_Processor_Statistics_V1') ):
 				$this->getTableName(),
 				( $this->time() - 31 * DAY_IN_SECONDS )
 			);
-			$this->doSql( $sQuery );
+			$this->loadDbProcessor()->doSql( $sQuery );
 		}
 
 		/**
@@ -437,6 +437,6 @@ if ( !class_exists('ICWP_APP_Processor_Statistics_V1') ):
 
 endif;
 
-if ( !class_exists('ICWP_APP_Processor_Statistics') ):
+if ( !class_exists( 'ICWP_APP_Processor_Statistics', false ) ):
 	class ICWP_APP_Processor_Statistics extends ICWP_APP_Processor_Statistics_V1 { }
 endif;

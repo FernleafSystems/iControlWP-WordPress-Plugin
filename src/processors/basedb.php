@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2014 iControlWP <support@icontrolwp.com>
+ * Copyright (c) 2015 iControlWP <support@icontrolwp.com>
  * All rights reserved.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
@@ -16,9 +16,9 @@
  *
  */
 
-require_once( dirname(__FILE__).ICWP_DS.'icwp-processor-base.php' );
+require_once( 'base.php' );
 
-if ( !class_exists('ICWP_APP_BaseDbProcessor') ):
+if ( !class_exists( 'ICWP_APP_BaseDbProcessor', false ) ):
 
 	abstract class ICWP_APP_BaseDbProcessor extends ICWP_APP_Processor_Base {
 
@@ -35,7 +35,7 @@ if ( !class_exists('ICWP_APP_BaseDbProcessor') ):
 
 		/**
 		 * @param ICWP_APP_FeatureHandler_Base $oFeatureOptions
-		 * @param null $sTableName
+		 * @param string $sTableName
 		 *
 		 * @throws Exception
 		 */
@@ -52,7 +52,7 @@ if ( !class_exists('ICWP_APP_BaseDbProcessor') ):
 		public function deleteDatabase() {
 			if ( apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'has_permission_to_submit' ), true ) && $this->getTableExists() ) {
 				$this->deleteCleanupCron();
-				$this->dropTable();
+				$this->loadDbProcessor()->doDropTable( $this->getTableName() );
 			}
 		}
 
@@ -96,14 +96,17 @@ if ( !class_exists('ICWP_APP_BaseDbProcessor') ):
 		}
 
 		/**
-		 * @param boolean $bIncludeDeleted
-		 * @param $nFormat
+		 * Returns all active, non-deleted rows
 		 *
-		 * @return array|boolean
+		 * @return array|boolean (always an associative array format)
 		 */
-		public function selectAllRows( $bIncludeDeleted = false, $nFormat = ARRAY_A ) {
-			$sQuery = sprintf( "SELECT * FROM `%s` WHERE %s ( `deleted_at` = '0' )", $this->getTableName(), $bIncludeDeleted ? 'NOT' : '' );
-			return $this->selectCustom( $sQuery, $nFormat );
+		public function selectAllRows() {
+			$sQuery = sprintf(
+				"SELECT * FROM `%s` %s",
+				$this->getTableName(),
+				$this->getHasColumn( 'deleted_at' ) ? "WHERE `deleted_at` = '0'" : ''
+			);
+			return $this->selectCustom( $sQuery );
 		}
 
 		/**
@@ -122,15 +125,6 @@ if ( !class_exists('ICWP_APP_BaseDbProcessor') ):
 		 */
 		public function updateRowsWhere( $aData, $aWhere ) {
 			return $this->loadDbProcessor()->updateRowsFromTableWhere( $this->getTableName(), $aData, $aWhere );
-		}
-
-		/**
-		 * @param array $aWhere - delete where (associative array)
-		 *
-		 * @return integer|boolean (number of rows affected)
-		 */
-		public function deleteRowsWhere( $aWhere ) {
-			return $this->loadDbProcessor()->deleteRowsFromTableWhere( $this->getTableName(), $aWhere );
 		}
 
 		/**
@@ -157,18 +151,11 @@ if ( !class_exists('ICWP_APP_BaseDbProcessor') ):
 		abstract protected function getCreateTableSql();
 
 		/**
-		 * Will remove all data from this table (to delete the table see dropTable)
-		 */
-		public function emptyTable() {
-			return $this->loadDbProcessor()->doEmptyTable( $this->getTableName() );
-		}
-
-		/**
 		 * Will recreate the whole table
 		 */
-		protected function recreateTable() {
-			$this->dropTable();
-			return $this->createTable();
+		public function recreateTable() {
+			$this->loadDbProcessor()->doDropTable( $this->getTableName() );
+			$this->createTable();
 		}
 
 		/**
@@ -176,8 +163,8 @@ if ( !class_exists('ICWP_APP_BaseDbProcessor') ):
 		 */
 		protected function tableIsValid() {
 
-			$aColumnsByDefinition = $this->getTableColumnsByDefinition();
-			$aActualColumns = $this->loadDbProcessor()->getColumnsForTable( $this->getTableName() );
+			$aColumnsByDefinition = array_map( 'strtolower', $this->getTableColumnsByDefinition() );
+			$aActualColumns = $this->loadDbProcessor()->getColumnsForTable( $this->getTableName(), 'strtolower' );
 			foreach( $aColumnsByDefinition as $sDefinedColumns ) {
 				if ( !in_array( $sDefinedColumns, $aActualColumns ) ) {
 					return false;
@@ -187,30 +174,6 @@ if ( !class_exists('ICWP_APP_BaseDbProcessor') ):
 		}
 
 		abstract protected function getTableColumnsByDefinition();
-
-		/**
-		 * Will completely remove this table from the database
-		 *
-		 * @return bool
-		 */
-		public function dropTable() {
-			if ( $this->loadDbProcessor()->doDropTable( $this->getTableName() ) ) {
-				$this->bTableExists = false;
-			}
-			return true;
-		}
-
-		/**
-		 * Given any SQL query, will perform it using the WordPress database object.
-		 *
-		 * @param string $sSqlQuery
-		 *
-		 * @return integer|boolean (number of rows affected or just true/false)
-		 */
-		public function doSql( $sSqlQuery ) {
-			$mResult = $this->loadDbProcessor()->doSql( $sSqlQuery );
-			return $mResult;
-		}
 
 		/**
 		 * @return string
@@ -251,6 +214,16 @@ if ( !class_exists('ICWP_APP_BaseDbProcessor') ):
 		}
 
 		/**
+		 * @param string $sColumnName
+		 *
+		 * @return bool
+		 */
+		protected function getHasColumn( $sColumnName ) {
+			$aColumnsByDefinition = array_map( 'strtolower', $this->getTableColumnsByDefinition() );
+			return in_array( $sColumnName, $aColumnsByDefinition );
+		}
+
+		/**
 		 * @return string
 		 */
 		protected function getDbCleanupHookName() {
@@ -258,7 +231,7 @@ if ( !class_exists('ICWP_APP_BaseDbProcessor') ):
 		}
 
 		// by default does nothing - override this method
-		public function cleanupDatabase() {}
+		public function cleanupDatabase() { }
 
 		/**
 		 * @return bool

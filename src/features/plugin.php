@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2014 iControlWP <support@icontrolwp.com>
+ * Copyright (c) 2015 iControlWP <support@icontrolwp.com>
  * All rights reserved.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
@@ -15,30 +15,17 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-require_once( dirname(__FILE__).ICWP_DS.'icwp-optionshandler-base.php' );
+require_once( 'base.php' );
 
 if ( !class_exists('ICWP_APP_FeatureHandler_Plugin') ):
 
 	class ICWP_APP_FeatureHandler_Plugin extends ICWP_APP_FeatureHandler_Base {
 
 		/**
-		 * @var ICWP_APP_Processor_Plugin
+		 * @return string
 		 */
-		protected $oFeatureProcessor;
-
-		public function __construct( $oPluginController, $aFeatureProperties = array() ) {
-			parent::__construct( $oPluginController, $aFeatureProperties );
-		}
-
-		/**
-		 * @return ICWP_APP_Processor_Plugin|null
-		 */
-		protected function loadFeatureProcessor() {
-			if ( !isset( $this->oFeatureProcessor ) ) {
-				require_once( $this->getController()->getPath_SourceFile( sprintf( 'icwp-processor-%s.php', 'plugin' ) ) );
-				$this->oFeatureProcessor = new ICWP_APP_Processor_Plugin( $this );
-			}
-			return $this->oFeatureProcessor;
+		protected function getProcessorClassName() {
+			return 'ICWP_APP_Processor_Plugin';
 		}
 
 		/**
