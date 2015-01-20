@@ -115,6 +115,11 @@ No. WorpDrive is available for a small monthly fee.
 
 == Changelog ==
 
+= 2.9.6 =
+*Released: 20th January 2015*
+
+* ADDED:	Support for Utlimate Coming Soon Maintenance mode plugin.
+
 = 2.9.5 =
 *Released: 6th January 2015*
 
