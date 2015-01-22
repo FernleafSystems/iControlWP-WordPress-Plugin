@@ -3,7 +3,7 @@
 Plugin Name: iControlWP
 Plugin URI: http://icwp.io/home
 Description: Take Control Of All WordPress Sites From A Single Dashboard
-Version: 2.10.0
+Version: 2.10.1
 Author: iControlWP
 Author URI: http://www.icontrolwp.com/
 */
@@ -40,7 +40,7 @@ if ( class_exists( 'Worpit_Plugin', false ) ) {
 }
 
 // By requiring this file here, we assume we wont need to require it anywhere else.
-require_once( 'src'.ICWP_DS.'common'.ICWP_DS.'icwp-foundation.php' );
+require_once( dirname(__FILE__).ICWP_DS.'src'.ICWP_DS.'common'.ICWP_DS.'icwp-foundation.php' );
 
 class Worpit_Plugin extends ICWP_APP_Foundation {
 
@@ -149,7 +149,7 @@ if ( !class_exists('ICWP_Plugin') ) {
 	class ICWP_Plugin extends Worpit_Plugin {}
 }
 
-require_once( 'icwp-plugin-controller.php' );
+require_once( dirname(__FILE__).ICWP_DS.'icwp-plugin-controller.php' );
 
 $oICWP_App_Controller = ICWP_APP_Plugin_Controller::GetInstance( __FILE__ );
 if ( !is_null( $oICWP_App_Controller ) ) {
