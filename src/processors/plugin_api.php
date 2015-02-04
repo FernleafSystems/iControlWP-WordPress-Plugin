@@ -35,6 +35,11 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		protected $oFeatureOptions;
 
 		/**
+		 * @var array
+		 */
+		protected $aRequestParams;
+
+		/**
 		 * @return ICWP_APP_FeatureHandler_Plugin
 		 */
 		protected function getFeatureOptions() {
@@ -45,9 +50,8 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		 * @return stdClass
 		 */
 		public function run() {
-			$oDp = $this->loadDataProcessor();
 
-			$sApiMethod = $oDp->FetchGet( 'm', 'index' );
+			$sApiMethod = $this->fetchIcwpRequestParam( 'm', 'index' );
 			if ( !preg_match( '/[A-Z0-9_]+/i', $sApiMethod ) ) {
 				$sApiMethod = 'index';
 			}
@@ -75,7 +79,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				}
 			}
 			$this->doWpEngine();
-			@set_time_limit( $oDp->FetchRequest( 'timeout', false, 60 ) );
+			@set_time_limit( $this->fetchIcwpRequestParam( 'timeout', 60 ) );
 
 			switch( $sApiMethod ) {
 
@@ -107,7 +111,6 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		 * @return stdClass
 		 */
 		protected function preApiCheck() {
-			$oDp = $this->loadDataProcessor();
 			$oResponse = $this->getStandardResponse();
 
 			if ( !$this->getFeatureOptions()->getIsSiteLinked() ) {
@@ -119,7 +122,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			}
 
 			$sKey = $this->getFeatureOptions()->getPluginAuthKey();
-			$sRequestKey = trim( $oDp->FetchRequest( 'key', false ) );
+			$sRequestKey = trim( $this->fetchIcwpRequestParam( 'key', false ) );
 			if ( empty( $sRequestKey ) ) {
 				$sErrorMessage = 'EmptyRequestKey';
 				return $this->setErrorResponse(
@@ -136,7 +139,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			}
 
 			$sPin = $this->getFeatureOptions()->getPluginPin();
-			$sRequestPin = trim( $oDp->FetchRequest( 'pin', false ) );
+			$sRequestPin = trim( $this->fetchIcwpRequestParam( 'pin', false ) );
 			if ( empty( $sRequestPin ) ) {
 				$sErrorMessage = 'EmptyRequestPin';
 				return $this->setErrorResponse(
@@ -181,18 +184,17 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				return false;
 			}
 
-			$oDp = $this->loadDataProcessor();
-			$sRequestedAcc = urldecode( $oDp->FetchRequest( 'accname' ) );
+			$sRequestedAcc = urldecode( $this->fetchIcwpRequestParam( 'accname' ) );
 			if ( empty( $sRequestedAcc ) || !is_email( $sRequestedAcc ) ) {
 				return false;
 			}
 
-			$sRequestedKey = $oDp->FetchRequest( 'key', '' );
+			$sRequestedKey = $this->fetchIcwpRequestParam( 'key', '' );
 			if ( empty( $sRequestedKey ) || strlen( $sRequestedKey ) != 24 ) {
 				return false;
 			}
 
-			$sRequestedPin = $oDp->FetchRequest( 'pin', '' );
+			$sRequestedPin = $this->fetchIcwpRequestParam( 'pin', '' );
 			if ( empty( $sRequestedPin ) ) {
 				return false;
 			}
@@ -219,9 +221,9 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			$oResponse->handshake = 'failed';
 
 			$oDp = $this->loadDataProcessor();
-			$sVerificationCode = $oDp->FetchRequest( 'verification_code', false );
+			$sVerificationCode = $this->fetchIcwpRequestParam( 'verification_code', false );
 			if ( $oDp->getCanOpensslSign() ) {
-				$sSignature = base64_decode( $oDp->FetchRequest( 'opensig', false, '' ) );
+				$sSignature = base64_decode( $this->fetchIcwpRequestParam( 'opensig', '' ) );
 				$sPublicKey = $this->getOption( 'icwp_public_key', '' );
 				if ( !empty( $sSignature ) && !empty( $sPublicKey ) ) {
 					$oResponse->openssl_verify = openssl_verify( $sVerificationCode, $sSignature, base64_decode( $sPublicKey ) );
@@ -232,8 +234,8 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				}
 			}
 
-			$sPackageName = $oDp->FetchRequest( 'package_name', false );
-			$sPin = $oDp->FetchRequest( 'pin', false );
+			$sPackageName = $this->fetchIcwpRequestParam( 'package_name', false );
+			$sPin = $this->fetchIcwpRequestParam( 'pin', false );
 
 			if ( empty( $sVerificationCode ) || empty( $sPackageName ) || empty( $sPin ) ) {
 				return $this->setErrorResponse(
@@ -287,9 +289,8 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		 * @return bool
 		 */
 		protected function setAuthorizedUser() {
-			$oDp = $this->loadDataProcessor();
 			$oWp = $this->loadWpFunctionsProcessor();
-			$sWpUser = $oDp->FetchPost( 'wpadmin_user' );
+			$sWpUser = $this->fetchIcwpRequestParam( 'wpadmin_user' );
 			if ( empty( $sWpUser ) ) {
 
 				if ( version_compare( $oWp->getWordpressVersion(), '3.1', '>=' ) ) {
@@ -321,7 +322,6 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		 */
 		protected function doRetrieve() {
 			$oResponse = $this->getStandardResponse();
-			$oDp = $this->loadDataProcessor();
 			$oFs = $this->loadFileSystemProcessor();
 
 			if ( !function_exists( 'download_url' ) ) {
@@ -338,7 +338,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				);
 			}
 
-			$sPackageId = $oDp->FetchGet( 'package_id' );
+			$sPackageId = $this->fetchIcwpRequestParam( 'package_id' );
 			if ( empty( $sPackageId ) ) {
 				return $this->setErrorResponse(
 					'Package ID to retrieve is empty.',
@@ -347,7 +347,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			}
 
 			// We can do this because we've assumed at this point we've validated the communication with iControlWP
-			$sRetrieveBaseUrl = $oDp->FetchRequest( 'package_retrieve_url', false, $this->getOption( 'package_retrieve_url' ) );
+			$sRetrieveBaseUrl = $this->fetchIcwpRequestParam( 'package_retrieve_url', $this->getOption( 'package_retrieve_url' ) );
 //			$sRetrieveUrl = 'http://staging.worpitapp.com/system/package/retrieve/';
 			$sPackageRetrieveUrl = sprintf(
 				'%s/%s/%s/%s',
@@ -492,14 +492,13 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		 */
 		protected function doLogin() {
 			$oWp = $this->loadWpFunctionsProcessor();
-			$oDp = $this->loadDataProcessor();
 			$oWp->doBustCache();
 
 			$oResponse = $this->getStandardResponse();
 			// If there's an error with login, we die.
 			$oResponse->die = true;
 
-			$sRequestToken = $oDp->FetchRequest( 'token', false, '' );
+			$sRequestToken = $this->fetchIcwpRequestParam( 'token', '' );
 			if ( empty( $sRequestToken ) ) {
 				$sErrorMessage = 'No valid Login Token was sent.';
 				return $this->setErrorResponse(
@@ -527,7 +526,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				);
 			}
 
-			$sUsername = $oDp->FetchRequest( 'username', false, '' );
+			$sUsername = $this->fetchIcwpRequestParam( 'username', '' );
 			$oUser = $oWp->getUserByUsername( $sUsername );
 			if ( empty( $sUsername ) || empty( $oUser ) ) {
 				$aUserRecords = version_compare( $oWp->getWordpressVersion(), '3.1', '>=' ) ? get_users( 'role=administrator' ) : array();
@@ -553,7 +552,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				);
 			}
 
-			$sRedirectPath = $oDp->FetchGet( 'redirect', '' );
+			$sRedirectPath = $this->fetchIcwpRequestParam( 'redirect', '' );
 			if ( strlen( $sRedirectPath ) == 0 ) {
 				$oWp->redirectToAdmin();
 			}
@@ -615,6 +614,24 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			return self::$oActionResponse;
 		}
 
+		/**
+		 * @param string $sKey
+		 * @param string $mDefault
+		 *
+		 * @return mixed
+		 */
+		protected function fetchIcwpRequestParam( $sKey, $mDefault = '' ) {
+			if ( !isset( $this->aRequestParams ) ) {
+				$sRawGetParameters = $this->loadDataProcessor()->FetchGet( 'reqpars', '' );
+				$sRawPostParameters = $this->loadDataProcessor()->FetchPost( 'reqpars', '' );
+
+				$aGetParams = empty( $sRawGetParameters ) ? array() : maybe_unserialize( base64_decode( $sRawGetParameters ) );
+				$aPostParams = empty( $sRawPostParameters ) ? array() : maybe_unserialize( base64_decode( $sRawPostParameters ) );
+				$this->aRequestParams = array_merge( $_GET, $_POST, $aGetParams, $aPostParams );
+			}
+			$mReturn = isset( $this->aRequestParams[$sKey] ) ? $this->aRequestParams[$sKey] : $mDefault;
+			return $mReturn;
+		}
 	}
 
 endif;
