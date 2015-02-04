@@ -33,7 +33,6 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_SiteLink', false ) ):
 
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
-			$oDp = $this->loadDataProcessor();
 
 			if ( $oFO->getIsSiteLinked() ) {
 				$oResponse->message = 'Assigned To:'.$this->getOption( 'assigned_to' );
@@ -42,7 +41,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_SiteLink', false ) ):
 			}
 
 			// First is the check to see that we can simply call the site and communicate with the plugin
-			if ( $oDp->FetchGet( 'a' ) == 'check' ) {
+			if ( $this->fetchIcwpRequestParam( 'a' ) == 'check' ) {
 				$oResponse->success = true;
 				return $oResponse;
 			}
@@ -54,7 +53,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_SiteLink', false ) ):
 				return $oResponse;
 			}
 
-			$sRequestedKey = $oDp->FetchGet( 'key', '' );
+			$sRequestedKey = $this->fetchIcwpRequestParam( 'key' );
 			if ( empty( $sRequestedKey ) ) {
 				$oResponse->message = 'KeyEmpty:'.'.';
 				$oResponse->code = 2;
@@ -66,7 +65,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_SiteLink', false ) ):
 				return $oResponse;
 			}
 
-			$sRequestedPin = $oDp->FetchGet( 'pin', '' );
+			$sRequestedPin = $this->fetchIcwpRequestParam( 'pin' );
 			if ( empty( $sRequestedPin ) ) {
 				$oResponse->message = 'PinEmpty:'.'.';
 				$oResponse->code = 4;
@@ -74,7 +73,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_SiteLink', false ) ):
 			}
 			$sRequestedPin = md5( $sRequestedPin );
 
-			$sRequestedAcc = urldecode( $oDp->FetchGet( 'accname', '' ) );
+			$sRequestedAcc = urldecode( $this->fetchIcwpRequestParam( 'accname' ) );
 			if ( empty( $sRequestedAcc ) ) {
 				$oResponse->message = 'AccountEmpty:'.'.';
 				$oResponse->code = 5;
@@ -92,6 +91,25 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_SiteLink', false ) ):
 
 			$oResponse->success = true;
 			return $oResponse;
+		}
+
+		/**
+		 * @param string $sKey
+		 * @param string $mDefault
+		 *
+		 * @return mixed
+		 */
+		protected function fetchIcwpRequestParam( $sKey, $mDefault = '' ) {
+			if ( !isset( $this->aRequestParams ) ) {
+				$sRawGetParameters = $this->loadDataProcessor()->FetchGet( 'reqpars', '' );
+				$sRawPostParameters = $this->loadDataProcessor()->FetchPost( 'reqpars', '' );
+
+				$aGetParams = empty( $sRawGetParameters ) ? array() : maybe_unserialize( base64_decode( $sRawGetParameters ) );
+				$aPostParams = empty( $sRawPostParameters ) ? array() : maybe_unserialize( base64_decode( $sRawPostParameters ) );
+				$this->aRequestParams = array_merge( $_GET, $_POST, $aGetParams, $aPostParams );
+			}
+			$mReturn = isset( $this->aRequestParams[$sKey] ) ? $this->aRequestParams[$sKey] : $mDefault;
+			return $mReturn;
 		}
 	}
 
