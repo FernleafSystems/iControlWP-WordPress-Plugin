@@ -41,7 +41,13 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_SiteLink', false ) ):
 			}
 
 			$aRequestParameters = $this->loadDataProcessor()->FetchGet( 'reqpars', '' );
-			$aParams = unserialize( base64_decode( $aRequestParameters ) );
+			$aParams = maybe_unserialize( base64_decode( $aRequestParameters ) );
+
+			if ( empty( $aParams ) ) {
+				$oResponse->message = 'Request Params was completely empty.';
+				$oResponse->status = 'EmptyParams';
+				$oResponse->code = 7;
+			}
 
 			// First is the check to see that we can simply call the site and communicate with the plugin
 			if ( $aParams['a'] == 'check' ) {
