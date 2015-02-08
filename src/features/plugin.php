@@ -76,7 +76,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		public function getCanHandshake( $bDoVerify = false ) {
 
 			if ( !$bDoVerify ) { // we always verify can handshake at least once every 24hrs
-				$nSinceLastHandshakeCheck = time() - $this->getOpt( 'time_last_check_can_handshake', 0 );
+				$nSinceLastHandshakeCheck = $this->loadDataProcessor()->time() - $this->getOpt( 'time_last_check_can_handshake', 0 );
 				if ( $nSinceLastHandshakeCheck > DAY_IN_SECONDS ) {
 					$bDoVerify = true;
 				}
@@ -340,10 +340,10 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 			$oDp = $this->loadDataProcessor();
 
 			if ( $this->getOpt( 'activated_at', 0 ) <= 0 ) {
-				$this->setOpt( 'activated_at', $oDp->GetRequestTime() );
+				$this->setOpt( 'activated_at', $oDp->time() );
 			}
 			if (  $this->getOpt( 'installation_time', 0 ) <= 0 ) {
-				$this->setOpt( 'installation_time', time() );
+				$this->setOpt( 'installation_time', $oDp->time() );
 			}
 
 			$this->setOpt( 'installed_version', $this->getController()->getVersion() );
