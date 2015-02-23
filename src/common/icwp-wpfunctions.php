@@ -330,6 +330,15 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_V7', false ) ):
 		}
 
 		/**
+		 * @param string $sKey
+		 * @param mixed $mValue
+		 * @param int $nExpire
+		 */
+		public function setTransient( $sKey, $mValue, $nExpire = 0 ) {
+			set_site_transient( $sKey, $mValue, $nExpire );
+		}
+
+		/**
 		 * @param $sKey
 		 *
 		 * @return bool

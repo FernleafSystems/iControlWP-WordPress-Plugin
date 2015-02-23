@@ -144,7 +144,9 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	/**
 	 */
 	public function onWpLoaded() {
-		$this->doPluginFormSubmit();
+		if ( $this->getIsValidAdminArea() ) {
+			$this->doPluginFormSubmit();
+		}
 	}
 
 	/**
@@ -983,7 +985,6 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @param bool $bRecreate
 	 * @param bool $bFullBuild
 	 * @return mixed
-	 * @throws Exception
 	 */
 	public function loadFeatureHandler( $aFeatureProperties, $bRecreate = false, $bFullBuild = false ) {
 
