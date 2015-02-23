@@ -444,12 +444,12 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 	 */
 	private function readYamlConfiguration() {
 		$oWp = $this->loadWpFunctionsProcessor();
-		$sName = $this->getOptionsName();
-		$sTransientKey = $this->getSpecTransientStorageKey();
 
+		$sTransientKey = $this->getSpecTransientStorageKey();
 		$aConfig = $oWp->getTransient( $sTransientKey );
+
 		if ( empty( $aConfig ) ) {
-			$sConfigFile = dirname( __FILE__ ).ICWP_DS.'..'.ICWP_DS.sprintf( 'config'.ICWP_DS.'feature-%s.php', $sName );
+			$sConfigFile = $this->getConfigFilePath();
 			$sContents = include( $sConfigFile );
 			if ( !empty( $sContents ) ) {
 				$oYaml = $this->loadYamlProcessor();
@@ -457,7 +457,7 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 				if ( is_null( $aConfig ) ) {
 					throw new Exception( 'YAML parser could not load to process the options configuration.' );
 				}
-				$oWp->setTransient( $sTransientKey, $aConfig );
+				$oWp->setTransient( $sTransientKey, $aConfig, DAY_IN_SECONDS );
 			}
 		}
 		return $aConfig;
@@ -467,7 +467,14 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 	 * @return string
 	 */
 	private function getSpecTransientStorageKey() {
-		return md5( 'icwp_'.get_class().$this->getOptionsName() );
+		return 'icwp_'.md5( $this->getConfigFilePath() );
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getConfigFilePath() {
+		return dirname( __FILE__ ) . ICWP_DS . '..' . ICWP_DS . sprintf( 'config' . ICWP_DS . 'feature-%s.php', $this->getOptionsName() );
 	}
 }
 endif;
