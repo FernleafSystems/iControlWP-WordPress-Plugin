@@ -12,6 +12,9 @@ properties:
   logging_enabled: false
   autoupdate: 'block' #yes/block/pass
 
+requirements:
+  php: '5.0.0'
+
 paths:
   source: 'src'
   assets: 'assets'
