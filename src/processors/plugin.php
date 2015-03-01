@@ -59,20 +59,32 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 		 * @return string
 		 */
 		protected function getApiHook() {
-			if ( class_exists( 'WooDojo_Maintenance_Mode', false ) || class_exists( 'ITSEC_Core', false ) ) {
-				return 'init';
+			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
+			$oFO = $this->getFeatureOptions();
+			$sApiHook = $oFO->fetchIcwpRequestParam( 'api_hook', '' );
+			if ( empty( $sApiHook ) ) {
+				$sApiHook = 'wp_loaded';
+				if ( class_exists( 'WooDojo_Maintenance_Mode', false ) || class_exists( 'ITSEC_Core', false ) ) {
+					$sApiHook = 'init';
+				}
 			}
-			return 'wp_loaded';
+			return $sApiHook;
 		}
 
 		/**
-		 * @return string
+		 * @return int
 		 */
 		protected function getApiHookPriority() {
-			if ( class_exists( 'ITSEC_Core', false ) ) {
-				return 100;
+			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
+			$oFO = $this->getFeatureOptions();
+			$nHookPriority = $oFO->fetchIcwpRequestParam( 'api_priority', '' );
+			if ( empty( $nHookPriority ) || !is_numeric( $nHookPriority )) {
+				$nHookPriority = 1;
+				if ( class_exists( 'ITSEC_Core', false ) ) {
+					$nHookPriority = 100;
+				}
 			}
-			return 1;
+			return $nHookPriority;
 		}
 
 		/**
