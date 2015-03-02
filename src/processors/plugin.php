@@ -25,9 +25,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 		 */
 		public function run() {
 			if ( $this->getIsApiCall() ) {
-				if ( !defined( 'WP_ADMIN' ) ) {
-					define( 'WP_ADMIN', true );
-				}
+				$this->maybeSetIsAdmin();
 				add_action( $this->getApiHook(), array( $this, 'doAPI' ), $this->getApiHookPriority() );
 			}
 
@@ -53,6 +51,19 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 			}
 
 			add_action( 'wp_footer', array( $this, 'printPluginUri') );
+		}
+
+		/**
+		 * @return bool
+		 */
+		protected function maybeSetIsAdmin() {
+			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
+			$oFO = $this->getFeatureOptions();
+			$sSetWpAdmin = $oFO->fetchIcwpRequestParam( 'set_is_admin', 0 );
+			if ( $sSetWpAdmin == 1 && !defined( 'WP_ADMIN' ) ) {
+				define( 'WP_ADMIN', true );
+			}
+			return ( defined( 'WP_ADMIN' ) && WP_ADMIN );
 		}
 
 		/**
