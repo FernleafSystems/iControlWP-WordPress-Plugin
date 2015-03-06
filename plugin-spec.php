@@ -20,6 +20,7 @@ paths:
   temp: 'tmp'
   languages: 'languages'
   views: 'views'
+  flags: 'flags'
 
 includes:
   admin:
