@@ -510,12 +510,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 					$oOptions = $this->getPluginControllerOptions();
 					$nFirstDetected = isset( $oOptions->new_update_first_detected ) ? $oOptions->new_update_first_detected : 0;
 					$nTimeUpdateAvailable =  $this->loadDataProcessor()-> time() - $nFirstDetected;
-					if ( $nFirstDetected > 0 && ( $nTimeUpdateAvailable > DAY_IN_SECONDS * 2 ) ) {
-						$bDoAutoUpdate = true;
-					}
-					else {
-						$bDoAutoUpdate = false;
-					}
+					$bDoAutoUpdate = ( $nFirstDetected > 0 && ( $nTimeUpdateAvailable > DAY_IN_SECONDS * 2 ) );
 					break;
 
 				case 'pass' :
