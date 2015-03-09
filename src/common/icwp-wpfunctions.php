@@ -157,6 +157,13 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_V7', false ) ):
 		}
 
 		/**
+		 * @return bool
+		 */
+		public function getIsRunningAutomaticUpdates() {
+			return ( get_option( 'auto_updater.lock' ) ? true : false );
+		}
+
+		/**
 		 * The full plugin file to be upgraded.
 		 *
 		 * @param string $sPluginFile
@@ -297,8 +304,8 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_V7', false ) ):
 		/**
 		 * @return array
 		 */
-		public function getWordpressUpdates() {
-			$oCurrent = $this->getTransient( 'update_plugins' );
+		public function getWordpressUpdates( $sType = 'plugins' ) {
+			$oCurrent = $this->getTransient( 'update_'.$sType );
 			return ( is_object( $oCurrent ) && isset( $oCurrent->response ) ) ? $oCurrent->response : array();
 		}
 
@@ -547,6 +554,18 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_V7', false ) ):
 				$oDp->GetIsRequestPost()
 				&& !is_null( $oDp->FetchPost( 'log' ) )
 				&& !is_null( $oDp->FetchPost( 'pwd' ) )
+				&& $this->getIsLoginUrl();
+		}
+
+		/**
+		 * @return bool
+		 */
+		public function getIsRegisterRequest() {
+			$oDp = $this->loadDataProcessor();
+			return
+				$oDp->GetIsRequestPost()
+				&& !is_null( $oDp->FetchPost( 'user_login' ) )
+				&& !is_null( $oDp->FetchPost( 'user_email' ) )
 				&& $this->getIsLoginUrl();
 		}
 
