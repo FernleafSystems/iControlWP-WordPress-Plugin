@@ -166,7 +166,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 
 		add_filter( 'all_plugins', 						array( $this, 'filter_hidePluginFromTableList' ) );
 		add_filter( 'all_plugins',						array( $this, 'doPluginLabels' ) );
-		add_filter( 'plugin_action_links',				array( $this, 'onWpPluginActionLinks' ), 10, 4 );
+		add_filter( 'plugin_action_links_'.$this->getPluginBaseFile(), array( $this, 'onWpPluginActionLinks' ), 50, 1 );
 		add_filter( 'site_transient_update_plugins',	array( $this, 'filter_hidePluginUpdatesFromUI' ) );
 		add_action( 'in_plugin_update_message-'.$this->getPluginBaseFile(), array( $this, 'onWpPluginUpdateMessage' ) );
 
@@ -309,14 +309,12 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	public function onDisplayTopMenu() { }
 
 	/**
-	 * @param $aActionLinks
-	 * @param $sPluginFile
-	 *
-	 * @return mixed
+	 * @param array $aActionLinks
+	 * @return array
 	 */
-	public function onWpPluginActionLinks( $aActionLinks, $sPluginFile ) {
+	public function onWpPluginActionLinks( $aActionLinks ) {
 
-		if ( $this->getIsValidAdminArea() && $sPluginFile == $this->getPluginBaseFile() ) {
+		if ( $this->getIsValidAdminArea() ) {
 
 			$aLinksToAdd = $this->getPluginSpec_ActionLinks( 'add' );
 			if ( !empty( $aLinksToAdd ) && is_array( $aLinksToAdd ) ) {
