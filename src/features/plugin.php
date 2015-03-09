@@ -44,7 +44,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		 */
 		public function onWpPluginActionLinks( $aActions ) {
 			if ( $this->getIsSiteLinked() && isset( $aActions['deactivate'] ) ) {
-				$sJsConfirmCode = '" onClick="return confirm(\'If you have WorpDrive automatic backups active on this site, backups will also stop running. Are you absolutely sure?\');" >';
+				$sJsConfirmCode = '" onClick="return confirm(\'WARNING: If you have WorpDrive automatic backups active on this site, backups will also stop running. Are you absolutely sure?\');" >';
 				$aActions[ 'deactivate' ] = preg_replace( '#"\s*>#i', $sJsConfirmCode, $aActions['deactivate'], 1 );
 			}
 			return $aActions;
