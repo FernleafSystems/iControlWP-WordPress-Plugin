@@ -171,7 +171,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 		add_action( 'in_plugin_update_message-'.$this->getPluginBaseFile(), array( $this, 'onWpPluginUpdateMessage' ) );
 
 		add_filter( 'auto_update_plugin',						array( $this, 'onWpAutoUpdate' ), 10001, 2 );
-		add_filter( 'pre_set_site_transient_update_plugins',	array( $this, 'setUpdateFirstDetectedAt' ) );
+		add_filter( 'set_site_transient_update_plugins',		array( $this, 'setUpdateFirstDetectedAt' ) );
 
 		add_action( 'shutdown',					array( $this, 'onWpShutdown' ) );
 	}
@@ -448,20 +448,19 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 
 		if ( !empty( $oPluginUpdateData ) && !empty( $oPluginUpdateData->response ) ) {
 
-			$oOptions = $this->getPluginControllerOptions();
-
 			// i.e. there's an update available
 			if ( isset( $oPluginUpdateData->response[ $this->getPluginBaseFile() ] ) ) {
-				if ( !isset( $oOptions->new_update_first_detected ) ) {
-					$oOptions->new_update_first_detected = $this->loadDataProcessor()->time();
+
+				$sNewVersion = $this->loadWpFunctionsProcessor()->getPluginUpdateNewVersion( $this->getPluginBaseFile() );
+				if ( !empty( $sNewVersion ) ) {
+					$sKey = 'update_first_detected_'.$sNewVersion;
+					$oOptions = $this->getPluginControllerOptions();
+					if ( !isset( $oOptions->{$sKey} ) ) {
+						$oOptions->{$sKey} = $this->loadDataProcessor()->time();
+					}
+					$this->setPluginControllerOptions( $oOptions );
 				}
 			}
-			else {
-				if ( isset( $oOptions->new_update_first_detected ) ) {
-					unset( $oOptions->new_update_first_detected );
-				}
-			}
-			$this->setPluginControllerOptions( $oOptions );
 		}
 		return $oPluginUpdateData;
 	}
@@ -492,7 +491,9 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 		if ( $sItemFile === $this->getPluginBaseFile() ) {
 			$sAutoupdateSpec = $this->getPluginSpec_Property( 'autoupdate' );
 
-			if ( !$this->loadWpFunctionsProcessor()->getIsRunningAutomaticUpdates() && $sAutoupdateSpec == 'confidence' ) {
+			$oWp = $this->loadWpFunctionsProcessor();
+
+			if ( !$oWp->getIsRunningAutomaticUpdates() && $sAutoupdateSpec == 'confidence' ) {
 				$sAutoupdateSpec = 'yes';
 			}
 
@@ -507,10 +508,15 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 					break;
 
 				case 'confidence' :
-					$oOptions = $this->getPluginControllerOptions();
-					$nFirstDetected = isset( $oOptions->new_update_first_detected ) ? $oOptions->new_update_first_detected : 0;
-					$nTimeUpdateAvailable =  $this->loadDataProcessor()-> time() - $nFirstDetected;
-					$bDoAutoUpdate = ( $nFirstDetected > 0 && ( $nTimeUpdateAvailable > DAY_IN_SECONDS * 2 ) );
+					$bDoAutoUpdate = false;
+					$sNewVersion = $oWp->getPluginUpdateNewVersion( $this->getPluginBaseFile() );
+					if ( !empty( $sNewVersion ) ) {
+						$oOptions = $this->getPluginControllerOptions();
+						$sNewVersionKey = 'update_first_detected_'.$sNewVersion;
+						$nFirstDetected = isset( $oOptions->{$sNewVersionKey} ) ? $oOptions->{$sNewVersionKey} : 0;
+						$nTimeUpdateAvailable =  $this->loadDataProcessor()->time() - $nFirstDetected;
+						$bDoAutoUpdate = ( $nFirstDetected > 0 && ( $nTimeUpdateAvailable > DAY_IN_SECONDS * 2 ) );
+					}
 					break;
 
 				case 'pass' :
@@ -1147,7 +1153,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return string
 	 */
 	private function getPluginControllerOptionsKey() {
-		return $this->doPluginPrefix( 'controller' );
+		return $this->doPluginOptionPrefix( 'controller' );
 	}
 
 	/**
