@@ -55,7 +55,6 @@ class Worpit_Plugin extends ICWP_APP_Foundation {
 	public function __construct( ICWP_APP_Plugin_Controller $oPluginController ) {
 		self::$oPluginController = $oPluginController;
 		$this->getController()->loadAllFeatures();
-
 	}
 
 	/**
