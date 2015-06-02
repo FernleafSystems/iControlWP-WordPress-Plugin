@@ -24,9 +24,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Compatibility_V1', false ) ):
 		/**
 		 */
 		public function run() {
-			if ( is_admin() ) {
-				$this->setupWhitelists();
-			}
+			$this->setupWhitelists();
 			// Only when the request comes from iControlWP.
 			if ( $this->getIsRequestFromServiceIp() ) {
 				$this->unhookRedirection();
@@ -201,7 +199,6 @@ if ( !class_exists( 'ICWP_APP_Processor_Compatibility_V1', false ) ):
 		public function addToSimpleFirewallWhitelist( $aWhitelistIps ) {
 			$sServiceName = $this->getOption( 'service_name', 'iControlWP' );
 			$aIpLists = array_merge( $this->getServiceIps( 4 ), $this->getServiceIps( 6 ) );
-
 			foreach( $aIpLists as $sAddress ) {
 				if ( !in_array( $sAddress, $aWhitelistIps ) ) {
 					$aWhitelistIps[ $sAddress ] = $sServiceName;
