@@ -134,4 +134,11 @@ options:
       -
         slug: 'whitelabel'
         storage_key: 'whitelabel'
+  -
+    key: 'internal_api_supported_actions'
+    section: 'section_non_ui'
+    immutable: true
+    value:
+      - 'wplogin'
+      - 'plugin_activate'
 ";

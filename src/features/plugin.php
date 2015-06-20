@@ -319,8 +319,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 				$aPostParams = empty( $sRawPostParameters ) ? array() : maybe_unserialize( base64_decode( $sRawPostParameters ) );
 				$this->aRequestParams = array_merge( $_GET, $_POST, $aGetParams, $aPostParams );
 			}
-			$mReturn = isset( $this->aRequestParams[$sKey] ) ? $this->aRequestParams[$sKey] : $mDefault;
-			return $mReturn;
+			return isset( $this->aRequestParams[$sKey] ) ? $this->aRequestParams[$sKey] : $mDefault;
 		}
 
 		/**

@@ -26,16 +26,11 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
 
-			$sApiMethod = $oFO->fetchIcwpRequestParam( 'm', 'index' );
-			if ( !preg_match( '/[A-Z0-9_]+/i', $sApiMethod ) ) {
-				$sApiMethod = 'index';
-			}
-
 			$oResponse = $this->getStandardResponse();
-			$oResponse->method = $sApiMethod;
+			$oResponse->method = $this->getApiMethod();
 
 			// Should we preApiCheck login?
-			if ( $sApiMethod == 'login' ) {
+			if ( $oResponse->method == 'login' ) {
 				return $this->doLogin();
 			}
 
@@ -56,7 +51,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			$this->doWpEngine();
 			@set_time_limit( $oFO->fetchIcwpRequestParam( 'timeout', 60 ) );
 
-			switch( $sApiMethod ) {
+			switch( $oResponse->method ) {
 
 				case 'index':
 					$this->doIndex();
@@ -68,11 +63,25 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 					$this->doExecute();
 					break;
 				case 'internal':
-//			    	$this->doInternal();
+			    	$this->doInternal();
 					break;
 			}
 
 			return $oResponse;
+		}
+
+		/**
+		 * @return string
+		 */
+		protected function getApiMethod() {
+			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
+			$oFO = $this->getFeatureOptions();
+
+			$sApiMethod = $oFO->fetchIcwpRequestParam( 'm', 'index' );
+			if ( !preg_match( '/[A-Z0-9_]+/i', $sApiMethod ) ) {
+				$sApiMethod = 'index';
+			}
+			return $sApiMethod;
 		}
 
 		/**
@@ -314,8 +323,8 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		 * @return stdClass
 		 */
 		protected function doInternal() {
-			include_once( 'plugin_internalapi.php' );
-			$oInternalApi = new ICWP_APP_Processor_Plugin_InternalApi( $this->getFeatureOptions() );
+			include_once( 'plugin_api_internal.php' );
+			$oInternalApi = new ICWP_APP_Processor_Plugin_Api_Internal( $this->getFeatureOptions() );
 			return $oInternalApi->run();
 		}
 
@@ -469,24 +478,30 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			}
 
 			$oInstall = new Worpit_Package_Installer();
-			$aInstallerResponse = $oInstall->run();
-			$sInstallerExecutionMessage = !empty( $aInstallerResponse[ 'message' ] ) ? $aInstallerResponse[ 'message' ] : 'No message';
+			return $this->processExecutionFinalResponse( $oInstall->run() );
+		}
 
+		/**
+		 * @param array $aExecutionResponse
+		 * @return stdClass
+		 */
+		protected function processExecutionFinalResponse( $aExecutionResponse ) {
+
+			$sInstallerExecutionMessage = !empty( $aExecutionResponse[ 'message' ] ) ? $aExecutionResponse[ 'message' ] : 'No message';
 			// TODO
-//			$this->log( $aInstallerResponse );
+//			$this->log( $aExecutionResponse );
 
-			if ( !$aInstallerResponse['success'] ) {
+			if ( !$aExecutionResponse['success'] ) {
 				return $this->setErrorResponse(
 					sprintf( 'Package Execution FAILED with error message: "%s"', $sInstallerExecutionMessage ),
 					-1 //TODO: Set a code
 				);
 			}
 			else {
-
 				return $this->setSuccessResponse(
 					sprintf( 'Package Execution SUCCEEDED with message: "%s".', $sInstallerExecutionMessage ),
 					0,
-					isset( $aInstallerResponse['data'] )? $aInstallerResponse['data']: ''
+					isset( $aExecutionResponse['data'] )? $aExecutionResponse['data']: ''
 				);
 			}
 		}
