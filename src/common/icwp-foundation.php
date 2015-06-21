@@ -13,9 +13,17 @@ if ( !class_exists( 'ICWP_APP_Foundation', false ) ) :
 		 */
 		private static $oFs;
 		/**
-		 * @var ICWP_APP_WpFilesystem
+		 * @var ICWP_APP_WpFunctions
 		 */
 		private static $oWp;
+		/**
+		 * @var ICWP_APP_WpFunctions_Plugins
+		 */
+		private static $oWpPlugins;
+		/**
+		 * @var ICWP_APP_WpFunctions_Themes
+		 */
+		private static $oWpThemes;
 		/**
 		 * @var ICWP_APP_YamlProcessor
 		 */
@@ -52,6 +60,28 @@ if ( !class_exists( 'ICWP_APP_Foundation', false ) ) :
 				self::$oWp = ICWP_APP_WpFunctions::GetInstance();
 			}
 			return self::$oWp;
+		}
+
+		/**
+		 * @return ICWP_APP_WpFunctions_Plugins
+		 */
+		public function loadWpFunctionsPlugins() {
+			if ( !isset( self::$oWpPlugins ) ) {
+				require_once( dirname(__FILE__).ICWP_DS.'icwp-wpfunctions-plugins.php' );
+				self::$oWpPlugins = ICWP_APP_WpFunctions_Plugins::GetInstance( self::loadWpFunctionsProcessor() );
+			}
+			return self::$oWpPlugins;
+		}
+
+		/**
+		 * @return ICWP_APP_WpFunctions_Themes
+		 */
+		public function loadWpFunctionsThemes() {
+			if ( !isset( self::$oWpThemes ) ) {
+				require_once( dirname(__FILE__).ICWP_DS.'icwp-wpfunctions-themes.php' );
+				self::$oWpThemes = ICWP_APP_WpFunctions_Themes::GetInstance( self::loadWpFunctionsProcessor() );
+			}
+			return self::$oWpThemes;
 		}
 
 		/**
