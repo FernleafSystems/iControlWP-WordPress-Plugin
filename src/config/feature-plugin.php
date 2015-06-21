@@ -142,4 +142,5 @@ options:
       - 'wplogin'
       - 'plugin_activate'
       - 'plugin_deactivate'
+      - 'plugin_delete'
 ";

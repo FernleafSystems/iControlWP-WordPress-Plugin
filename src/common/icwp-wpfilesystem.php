@@ -402,7 +402,7 @@ if ( !class_exists( 'ICWP_APP_WpFilesystem', false ) ):
 		 */
 		public function deleteDir( $sDir ) {
 			$oFs = $this->getWpfs();
-			if ( $oFs && $oFs->rmdir( $sDir, true ) ) {
+			if ( $oFs && $oFs->delete( $sDir, true ) ) {
 				return true;
 			}
 			return @rmdir( $sDir );

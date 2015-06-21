@@ -24,6 +24,11 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_V7', false ) ):
 		private static $oWpDb;
 
 		/**
+		 * @var ICWP_APP_WpFilesystem
+		 */
+		private static $oWpFs;
+
+		/**
 		 * @var WP_Automatic_Updater
 		 */
 		protected $oWpAutomaticUpdater;
@@ -920,6 +925,17 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_V7', false ) ):
 				self::$oWpDb = ICWP_APP_WpDb::GetInstance();
 			}
 			return self::$oWpDb;
+		}
+
+		/**
+		 * @return ICWP_APP_WpFilesystem
+		 */
+		public function loadWpFilesystem() {
+			if ( !isset( self::$oWpFs ) ) {
+				require_once( dirname(__FILE__).ICWP_DS.'icwp-wpfilesystem.php' );
+				self::$oWpFs = ICWP_APP_WpFilesystem::GetInstance();
+			}
+			return self::$oWpFs;
 		}
 	}
 endif;

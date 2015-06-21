@@ -45,6 +45,34 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_Plugins', false ) ):
 		}
 
 		/**
+		 * @param string $sPluginFile
+		 * @param bool $bNetworkWide
+		 * @return bool
+		 */
+		public function delete( $sPluginFile, $bNetworkWide = false ) {
+			if ( $this->getIsActive( $sPluginFile ) ) {
+				$this->deactivate( $sPluginFile, $bNetworkWide );
+			}
+			$this->uninstall( $sPluginFile );
+
+			// delete the folder
+			$sPluginDir = dirname( $sPluginFile );
+			if ( $sPluginDir == '.' ) { //it's not within a sub-folder
+				$sPluginDir = $sPluginFile;
+			}
+			$sPath = path_join( WP_PLUGIN_DIR, $sPluginDir );
+			return $this->oWpFunctions->loadWpFilesystem()->deleteDir( $sPath, true );
+		}
+
+		/**
+		 * @param string $sPluginFile
+		 * @return true
+		 */
+		public function uninstall( $sPluginFile ) {
+			return uninstall_plugin( $sPluginFile );
+		}
+
+		/**
 		 * @return boolean|null
 		 */
 		protected function checkForUpdates() {
@@ -70,6 +98,26 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_Plugins', false ) ):
 			}
 			$oResponse->last_checked = 0;
 			$this->oWpFunctions->setTransient( $sKey, $oResponse );
+		}
+
+		/**
+		 * @param string $sPluginFile
+		 * @return bool
+		 */
+		public function getIsActive( $sPluginFile ) {
+			return $this->getIsInstalled( $sPluginFile ) ? is_plugin_active( $sPluginFile ) : false;
+		}
+
+		/**
+		 * @param string $sPluginFile
+		 * @return bool
+		 */
+		public function getIsInstalled( $sPluginFile ) {
+			$aPlugins = $this->getPlugins();
+			if ( empty( $aPlugins ) || !is_array( $aPlugins ) ) {
+				return false;
+			}
+			return array_key_exists( $sPluginFile, $aPlugins );
 		}
 
 		/**

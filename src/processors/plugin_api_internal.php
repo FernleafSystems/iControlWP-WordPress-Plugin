@@ -79,7 +79,6 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 			);
 			return $this->success( $aData );
 		}
-
 		/**
 		 * @return stdClass
 		 */
@@ -94,6 +93,26 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 			$aData = array(
 				'result'			=> true,
 				'single-plugin'		=> $aPlugin[ $sPluginFile ]
+			);
+			return $this->success( $aData );
+		}
+
+		/**
+		 * @return stdClass
+		 */
+		protected function icwpapi_plugin_delete() {
+			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
+			$oFO = $this->getFeatureOptions();
+			$sPluginFile = unserialize( base64_decode( $oFO->fetchIcwpRequestParam( 'plugin_file', '' ) ) );
+			$bIsWpms = unserialize( base64_decode( $oFO->fetchIcwpRequestParam( 'site_is_wpms', '' ) ) );
+
+			$bResult = $this->loadWpFunctionsPlugins()->delete( $sPluginFile, $bIsWpms );
+			wp_cache_flush(); // since we've deleted a plugin, we need to ensure our collection is up-to-date rebuild.
+			$aPlugins = $this->getWpCollector()->collectWordpressPlugins();
+
+			$aData = array(
+				'result'			=> $bResult,
+				'wordpress-plugins'	=> $aPlugins
 			);
 			return $this->success( $aData );
 		}
