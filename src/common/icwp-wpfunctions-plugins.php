@@ -28,6 +28,23 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_Plugins', false ) ):
 		}
 
 		/**
+		 * @param string $sPluginFile
+		 * @param bool $bNetworkWide
+		 * @return null|WP_Error
+		 */
+		public function activate( $sPluginFile, $bNetworkWide = false ) {
+			return activate_plugin( $sPluginFile, '', $bNetworkWide );
+		}
+
+		/**
+		 * @param string $sPluginFile
+		 * @param bool $bNetworkWide
+		 */
+		public function deactivate( $sPluginFile, $bNetworkWide = false ) {
+			deactivate_plugins( $sPluginFile, '', $bNetworkWide );
+		}
+
+		/**
 		 * @return boolean|null
 		 */
 		protected function checkForUpdates() {
@@ -56,11 +73,22 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_Plugins', false ) ):
 		}
 
 		/**
-		 * Abstracts the WordPress get_plugins()
-		 * @return array
+		 * @param string $sPluginFile
+		 * @return array|null
+		 */
+		public function getPlugin( $sPluginFile ) {
+			$aPlugins = $this->getPlugins();
+			return array_key_exists( $sPluginFile, $aPlugins ) ? $aPlugins[ $sPluginFile ] : null;
+		}
+
+		/**
+		 * @return array[]
 		 */
 		public function getPlugins() {
-			return function_exists( 'get_plugins' )? get_plugins(): null;
+			if ( !function_exists( 'get_plugins' ) ) {
+				require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+			}
+			return function_exists( 'get_plugins' ) ? get_plugins() : array();
 		}
 
 		/**

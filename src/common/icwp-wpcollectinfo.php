@@ -25,27 +25,23 @@ if ( !class_exists( 'ICWP_APP_WpCollectInfo', false ) ):
 		 * @see class-wp-plugins-list-table.php
 		 * @see plugins.php
 		 *
+		 * @param string $sPluginFile					if null, collect all plugins
 		 * @param boolean $bForceUpdateCheck			(optional)
-		 * @return array								associative: PluginFile => PluginData
+		 * @return array[]								associative: PluginFile => PluginData
 		 */
-		public function collectWordpressPlugins( $bForceUpdateCheck = false ) {
+		public function collectWordpressPlugins( $sPluginFile = null, $bForceUpdateCheck = false ) {
 
 			$oWpPlugins = $this->loadWpFunctionsPlugins();
 
 //			$this->prepThirdPartyPlugins(); //TODO
 
-			$aPlugins = $oWpPlugins->getPlugins();
+			$aPlugins = empty( $sPluginFile ) ? $oWpPlugins->getPlugins() : array( $sPluginFile => $oWpPlugins->getPlugin( $sPluginFile ) );
 			$oCurrentUpdates = $oWpPlugins->getUpdates( $bForceUpdateCheck );
 			$aAutoUpdatesList = $this->getAutoUpdates( 'plugins' );
-
-			$sServicePluginBaseFile = ICWP_Plugin::getController()->getPluginBaseFile();
 
 			foreach ( $aPlugins as $sPluginFile => $aData ) {
 
 				$aPlugins[$sPluginFile]['file'] = $sPluginFile;
-				if ( $sPluginFile == $sServicePluginBaseFile ) {
-					$aPlugins[ $sPluginFile ][ 'is_service_plugin' ] = 1;
-				}
 
 				// is it active ?
 				$aPlugins[$sPluginFile]['active']			= is_plugin_active( $sPluginFile );
@@ -63,9 +59,13 @@ if ( !class_exists( 'ICWP_APP_WpCollectInfo', false ) ):
 				}
 			}
 
+			$sServicePluginBaseFile = ICWP_Plugin::getController()->getPluginBaseFile();
+			if ( isset( $aPlugins[ $sServicePluginBaseFile ] ) ) {
+				$aPlugins[ $sServicePluginBaseFile ][ 'is_service_plugin' ] = 1;
+			}
+
 			return $aPlugins;
 		}
-
 
 		/**
 		 * @param string $sContext

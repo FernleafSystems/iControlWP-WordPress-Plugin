@@ -65,6 +65,42 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		/**
 		 * @return stdClass
 		 */
+		protected function icwpapi_plugin_activate() {
+			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
+			$oFO = $this->getFeatureOptions();
+			$sPluginFile = unserialize( base64_decode( $oFO->fetchIcwpRequestParam( 'plugin_file', '' ) ) );
+			$bIsWpms = unserialize( base64_decode( $oFO->fetchIcwpRequestParam( 'site_is_wpms', '' ) ) );
+
+			$bResult = $this->loadWpFunctionsPlugins()->activate( $sPluginFile, $bIsWpms );
+			$aPlugin = $this->getWpCollector()->collectWordpressPlugins( $sPluginFile );
+			$aData = array(
+				'result'			=> $bResult,
+				'single-plugin'		=> $aPlugin[ $sPluginFile ]
+			);
+			return $this->success( $aData );
+		}
+
+		/**
+		 * @return stdClass
+		 */
+		protected function icwpapi_plugin_deactivate() {
+			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
+			$oFO = $this->getFeatureOptions();
+			$sPluginFile = unserialize( base64_decode( $oFO->fetchIcwpRequestParam( 'plugin_file', '' ) ) );
+			$bIsWpms = unserialize( base64_decode( $oFO->fetchIcwpRequestParam( 'site_is_wpms', '' ) ) );
+
+			$this->loadWpFunctionsPlugins()->deactivate( $sPluginFile, $bIsWpms );
+			$aPlugin = $this->getWpCollector()->collectWordpressPlugins( $sPluginFile );
+			$aData = array(
+				'result'			=> true,
+				'single-plugin'		=> $aPlugin[ $sPluginFile ]
+			);
+			return $this->success( $aData );
+		}
+
+		/**
+		 * @return stdClass
+		 */
 		protected function icwpapi_wplogin() {
 
 			$sSource = home_url().'$'.uniqid().'$'.time();
@@ -156,6 +192,14 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
 			return $oFO->fetchIcwpRequestParam( 'action', '' );
+		}
+
+		/**
+		 * @return ICWP_APP_WpCollectInfo
+		 */
+		protected function getWpCollector() {
+			require_once( dirname( __FILE__ ) . '/../common/icwp-wpcollectinfo.php' );
+			return ICWP_APP_WpCollectInfo::GetInstance();
 		}
 	}
 

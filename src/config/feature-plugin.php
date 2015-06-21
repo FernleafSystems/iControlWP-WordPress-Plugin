@@ -141,4 +141,5 @@ options:
     value:
       - 'wplogin'
       - 'plugin_activate'
+      - 'plugin_deactivate'
 ";
