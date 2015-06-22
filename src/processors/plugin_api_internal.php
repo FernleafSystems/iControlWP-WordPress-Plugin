@@ -141,9 +141,32 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		protected function icwpapi_theme_delete() {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
+			$oWpThemes = $this->loadWpFunctionsThemes();
 
-			$sThemeFile = $oFO->fetchIcwpRequestParam( 'theme_file', '', true );
-			$mResult = $this->loadWpFunctionsThemes()->delete( $sThemeFile );
+			$sStylesheet = $oFO->fetchIcwpRequestParam( 'theme_file', '', true );
+			if ( empty( $sStylesheet ) ) {
+				return $this->fail(
+					array(),
+					'Stylesheet provided was empty.'
+				);
+			}
+
+			if ( !$oWpThemes->getExists( $sStylesheet ) ) {
+				return $this->fail(
+					array( 'stylesheet' => $sStylesheet ),
+					sprintf( 'Theme does not exist with Stylesheet: %s', $sStylesheet )
+				);
+			}
+
+			$oThemeToDelete = $oWpThemes->getTheme( $sStylesheet );
+			if ( $oThemeToDelete->get_stylesheet_directory() == get_stylesheet_directory() ) {
+				return $this->fail(
+					array( 'stylesheet' => $sStylesheet ),
+					sprintf( 'Cannot uninstall the currently active WordPress theme: %s', $sStylesheet )
+				);
+			}
+
+			$mResult = $oWpThemes->delete( $sStylesheet );
 
 			$aData = array(
 				'result'			=> $mResult,

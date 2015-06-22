@@ -57,17 +57,10 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_Themes', false ) ):
 			if ( empty( $sStylesheet ) ) {
 				return false;
 			}
-
-			if ( !$this->getExists( $sStylesheet ) ) {
-				return false;
+			if ( !function_exists( 'delete_theme' ) ) {
+				require_once( ABSPATH . 'wp-admin/includes/theme.php' );
 			}
-
-			$oThemeToDelete = $this->getTheme( $sStylesheet );
-			if ( $oThemeToDelete->get_stylesheet_directory() == get_stylesheet_directory() ) {
-				return false;
-			}
-
-			return delete_theme( $sStylesheet );
+			return function_exists( 'delete_theme' ) ? delete_theme( $sStylesheet ) : false;
 		}
 
 		/**
