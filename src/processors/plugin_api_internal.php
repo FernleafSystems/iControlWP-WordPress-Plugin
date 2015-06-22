@@ -79,6 +79,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 			);
 			return $this->success( $aData );
 		}
+
 		/**
 		 * @return stdClass
 		 */
@@ -113,6 +114,40 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 			$aData = array(
 				'result'			=> $bResult,
 				'wordpress-plugins'	=> $aPlugins
+			);
+			return $this->success( $aData );
+		}
+
+		/**
+		 * @return stdClass
+		 */
+		protected function icwpapi_theme_activate() {
+			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
+			$oFO = $this->getFeatureOptions();
+
+			$sThemeFile = $oFO->fetchIcwpRequestParam( 'theme_file', '', true );
+			$bResult = $this->loadWpFunctionsThemes()->activate( $sThemeFile );
+
+			$aData = array(
+				'result'			=> $bResult,
+				'wordpress-themes'	=> $this->getWpCollector()->collectWordpressThemes(), //Need to send back all themes so we can update the one that got deactivated
+			);
+			return $this->success( $aData );
+		}
+
+		/**
+		 * @return stdClass
+		 */
+		protected function icwpapi_theme_delete() {
+			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
+			$oFO = $this->getFeatureOptions();
+
+			$sThemeFile = $oFO->fetchIcwpRequestParam( 'theme_file', '', true );
+			$mResult = $this->loadWpFunctionsThemes()->delete( $sThemeFile );
+
+			$aData = array(
+				'result'			=> $mResult,
+				'wordpress-themes'	=> $this->getWpCollector()->collectWordpressThemes(), //Need to send back all themes so we can update the one that got deleted
 			);
 			return $this->success( $aData );
 		}

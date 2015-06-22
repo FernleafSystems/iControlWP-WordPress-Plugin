@@ -310,7 +310,8 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		 *
 		 * @return mixed
 		 */
-		public function fetchIcwpRequestParam( $sKey, $mDefault = '' ) {
+		public function fetchIcwpRequestParam( $sKey, $mDefault = '', $bSerialized = false ) {
+			$mReturn = $mDefault;
 			if ( !isset( $this->aRequestParams ) ) {
 				$sRawGetParameters = $this->loadDataProcessor()->FetchGet( 'reqpars', '' );
 				$sRawPostParameters = $this->loadDataProcessor()->FetchPost( 'reqpars', '' );
@@ -319,7 +320,10 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 				$aPostParams = empty( $sRawPostParameters ) ? array() : maybe_unserialize( base64_decode( $sRawPostParameters ) );
 				$this->aRequestParams = array_merge( $_GET, $_POST, $aGetParams, $aPostParams );
 			}
-			return isset( $this->aRequestParams[$sKey] ) ? $this->aRequestParams[$sKey] : $mDefault;
+			if ( isset( $this->aRequestParams[$sKey] ) ) {
+				$mReturn = $bSerialized ? unserialize( base64_decode( $this->aRequestParams[ $sKey ] ) ) : $this->aRequestParams[ $sKey ];
+			}
+			return $mReturn;
 		}
 
 		/**

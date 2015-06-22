@@ -143,4 +143,6 @@ options:
       - 'plugin_activate'
       - 'plugin_deactivate'
       - 'plugin_delete'
+      - 'theme_activate'
+      - 'theme_delete'
 ";

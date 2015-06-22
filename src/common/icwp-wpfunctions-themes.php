@@ -31,12 +31,12 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_Themes', false ) ):
 		 * @param string $sThemeStylesheet
 		 * @return bool
 		 */
-		public function doActivateTheme( $sThemeStylesheet ) {
+		public function activate( $sThemeStylesheet ) {
 			if ( empty( $sThemeStylesheet ) ) {
 				return false;
 			}
 
-			$oTheme = wp_get_theme( $sThemeStylesheet );
+			$oTheme = $this->getTheme( $sThemeStylesheet );
 			if ( !$oTheme->exists() ) {
 				return false;
 			}
@@ -44,87 +44,119 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_Themes', false ) ):
 			switch_theme( $oTheme->get_stylesheet() );
 
 			// Now test currently active theme
-			$oCurrentTheme = $this->getCurrentTheme();
+			$oCurrentTheme = $this->getActiveTheme();
 
 			return ( !is_null( $oCurrentTheme ) && ( $sThemeStylesheet == $oCurrentTheme->get_stylesheet() ) );
+		}
+
+		/**
+		 * @param string $sStylesheet
+		 * @return bool|void|WP_Error
+		 */
+		public function delete( $sStylesheet ) {
+			if ( empty( $sStylesheet ) ) {
+				return false;
+			}
+
+			if ( !$this->getExists( $sStylesheet ) ) {
+				return false;
+			}
+
+			$oThemeToDelete = $this->getTheme( $sStylesheet );
+			if ( $oThemeToDelete->get_stylesheet_directory() == get_stylesheet_directory() ) {
+				return false;
+			}
+
+			return delete_theme( $sStylesheet );
 		}
 
 		/**
 		 * @return string|WP_Theme
 		 */
 		public function getActiveThemeName() {
-			return $this->oWpFunctions->getWordpressIsAtLeastVersion( '3.4.0' )? $this->getCurrentTheme()->get( 'Name' ) : get_current_theme();
+			return $this->oWpFunctions->getWordpressIsAtLeastVersion( '3.4.0' )? $this->getActiveTheme()->get( 'Name' ) : get_current_theme();
 		}
 
 		/**
 		 * @return null|WP_Theme
 		 */
-		public function getCurrentTheme() {
-			return function_exists( 'wp_get_theme' )? wp_get_theme(): null;
+		public function getActiveTheme() {
+			return $this->getTheme( get_stylesheet() );
 		}
 
 		/**
-		 * The method for getting installed themes changed in version 3.4+ so this function normalizes everything.
-		 *
-		 * @return array
+		 * @param $sStylesheet
+		 * @return null|WP_Theme
 		 */
-		public function getInstalledThemes() {
-
-			$aThemes = array();
-			$sActiveThemeName = $this->getActiveThemeName();
-
-			if ( $this->oWpFunctions->getWordpressIsAtLeastVersion( '3.4' ) ) {
-
-				/** @var WP_Theme[] $aThemeObjects */
-				$aThemeObjects = wp_get_themes();
-
-				foreach ( $aThemeObjects as $oTheme ) {
-					$sName = $oTheme->get( 'Name' );
-					$aThemes[$sName] = array(
-						'Name'				=> $oTheme->display( 'Name' ),
-						'Title'				=> $oTheme->offsetGet( 'Title' ),
-						'Description'		=> $oTheme->offsetGet( 'Description' ),
-						'Author'			=> $oTheme->offsetGet( 'Author' ),
-						'Author Name'		=> $oTheme->offsetGet( 'Author Name' ),
-						'Author URI'		=> $oTheme->offsetGet( 'Author URI' ),
-						'Version'			=> $oTheme->offsetGet( 'Version' ),
-
-						'Template'			=> $oTheme->offsetGet( 'Template' ),
-						'Stylesheet'		=> $oTheme->offsetGet( 'Stylesheet' ),
-						//'Template Dir'		=> $oTheme->offsetGet( 'Template Dir' ),
-						//'Stylesheet Dir'	=> $oTheme->offsetGet( 'Stylesheet Dir' ),
-						'Theme Root'		=> $oTheme->offsetGet( 'Theme Root' ),
-						'Theme Root URI'	=> $oTheme->offsetGet( 'Theme Root URI' ),
-
-						'Status'			=> $oTheme->offsetGet( 'Status' ),
-
-						// We add our own
-						'active'			=> $sActiveThemeName == $sName? 1: 0,
-						'network_active'	=> $oTheme->is_allowed( 'network' )
-					);
-				}
-			}
-			else {
-				$aThemes = get_themes();
-				$fIsMultisite = is_multisite();
-				$aNetworkAllowedThemes = $this->wpmsGetSiteAllowedThemes();
-
-				// We add our own here because it's easier due to WordPress differences
-				foreach( $aThemes as $sName => $aData ) {
-					$aThemes[$sName]['active'] = $sActiveThemeName == $aData['Name']? 1: 0;
-					$aThemes[$sName]['network_active'] = $fIsMultisite && isset( $aNetworkAllowedThemes[ $aData['Stylesheet'] ] );
-				}
-			}
-
-			return $aThemes;
+		public function getExists( $sStylesheet ) {
+			$oTheme = $this->getTheme( $sStylesheet );
+			return ( !is_null( $oTheme ) && ( $oTheme instanceof WP_Theme ) && $oTheme->exists() );
 		}
 
 		/**
-		 * Abstracts the WordPress get_themes()
+		 * @param string $sStylesheet
+		 * @return null|WP_Theme
+		 */
+		public function getTheme( $sStylesheet ) {
+			if ( $this->oWpFunctions->getWordpressIsAtLeastVersion( '3.4.0' ) ) {
+				if ( !function_exists( 'wp_get_theme' ) ) {
+					require_once( ABSPATH . 'wp-admin/includes/theme.php' );
+				}
+				return function_exists( 'wp_get_theme' ) ? wp_get_theme( $sStylesheet ) : null;
+			}
+			$aThemes = $this->getThemes();
+			return array_key_exists( $sStylesheet, $aThemes ) ? $aThemes[ $sStylesheet ] : null;
+		}
+
+		/**
+		 * Abstracts the WordPress wp_get_themes()
 		 * @return array|WP_Theme[]
 		 */
 		public function getThemes() {
-			return function_exists( 'wp_get_themes' )? wp_get_themes(): get_themes();
+			if ( !function_exists( 'wp_get_themes' ) ) {
+				require_once( ABSPATH . 'wp-admin/includes/theme.php' );
+			}
+			return function_exists( 'wp_get_themes' ) ? wp_get_themes() : get_themes();
+		}
+
+		/**
+		 * @param bool $bForceUpdateCheck
+		 * @return stdClass
+		 */
+		public function getUpdates( $bForceUpdateCheck = false ) {
+			if ( $bForceUpdateCheck ) {
+				$this->clearUpdates();
+				$this->checkForUpdates();
+			}
+			return $this->oWpFunctions->getTransient( 'update_themes' );
+		}
+
+		/**
+		 * @return boolean|null
+		 */
+		protected function checkForUpdates() {
+
+			if ( class_exists( 'WPRC_Installer' ) && method_exists( 'WPRC_Installer', 'wprc_update_themes' ) ) {
+				WPRC_Installer::wprc_update_themes();
+				return true;
+			}
+			else if ( function_exists( 'wp_update_themes' ) ) {
+				return (wp_update_themes() !== false);
+			}
+			return null;
+		}
+
+		/**
+		 * @return boolean|null
+		 */
+		protected function clearUpdates() {
+			$sKey = 'update_themes';
+			$oResponse = $this->oWpFunctions->getTransient( $sKey );
+			if ( !is_object( $oResponse ) ) {
+				$oResponse = new stdClass();
+			}
+			$oResponse->last_checked = 0;
+			$this->oWpFunctions->setTransient( $sKey, $oResponse );
 		}
 
 		/**
