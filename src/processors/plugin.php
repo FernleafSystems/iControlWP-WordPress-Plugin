@@ -163,10 +163,10 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 			else if ( $oFO->fetchIcwpRequestParam( 'worpit_api', 0 ) == 1 ) {
 				require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
-				$sApiMethod = $this->getApiMethod();
-				require_once( dirname(__FILE__).ICWP_DS.'plugin_api_'.$sApiMethod.'.php' );
+				$sApiChannel = $this->getApiChannel(); // also verifies it's a valid channel
+				require_once( dirname(__FILE__).ICWP_DS.'plugin_api_'.$sApiChannel.'.php' );
 
-				switch( $sApiMethod ) {
+				switch( $sApiChannel ) {
 
 					case 'retrieve':
 						$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Retrieve( $this->getFeatureOptions() );
@@ -184,8 +184,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 						$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Login( $this->getFeatureOptions() );
 						break;
 
-					case 'index':
-					default:
+					default: // case 'index':
 						$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Index( $this->getFeatureOptions() );
 						break;
 				}
@@ -199,15 +198,15 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 		/**
 		 * @return string
 		 */
-		protected function getApiMethod() {
+		protected function getApiChannel() {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
 
-			$sApiMethod = $oFO->fetchIcwpRequestParam( 'm', 'index' );
-			if ( !preg_match( '/[A-Z0-9_]+/i', $sApiMethod ) ) {
-				$sApiMethod = 'index';
+			$sApiChannel = $oFO->fetchIcwpRequestParam( 'm', 'index' );
+			if ( !in_array( $sApiChannel, $oFO->getPermittedApiChannels() ) ) {
+				$sApiChannel = 'index';
 			}
-			return $sApiMethod;
+			return $sApiChannel;
 		}
 
 		/**

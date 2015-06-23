@@ -135,6 +135,16 @@ options:
         slug: 'whitelabel'
         storage_key: 'whitelabel'
   -
+    key: 'permitted_api_channels'
+    section: 'section_non_ui'
+    immutable: true
+    value:
+      - 'index'
+      - 'internal'
+      - 'retrieve'
+      - 'execute'
+      - 'login'
+  -
     key: 'internal_api_supported_actions'
     section: 'section_non_ui'
     immutable: true
