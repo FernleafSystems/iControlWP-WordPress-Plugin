@@ -173,7 +173,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 						break;
 
 					case 'execute':
-						$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Retrieve( $this->getFeatureOptions() );
+						$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Execute( $this->getFeatureOptions() );
 						break;
 
 					case 'internal':

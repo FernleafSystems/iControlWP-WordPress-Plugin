@@ -47,7 +47,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			$this->doWpEngine();
 			@set_time_limit( $oFO->fetchIcwpRequestParam( 'timeout', 60 ) );
 
-			return $oResponse;
+			return $this->processAction();
 		}
 
 		/**

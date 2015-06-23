@@ -15,7 +15,6 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		 * @return stdClass
 		 */
 		protected function processAction() {
-
 			$sActionName = $this->getCurrentApiActionName();
 
 			if ( !$this->isActionSupported( $sActionName ) ) {
