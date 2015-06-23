@@ -162,12 +162,52 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 			}
 			else if ( $oFO->fetchIcwpRequestParam( 'worpit_api', 0 ) == 1 ) {
 				require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-				require_once( dirname(__FILE__).ICWP_DS.'plugin_api.php' );
-				$oApiProcessor = new ICWP_APP_Processor_Plugin_Api( $this->getFeatureOptions() );
+
+				$sApiMethod = $this->getApiMethod();
+				require_once( dirname(__FILE__).ICWP_DS.'plugin_api_'.$sApiMethod.'.php' );
+
+				switch( $sApiMethod ) {
+
+					case 'retrieve':
+						$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Retrieve( $this->getFeatureOptions() );
+						break;
+
+					case 'execute':
+						$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Retrieve( $this->getFeatureOptions() );
+						break;
+
+					case 'internal':
+						$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Internal( $this->getFeatureOptions() );
+						break;
+
+					case 'login':
+						$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Login( $this->getFeatureOptions() );
+						break;
+
+					case 'index':
+					default:
+						$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Index( $this->getFeatureOptions() );
+						break;
+				}
+
 				$oApiResponse = $oApiProcessor->run();
 				$this->sendApiResponse( $oApiResponse );
 				die();
 			}
+		}
+
+		/**
+		 * @return string
+		 */
+		protected function getApiMethod() {
+			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
+			$oFO = $this->getFeatureOptions();
+
+			$sApiMethod = $oFO->fetchIcwpRequestParam( 'm', 'index' );
+			if ( !preg_match( '/[A-Z0-9_]+/i', $sApiMethod ) ) {
+				$sApiMethod = 'index';
+			}
+			return $sApiMethod;
 		}
 
 		/**

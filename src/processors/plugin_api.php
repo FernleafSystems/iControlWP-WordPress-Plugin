@@ -7,7 +7,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 	/**
 	 * Class ICWP_APP_Processor_Plugin_Api
 	 */
-	class ICWP_APP_Processor_Plugin_Api extends ICWP_APP_Processor_Base {
+	abstract class ICWP_APP_Processor_Plugin_Api extends ICWP_APP_Processor_Base {
 
 		/**
 		 * @var stdClass
@@ -29,9 +29,11 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			$oResponse = $this->getStandardResponse();
 			$oResponse->method = $this->getApiMethod();
 
-			// Should we preApiCheck login?
-			if ( $oResponse->method == 'login' ) {
-				return $this->doLogin();
+			$this->preApiCheck();
+			if ( !$oResponse->success ) {
+				if ( !$this->doAttemptSiteReassign()->success ) {
+					return $oResponse;
+				}
 			}
 
 			$this->doHandshakeVerify();
@@ -42,33 +44,16 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				return $oResponse;
 			}
 
-			$this->preApiCheck();
-			if ( !$oResponse->success ) {
-				if ( !$this->doAttemptSiteReassign()->success ) {
-					return $oResponse;
-				}
-			}
 			$this->doWpEngine();
 			@set_time_limit( $oFO->fetchIcwpRequestParam( 'timeout', 60 ) );
 
-			switch( $oResponse->method ) {
-
-				case 'index':
-					$this->doIndex();
-					break;
-				case 'retrieve':
-					$this->doRetrieve();
-					break;
-				case 'execute':
-					$this->doExecute();
-					break;
-				case 'internal':
-			    	$this->doInternal();
-					break;
-			}
-
 			return $oResponse;
 		}
+
+		/**
+		 * @return self::$oActionResponse
+		 */
+		abstract protected function processAction();
 
 		/**
 		 * @return string
@@ -82,13 +67,6 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				$sApiMethod = 'index';
 			}
 			return $sApiMethod;
-		}
-
-		/**
-		 * @return stdClass
-		 */
-		protected function doIndex() {
-			return $this->setSuccessResponse( 'Plugin Index' ); //just to be sure we proceed thereafter
 		}
 
 		/**
@@ -285,7 +263,6 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		}
 
 		/**
-		 *
 		 */
 		protected function doWpEngine() {
 			if ( @getenv( 'IS_WPE' ) == '1' && class_exists( 'WpeCommon', false ) && $this->setAuthorizedUser() ) {
@@ -320,144 +297,10 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		}
 
 		/**
-		 * @return stdClass
-		 */
-		protected function doInternal() {
-			include_once( 'plugin_api_internal.php' );
-			$oInternalApi = new ICWP_APP_Processor_Plugin_Api_Internal( $this->getFeatureOptions() );
-			return $oInternalApi->run();
-		}
-
-		/**
-		 * @return stdClass
-		 */
-		protected function doRetrieve() {
-			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
-			$oFs = $this->loadFileSystemProcessor();
-			$oResponse = $this->getStandardResponse();
-
-			if ( !function_exists( 'download_url' ) ) {
-				return $this->setErrorResponse(
-					sprintf( 'Function "%s" does not exit.', 'download_url' )
-					-1 //TODO: Set a code
-				);
-			}
-
-			if ( !function_exists( 'is_wp_error' ) ) {
-				return $this->setErrorResponse(
-					sprintf( 'Function "%s" does not exit.', 'is_wp_error' ),
-					-1 //TODO: Set a code
-				);
-			}
-
-			$sPackageId = $oFO->fetchIcwpRequestParam( 'package_id' );
-			if ( empty( $sPackageId ) ) {
-				return $this->setErrorResponse(
-					'Package ID to retrieve is empty.',
-					-1 //TODO: Set a code
-				);
-			}
-
-			// We can do this because we've assumed at this point we've validated the communication with iControlWP
-			$sRetrieveBaseUrl = $oFO->fetchIcwpRequestParam( 'package_retrieve_url', $this->getOption( 'package_retrieve_url' ) );
-//			$sRetrieveUrl = 'http://staging.worpitapp.com/system/package/retrieve/';
-			$sPackageRetrieveUrl = sprintf(
-				'%s/%s/%s/%s',
-				rtrim( $sRetrieveBaseUrl, '/' ),
-				$sPackageId,
-				$oFO->getPluginAuthKey(),
-				$oFO->getPluginPin()
-			);
-			$sRetrievedTmpFile = download_url( $sPackageRetrieveUrl );
-
-			if ( is_wp_error( $sRetrievedTmpFile ) ) {
-				$sMessage = sprintf(
-					'The package could not be downloaded from "%s" with error: %s',
-					$sPackageRetrieveUrl,
-					$sRetrievedTmpFile->get_error_message()
-				);
-				return $this->setErrorResponse(
-					$sMessage,
-					-1 //TODO: Set a code
-				);
-			}
-
-			$sNewFile = $this->getController()->getPath_Temp( basename( $sRetrievedTmpFile ) );
-//			if ( is_null( $sNewFile ) ) {
-//				return $this->setErrorResponse(
-//					'Could not create temporary folder to store package',
-//					-1 //TODO: Set a code
-//				);
-//			}
-			$sFileToInclude = $sRetrievedTmpFile;
-			if ( !is_null( $sNewFile ) && $oFs->move( $sRetrievedTmpFile, $sNewFile ) ) { //we try to move it to our plugin tmp folder.
-				$sFileToInclude = $sNewFile;
-			}
-
-			$this->runInstaller( $sFileToInclude );
-			return $oResponse;
-		}
-
-		/**
-		 * @return stdClass
-		 */
-		protected function doExecute() {
-			$oFs = $this->loadFileSystemProcessor();
-
-			/**
-			 * @since 1.0.14
-			 */
-			$_POST['rel_package_dir'] = '';
-			$_POST['abs_package_dir'] = '';
-
-			$sTempDir = $oFs->getTempDir( $this->getController()->getPath_Temp(), 'pkg_' );
-			if ( !isset( $_POST['force_use_eval'] ) ) {
-				$_POST['rel_package_dir'] = str_replace( dirname(__FILE__), '', $sTempDir );
-				$_POST['abs_package_dir'] = $sTempDir;
-			}
-			else {
-				return $this->setErrorResponse(
-					'No longer support EVAL() methods.',
-					9800
-				);
-			}
-
-			// TODO:
-			//https://yoast.com/smarter-upload-handling-wp-plugins/
-			//wp_handle_upload()
-			foreach ( $_FILES as $sKey => $aUpload ) {
-				if ( $aUpload['error'] == UPLOAD_ERR_OK ) {
-					$sMoveTarget = $sTempDir.ICWP_DS.$aUpload['name'];
-					if ( !move_uploaded_file( $aUpload['tmp_name'], $sMoveTarget ) ) {
-						return $this->setErrorResponse(
-							sprintf( 'Failed to move uploaded file from %s to %s', $aUpload['tmp_name'], $sMoveTarget ),
-							9801
-						);
-					}
-					chmod( $sMoveTarget, 0644 );
-				}
-				else {
-					return $this->setErrorResponse(
-						'One of the uploaded files could not be copied to the temp dir.',
-						9802
-					);
-				}
-			}
-
-			$sFileToInclude = $sTempDir.ICWP_DS.'installer.php';
-			$this->runInstaller( $sFileToInclude );
-			$oFs->deleteDir( $sTempDir );
-
-			return $this->getStandardResponse();
-		}
-
-		/**
 		 * @param string $sInstallerFileToInclude
-		 *
 		 * @return stdClass
 		 */
-		private function runInstaller( $sInstallerFileToInclude ) {
+		protected function runInstaller( $sInstallerFileToInclude ) {
 			$oFs = $this->loadFileSystemProcessor();
 
 			$bIncludeSuccess = include_once( $sInstallerFileToInclude );
@@ -488,8 +331,6 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		protected function processExecutionFinalResponse( $aExecutionResponse ) {
 
 			$sInstallerExecutionMessage = !empty( $aExecutionResponse[ 'message' ] ) ? $aExecutionResponse[ 'message' ] : 'No message';
-			// TODO
-//			$this->log( $aExecutionResponse );
 
 			if ( !$aExecutionResponse['success'] ) {
 				return $this->setErrorResponse(
@@ -504,83 +345,6 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 					isset( $aExecutionResponse['data'] )? $aExecutionResponse['data']: ''
 				);
 			}
-		}
-
-		/**
-		 * @return stdClass
-		 */
-		protected function doLogin() {
-			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
-			$oWp = $this->loadWpFunctionsProcessor();
-			$oWp->doBustCache();
-
-			$oResponse = $this->getStandardResponse();
-			// If there's an error with login, we die.
-			$oResponse->die = true;
-
-			$sRequestToken = $oFO->fetchIcwpRequestParam( 'token', '' );
-			if ( empty( $sRequestToken ) ) {
-				$sErrorMessage = 'No valid Login Token was sent.';
-				return $this->setErrorResponse(
-					$sErrorMessage,
-					-1 //TODO: Set a code
-				);
-			}
-
-			$sLoginTokenKey = 'worpit_login_token';
-			$sStoredToken = $oWp->getTransient( $sLoginTokenKey );
-			$oWp->deleteTransient( $sLoginTokenKey ); // One chance per token
-			if ( empty( $sStoredToken ) || strlen( $sStoredToken ) != 32 ) {
-				$sErrorMessage = 'Login Token is not present or is not of the correct format.';
-				return $this->setErrorResponse(
-					$sErrorMessage,
-					-1 //TODO: Set a code
-				);
-			}
-
-			if ( $sStoredToken !== $sRequestToken ) {
-				$sErrorMessage = 'Login Tokens do not match.';
-				return $this->setErrorResponse(
-					$sErrorMessage,
-					-1 //TODO: Set a code
-				);
-			}
-
-			$sUsername = $oFO->fetchIcwpRequestParam( 'username', '' );
-			$oUser = $oWp->getUserByUsername( $sUsername );
-			if ( empty( $sUsername ) || empty( $oUser ) ) {
-				$aUserRecords = version_compare( $oWp->getWordpressVersion(), '3.1', '>=' ) ? get_users( 'role=administrator' ) : array();
-				if ( empty( $aUserRecords[0] ) ) {
-					$sErrorMessage = 'Failed to find an administrator user.';
-					return $this->setErrorResponse(
-						$sErrorMessage,
-						-1 //TODO: Set a code
-					);
-				}
-				$oUser = $aUserRecords[0];
-			}
-
-			if ( !defined( 'COOKIEHASH' ) ) {
-				wp_cookie_constants();
-			}
-
-			$bLoginSuccess = $oWp->setUserLoggedIn( $oUser->get( 'user_login' ) );
-			if ( !$bLoginSuccess ) {
-				return $this->setErrorResponse(
-					sprintf( 'There was a problem logging you in as "%s".', $oUser->get( 'user_login' ) ),
-					-1 //TODO: Set a code
-				);
-			}
-
-			$sRedirectPath = $oFO->fetchIcwpRequestParam( 'redirect', '' );
-			if ( strlen( $sRedirectPath ) == 0 ) {
-				$oWp->redirectToAdmin();
-			}
-			else {
-				$oWp->doRedirect( $sRedirectPath );
-			}
-			die();
 		}
 
 		/**
@@ -603,7 +367,6 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		 * @param string $sMessage
 		 * @param int $nSuccessCode
 		 * @param mixed $mData
-		 *
 		 * @return stdClass
 		 */
 		protected function setSuccessResponse( $sMessage = '', $nSuccessCode = 0, $mData = null ) {

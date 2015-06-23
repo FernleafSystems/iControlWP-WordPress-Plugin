@@ -2,7 +2,7 @@
 
 if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 
-	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
+	require_once( dirname(__FILE__).ICWP_DS.'plugin_api.php' );
 
 	/**
 	 * Class ICWP_APP_Processor_Plugin_Api_Internal
@@ -12,36 +12,9 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		const ApiMethodPrefix = 'icwpapi_';
 
 		/**
-		 * @var stdClass
-		 */
-		protected $oActionDefinition;
-
-		/**
 		 * @return stdClass
 		 */
-		public function run() {
-			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
-			$oResponse = $this->getStandardResponse();
-
-			// Always verify
-			$this->doHandshakeVerify();
-			if ( !$oResponse->success ) {
-				if ( $oResponse->code == 9991 ) {
-					$oFO->setCanHandshake(); //recheck ability to handshake
-				}
-				return $oResponse;
-			}
-
-			$this->preApiCheck();
-			if ( !$oResponse->success ) {
-				if ( !$this->doAttemptSiteReassign()->success ) {
-					return $oResponse;
-				}
-			}
-
-			$this->doWpEngine();
-			@set_time_limit( $oFO->fetchIcwpRequestParam( 'timeout', 60 ) );
+		protected function processAction() {
 
 			$sActionName = $this->getCurrentApiActionName();
 
