@@ -28,6 +28,10 @@ if ( !class_exists( 'ICWP_APP_Foundation', false ) ) :
 		 * @var ICWP_APP_YamlProcessor
 		 */
 		private static $oYaml;
+		/**
+		 * @var ICWP_APP_Encrypt
+		 */
+		private static $oEncrypt;
 
 		/**
 		 * @return ICWP_APP_DataProcessor
@@ -82,6 +86,17 @@ if ( !class_exists( 'ICWP_APP_Foundation', false ) ) :
 				self::$oWpThemes = ICWP_APP_WpFunctions_Themes::GetInstance( self::loadWpFunctionsProcessor() );
 			}
 			return self::$oWpThemes;
+		}
+
+		/**
+		 * @return ICWP_APP_Encrypt
+		 */
+		public function loadEncryptProcessor() {
+			if ( !isset( self::$oEncrypt ) ) {
+				require_once( dirname(__FILE__).ICWP_DS.'icwp-encrypt.php' );
+				self::$oEncrypt = ICWP_APP_Encrypt::GetInstance();
+			}
+			return self::$oEncrypt;
 		}
 
 		/**

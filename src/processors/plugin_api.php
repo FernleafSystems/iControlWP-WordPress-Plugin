@@ -208,12 +208,14 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			}
 			$oResponse->handshake = 'failed';
 
+			$oEncryptProcessor = $this->loadEncryptProcessor();
+
 			$sVerificationCode = $oFO->fetchIcwpRequestParam( 'verification_code', false );
-			if ( $oDp->getCanOpensslSign() ) {
+			if ( $oEncryptProcessor->getSupportsOpenSslSign() ) {
 				$sSignature = base64_decode( $oFO->fetchIcwpRequestParam( 'opensig', '' ) );
-				$sPublicKey = $this->getOption( 'icwp_public_key', '' );
+				$sPublicKey = $oFO->getIcwpPluginKey();
 				if ( !empty( $sSignature ) && !empty( $sPublicKey ) ) {
-					$oResponse->openssl_verify = openssl_verify( $sVerificationCode, $sSignature, base64_decode( $sPublicKey ) );
+					$oResponse->openssl_verify = $oEncryptProcessor->verifySslSignature( $sVerificationCode, $sSignature, $sPublicKey );
 					if ( $oResponse->openssl_verify === 1 ) {
 						$oResponse->handshake = 'openssl';
 						return $this->setSuccessResponse(); //just to be sure we proceed thereafter

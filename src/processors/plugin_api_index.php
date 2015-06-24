@@ -13,7 +13,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Index', false ) ):
 		 * @return stdClass
 		 */
 		protected function processAction() {
-			return $this->setSuccessResponse( 'Plugin Index' ); //just to be sure we proceed thereafter
+			return $this->setSuccessResponse( 'Plugin Index' );
 		}
 	}
 

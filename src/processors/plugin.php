@@ -120,8 +120,8 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 
 			$oFO->setOpt( 'time_last_check_can_handshake', $oDp->time() );
 
-			// First simply check SSL usage
-			if ( $oDp->getCanOpensslSign() ) {
+			// First simply check SSL support
+			if ( $this->loadEncryptProcessor()->getSupportsOpenSslSign() ) {
 				return true;
 			}
 

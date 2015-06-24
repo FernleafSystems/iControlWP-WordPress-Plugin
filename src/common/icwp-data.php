@@ -742,16 +742,6 @@ if ( !class_exists( 'ICWP_APP_DataProcessor_V4', false ) ):
 		}
 
 		/**
-		 * @return bool
-		 */
-		public function getCanOpensslSign() {
-			return function_exists( 'base64_decode' )
-				   && function_exists( 'openssl_sign' )
-				   && function_exists( 'openssl_verify' )
-				   && defined( 'OPENSSL_ALGO_SHA1' );
-		}
-
-		/**
 		 * @param array $aArray
 		 *
 		 * @return stdClass
