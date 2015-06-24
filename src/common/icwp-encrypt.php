@@ -95,6 +95,7 @@ if ( !class_exists( 'ICWP_APP_Encypt_V1', false ) ):
 			}
 			return $nResult;
 		}
+
 		/**
 		 * @return stdClass
 		 */

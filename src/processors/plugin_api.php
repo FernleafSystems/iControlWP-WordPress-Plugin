@@ -218,7 +218,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 					$oResponse->openssl_verify = $oEncryptProcessor->verifySslSignature( $sVerificationCode, $sSignature, $sPublicKey );
 					if ( $oResponse->openssl_verify === 1 ) {
 						$oResponse->handshake = 'openssl';
-						return $this->setSuccessResponse(); //just to be sure we proceed thereafter
+						return $this->setSuccessResponse(); // just to be sure we proceed thereafter
 					}
 				}
 			}

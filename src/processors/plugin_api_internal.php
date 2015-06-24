@@ -164,7 +164,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		}
 
 		/**
-		 * @param $aData
+		 * @param array $aData
 		 * @param string $sMessage
 		 * @return stdClass
 		 */

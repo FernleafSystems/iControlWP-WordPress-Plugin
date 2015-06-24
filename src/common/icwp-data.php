@@ -594,6 +594,7 @@ if ( !class_exists( 'ICWP_APP_DataProcessor_V4', false ) ):
 			}
 			return self::ArrayFetch( $_GET, $sKey, $mDefault );
 		}
+
 		/**
 		 * @param string $sKey		The $_POST key
 		 * @param mixed $mDefault
@@ -613,7 +614,6 @@ if ( !class_exists( 'ICWP_APP_DataProcessor_V4', false ) ):
 		 * @param string $sKey
 		 * @param boolean $bIncludeCookie
 		 * @param mixed $mDefault
-		 *
 		 * @return mixed|null
 		 */
 		public static function FetchRequest( $sKey, $bIncludeCookie = false, $mDefault = null ) {
@@ -644,7 +644,6 @@ if ( !class_exists( 'ICWP_APP_DataProcessor_V4', false ) ):
 
 		/**
 		 * @param $sData
-		 *
 		 * @return array|mixed
 		 */
 		public function doJsonDecode( $sData ) {
@@ -674,7 +673,6 @@ if ( !class_exists( 'ICWP_APP_DataProcessor_V4', false ) ):
 		 * @param null $sPath
 		 * @param null $sDomain
 		 * @param bool $bSsl
-		 *
 		 * @return bool
 		 */
 		public function setCookie( $sKey, $mValue, $nExpireLength = 3600, $sPath = null, $sDomain = null, $bSsl = false ) {
@@ -690,7 +688,6 @@ if ( !class_exists( 'ICWP_APP_DataProcessor_V4', false ) ):
 
 		/**
 		 * @param string $sKey
-		 *
 		 * @return bool
 		 */
 		public function setDeleteCookie( $sKey ) {
@@ -704,7 +701,6 @@ if ( !class_exists( 'ICWP_APP_DataProcessor_V4', false ) ):
 		 * With IPv6, we only support this if filter_var() is supported.
 		 *
 		 * @param string $sIpAddress
-		 *
 		 * @return bool|int
 		 */
 		public function getIpAddressVersion( $sIpAddress ) {
@@ -743,7 +739,6 @@ if ( !class_exists( 'ICWP_APP_DataProcessor_V4', false ) ):
 
 		/**
 		 * @param array $aArray
-		 *
 		 * @return stdClass
 		 */
 		public function convertArrayToStdClass( $aArray ) {
@@ -765,7 +760,7 @@ if ( !class_exists( 'ICWP_APP_DataProcessor_V4', false ) ):
 	}
 endif;
 
-if ( !class_exists('ICWP_APP_DataProcessor') ):
+if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 
 	class ICWP_APP_DataProcessor extends ICWP_APP_DataProcessor_V4 {
 		/**
