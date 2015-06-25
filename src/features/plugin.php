@@ -278,7 +278,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		/**
 		 * @return string
 		 */
-		public function getIcwpPluginKey() {
+		public function getIcwpPublicKey() {
 			$sKey = $this->getOpt( 'icwp_public_key', '' );
 			return empty( $sKey ) ? '' : base64_decode( $sKey );
 		}

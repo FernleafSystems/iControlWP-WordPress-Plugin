@@ -56,10 +56,9 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Execute', false ) ):
 			}
 
 			$sFileToInclude = $sTempDir.ICWP_DS.'installer.php';
-			$this->runInstaller( $sFileToInclude );
+			$oExecutionResponse = $this->runInstaller( $sFileToInclude );
 			$oFs->deleteDir( $sTempDir );
-
-			return $this->getStandardResponse();
+			return $oExecutionResponse;
 		}
 	}
 

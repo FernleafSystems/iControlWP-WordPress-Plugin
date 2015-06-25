@@ -164,51 +164,29 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		}
 
 		/**
-		 * @param array $aData
+		 * @param array $aExecutionData
 		 * @param string $sMessage
 		 * @return stdClass
 		 */
-		protected function fail( $aData, $sMessage = '' ) {
-			$aResponse = array(
-				'success'			=> false,
-				'message'			=> $sMessage,
-				'error'				=> $sMessage,
-				'data'				=> $this->encodeDataForResponse( $aData ),
-				'base64response'	=> true
+		protected function fail( $aExecutionData = array(), $sMessage = '' ) {
+			return $this->setErrorResponse(
+				sprintf( 'Package Execution FAILED with error message: "%s"', $sMessage ),
+				-1, //TODO: Set a code
+				$aExecutionData
 			);
-			return $this->processExecutionFinalResponse( $aResponse );
 		}
 
 		/**
-		 * @param $aData
+		 * @param array $aExecutionData
 		 * @param string $sMessage
 		 * @return stdClass
 		 */
-		protected function success( $aData, $sMessage = '' ) {
-			$aResponse = array(
-				'success'			=> true,
-				'message'			=> $sMessage,
-				'data'				=> $this->encodeDataForResponse( $aData ),
-				'base64response'	=> true
+		protected function success( $aExecutionData = array(), $sMessage = '' ) {
+			return $this->setSuccessResponse(
+				sprintf( 'Package Execution SUCCEEDED with message: "%s".', $sMessage ),
+				0,
+				$aExecutionData
 			);
-			return $this->processExecutionFinalResponse( $aResponse );
-		}
-
-		/**
-		 * @param array $aData
-		 * @return string
-		 */
-		protected function encodeDataForResponse( $aData ) {
-//			$this->encryptResponseData( $aResponse ); //TODO
-			return $this->pad( base64_encode( serialize( $aData ) ) );
-		}
-
-		/**
-		 * @param string $sString
-		 * @return string
-		 */
-		protected function pad( $sString ) {
-			return '==PAD=='.$sString.'==PAD==';
 		}
 
 		/**

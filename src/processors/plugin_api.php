@@ -47,11 +47,13 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			$this->doWpEngine();
 			@set_time_limit( $oFO->fetchIcwpRequestParam( 'timeout', 60 ) );
 
-			return $this->processAction();
+			$oActionExecutionResponse = $this->processAction();
+
+			return $oActionExecutionResponse;
 		}
 
 		/**
-		 * @return self::$oActionResponse
+		 * @return stdClass
 		 */
 		abstract protected function processAction();
 
@@ -213,7 +215,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			$sVerificationCode = $oFO->fetchIcwpRequestParam( 'verification_code', false );
 			if ( $oEncryptProcessor->getSupportsOpenSslSign() ) {
 				$sSignature = base64_decode( $oFO->fetchIcwpRequestParam( 'opensig', '' ) );
-				$sPublicKey = $oFO->getIcwpPluginKey();
+				$sPublicKey = $oFO->getIcwpPublicKey();
 				if ( !empty( $sSignature ) && !empty( $sPublicKey ) ) {
 					$oResponse->openssl_verify = $oEncryptProcessor->verifySslSignature( $sVerificationCode, $sSignature, $sPublicKey );
 					if ( $oResponse->openssl_verify === 1 ) {
@@ -322,38 +324,77 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				);
 			}
 
-			$oInstall = new Worpit_Package_Installer();
-			return $this->processExecutionFinalResponse( $oInstall->run() );
+			$oInstaller = new Worpit_Package_Installer();
+			$aInstallerResponse = $oInstaller->run();
+
+			$sMessage = isset( $aInstallerResponse[ 'message' ] ) ? $aInstallerResponse[ 'message' ] : 'No message';
+			$aResponseData = isset( $aInstallerResponse[ 'data' ] ) ? $aInstallerResponse[ 'data' ] : array();
+
+			if ( isset( $aInstallerResponse['success'] ) && $aInstallerResponse['success'] ) {
+				return $this->setSuccessResponse(
+					sprintf( 'Package Execution SUCCEEDED with message: "%s".', $sMessage ),
+					0,
+					$aResponseData
+				);
+			}
+			else {
+				return $this->setErrorResponse(
+					sprintf( 'Package Execution FAILED with error message: "%s"', $sMessage ),
+					-1, //TODO: Set a code
+					$aResponseData
+				);
+			}
 		}
 
 		/**
-		 * @param array $aExecutionResponse
+		 * @param string $aExecutionResponse
 		 * @return stdClass
 		 */
 		protected function processExecutionFinalResponse( $aExecutionResponse ) {
 
-			$sInstallerExecutionMessage = !empty( $aExecutionResponse[ 'message' ] ) ? $aExecutionResponse[ 'message' ] : 'No message';
+			$bSuccess = isset( $aExecutionResponse['success'] ) && $aExecutionResponse['success'];
+			$aData = isset( $aExecutionResponse['data'] ) ? $aExecutionResponse['data'] : array();
+			$sMessage = isset( $aExecutionResponse['message'] ) ? $aExecutionResponse['message'] : 'No message';
 
-			if ( !$aExecutionResponse['success'] ) {
-				return $this->setErrorResponse(
-					sprintf( 'Package Execution FAILED with error message: "%s"', $sInstallerExecutionMessage ),
-					-1 //TODO: Set a code
+			// TODO Encrypt and set password encryption in tags?
+			$aData = $this->encodeDataForResponse( $aData );
+
+			if ( $bSuccess ) {
+				return $this->setSuccessResponse(
+					sprintf( 'Package Execution SUCCEEDED with message: "%s".', $sMessage ),
+					0,
+					$aData
 				);
 			}
 			else {
-				return $this->setSuccessResponse(
-					sprintf( 'Package Execution SUCCEEDED with message: "%s".', $sInstallerExecutionMessage ),
-					0,
-					isset( $aExecutionResponse['data'] )? $aExecutionResponse['data']: ''
+				return $this->setErrorResponse(
+					sprintf( 'Package Execution FAILED with error message: "%s"', $sMessage ),
+					-1, //TODO: Set a code
+					$aData
 				);
 			}
+		}
+
+		/**
+		 * @param array $aData
+		 * @return string
+		 */
+		protected function encodeDataForResponse( $aData ) {
+			return $aData; // TODO: Encrypt
+		}
+
+		/**
+		 * @param string $sString
+		 * @return string
+		 */
+		protected function pad( $sString ) {
+			return '==PAD=='.$sString.'==PAD==';
 		}
 
 		/**
 		 * @param string $sErrorMessage
 		 * @param int $nErrorCode
 		 * @param mixed $mErrorData
-		 *
 		 * @return stdClass
 		 */
 		protected function setErrorResponse( $sErrorMessage = '', $nErrorCode = -1, $mErrorData = '' ) {

@@ -16,7 +16,6 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Retrieve', false ) ):
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
 			$oFs = $this->loadFileSystemProcessor();
-			$oResponse = $this->getStandardResponse();
 
 			if ( !function_exists( 'download_url' ) ) {
 				return $this->setErrorResponse(
@@ -75,8 +74,9 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Retrieve', false ) ):
 				$sFileToInclude = $sNewFile;
 			}
 
-			$this->runInstaller( $sFileToInclude );
-			return $oResponse;
+			$oExecutionResponse = $this->runInstaller( $sFileToInclude );
+			$oFs->deleteFile( $sFileToInclude );
+			return $oExecutionResponse;
 		}
 	}
 
