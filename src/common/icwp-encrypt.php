@@ -19,7 +19,7 @@ if ( !class_exists( 'ICWP_APP_Encypt_V1', false ) ):
 			return self::$oInstance;
 		}
 
-		private function __construct() {}
+		protected function __construct() {}
 
 		/**
 		 * @return bool

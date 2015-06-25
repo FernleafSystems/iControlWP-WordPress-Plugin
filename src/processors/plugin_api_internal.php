@@ -204,9 +204,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		 * @return bool
 		 */
 		protected function isActionDefined( $sAction = null ) {
-			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
-			if ( is_null( $sAction ) ) {
+			if ( empty( $sAction ) ) {
 				$sAction = $this->getCurrentApiActionName();
 			}
 			return method_exists( $this, self::ApiMethodPrefix.$sAction );

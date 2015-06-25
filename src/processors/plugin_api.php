@@ -327,7 +327,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			$oInstaller = new Worpit_Package_Installer();
 			$aInstallerResponse = $oInstaller->run();
 
-			$sMessage = isset( $aInstallerResponse[ 'message' ] ) ? $aInstallerResponse[ 'message' ] : 'No message';
+			$sMessage = !empty( $aInstallerResponse[ 'message' ] ) ? $aInstallerResponse[ 'message' ] : 'No message';
 			$aResponseData = isset( $aInstallerResponse[ 'data' ] ) ? $aInstallerResponse[ 'data' ] : array();
 
 			if ( isset( $aInstallerResponse['success'] ) && $aInstallerResponse['success'] ) {
@@ -344,51 +344,6 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 					$aResponseData
 				);
 			}
-		}
-
-		/**
-		 * @param string $aExecutionResponse
-		 * @return stdClass
-		 */
-		protected function processExecutionFinalResponse( $aExecutionResponse ) {
-
-			$bSuccess = isset( $aExecutionResponse['success'] ) && $aExecutionResponse['success'];
-			$aData = isset( $aExecutionResponse['data'] ) ? $aExecutionResponse['data'] : array();
-			$sMessage = isset( $aExecutionResponse['message'] ) ? $aExecutionResponse['message'] : 'No message';
-
-			// TODO Encrypt and set password encryption in tags?
-			$aData = $this->encodeDataForResponse( $aData );
-
-			if ( $bSuccess ) {
-				return $this->setSuccessResponse(
-					sprintf( 'Package Execution SUCCEEDED with message: "%s".', $sMessage ),
-					0,
-					$aData
-				);
-			}
-			else {
-				return $this->setErrorResponse(
-					sprintf( 'Package Execution FAILED with error message: "%s"', $sMessage ),
-					-1, //TODO: Set a code
-					$aData
-				);
-			}
-		}
-
-		/**
-		 * @param array $aData
-		 * @return string
-		 */
-		protected function encodeDataForResponse( $aData ) {
-			return $aData; // TODO: Encrypt
-		}
-
-		/**
-		 * @param string $sString
-		 * @return string
-		 */
-		protected function pad( $sString ) {
-			return '==PAD=='.$sString.'==PAD==';
 		}
 
 		/**

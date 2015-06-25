@@ -155,7 +155,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 			if ( $oFO->fetchIcwpRequestParam( 'worpit_link', 0 ) == 1 ) {
 				require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 				require_once( dirname(__FILE__).ICWP_DS.'plugin_sitelink.php' );
-				$oLinkProcessor = new ICWP_APP_Processor_Plugin_SiteLink( $this->getFeatureOptions() );
+				$oLinkProcessor = new ICWP_APP_Processor_Plugin_SiteLink( $oFO );
 				$oLinkResponse = $oLinkProcessor->run();
 				$this->sendApiResponse( $oLinkResponse );
 				die();
@@ -169,28 +169,28 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 				switch( $sApiChannel ) {
 
 					case 'retrieve':
-						$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Retrieve( $this->getFeatureOptions() );
+						$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Retrieve( $oFO );
 						break;
 
 					case 'execute':
-						$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Execute( $this->getFeatureOptions() );
+						$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Execute( $oFO );
 						break;
 
 					case 'internal':
-						$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Internal( $this->getFeatureOptions() );
+						$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Internal( $oFO );
 						break;
 
 					case 'login':
-						$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Login( $this->getFeatureOptions() );
+						$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Login( $oFO );
 						break;
 
 					default: // case 'index':
-						$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Index( $this->getFeatureOptions() );
+						$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Index( $oFO );
 						break;
 				}
 
 				$oApiResponse = $oApiProcessor->run();
-				$this->sendApiResponse( $oApiResponse );
+				$this->sendApiResponse( $oApiResponse, true, $oFO->fetchIcwpRequestParam( 'icwpenc', 0 ) == 1 );
 				die();
 			}
 		}
@@ -223,12 +223,28 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 		 *
 		 * @param stdClass|string $mResponse
 		 * @param boolean $bDoBinaryEncode
+		 * @param bool $bEncrypt
 		 */
-		protected function sendApiResponse( $mResponse, $bDoBinaryEncode = true ) {
+		protected function sendApiResponse( $mResponse, $bDoBinaryEncode = true, $bEncrypt = false ) {
 
 			if ( is_object( $mResponse ) && isset( $mResponse->die ) && $mResponse->die ) {
 				wp_die( $mResponse->error_message );
 				return;
+			}
+
+			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
+			$oFO = $this->getFeatureOptions();
+
+			if ( $bEncrypt && !empty( $mResponse->data ) ) {
+				$oEncryptedResult = $this->loadEncryptProcessor()->encryptDataPublicKey( $mResponse->data, $oFO->getIcwpPublicKey() );
+
+				if ( $oEncryptedResult->success ) {
+					$mResponse->data = array(
+						'is_encrypted' => 1,
+						'password' => $oEncryptedResult->encrypted_password,
+						'sealed_data' => $oEncryptedResult->encrypted_data
+					);
+				}
 			}
 
 			$oResponse = $bDoBinaryEncode ? base64_encode( serialize( $mResponse ) ) : $mResponse;
