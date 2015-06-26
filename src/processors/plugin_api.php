@@ -24,7 +24,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		 */
 		public function run() {
 			$oActionExecutionResponse = $this->preActionVerify();
-			if ( !$oActionExecutionResponse->success ) {
+			if ( $oActionExecutionResponse->success ) {
 				$this->preActionEnvironmentSetup();
 				$oActionExecutionResponse = $this->processAction();
 			}
