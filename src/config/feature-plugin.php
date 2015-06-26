@@ -153,6 +153,8 @@ options:
       - 'plugin_activate'
       - 'plugin_deactivate'
       - 'plugin_delete'
+      - 'plugin_install_url'
       - 'theme_activate'
       - 'theme_delete'
+      - 'theme_install_url'
 ";

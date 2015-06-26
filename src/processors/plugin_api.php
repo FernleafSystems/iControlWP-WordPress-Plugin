@@ -65,7 +65,9 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
 			$oResponse = $this->getStandardResponse();
-			$oResponse->data[ 'verification_code' ] = $oFO->fetchIcwpRequestParam( 'verification_code', 'no code' ); //effectively a nonce
+			if ( is_array( $oResponse->data ) ) {
+				$oResponse->data[ 'verification_code' ] = $oFO->fetchIcwpRequestParam( 'verification_code', 'no code' ); //effectively a nonce
+			}
 		}
 
 		/**
