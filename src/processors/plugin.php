@@ -219,25 +219,25 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 		/**
 		 * @uses die() / wp_die()
 		 *
-		 * @param stdClass|string $mResponse
+		 * @param stdClass|string $oResponse
 		 * @param boolean $bDoBinaryEncode
 		 * @param bool $bEncrypt
 		 */
-		protected function sendApiResponse( $mResponse, $bDoBinaryEncode = true, $bEncrypt = false ) {
+		protected function sendApiResponse( $oResponse, $bDoBinaryEncode = true, $bEncrypt = false ) {
 
-			if ( is_object( $mResponse ) && isset( $mResponse->die ) && $mResponse->die ) {
-				wp_die( $mResponse->error_message );
+			if ( is_object( $oResponse ) && isset( $oResponse->die ) && $oResponse->die ) {
+				wp_die( $oResponse->error_message );
 				return;
 			}
 
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
 
-			if ( $bEncrypt && !empty( $mResponse->data ) ) {
-				$oEncryptedResult = $this->loadEncryptProcessor()->encryptDataPublicKey( $mResponse->data, $oFO->getIcwpPublicKey() );
+			if ( $bEncrypt && !empty( $oResponse->data ) ) {
+				$oEncryptedResult = $this->loadEncryptProcessor()->encryptDataPublicKey( $oResponse->data, $oFO->getIcwpPublicKey() );
 
 				if ( $oEncryptedResult->success ) {
-					$mResponse->data = array(
+					$oResponse->data = array(
 						'is_encrypted' => 1,
 						'password' => $oEncryptedResult->encrypted_password,
 						'sealed_data' => $oEncryptedResult->encrypted_data
@@ -245,7 +245,9 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 				}
 			}
 
-			$oResponse = $bDoBinaryEncode ? base64_encode( serialize( $mResponse ) ) : $mResponse;
+			if ( $bDoBinaryEncode ) {
+				$oResponse = base64_encode( serialize( $oResponse ) );
+			}
 
 			$this->sendHeaders( $bDoBinaryEncode );
 			echo "<icwp>".$oResponse."</icwp>";
