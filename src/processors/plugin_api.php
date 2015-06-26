@@ -28,6 +28,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				$this->preActionEnvironmentSetup();
 				$oActionExecutionResponse = $this->processAction();
 			}
+			$this->postProcessAction();
 			return $oActionExecutionResponse;
 		}
 
@@ -56,6 +57,15 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			}
 
 			return $oResponse;
+		}
+
+		/**
+		 */
+		protected function postProcessAction() {
+			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
+			$oFO = $this->getFeatureOptions();
+			$oResponse = $this->getStandardResponse();
+			$oResponse->data[ 'verification_code' ] = $oFO->fetchIcwpRequestParam( 'verification_code', 'no code' ); //effectively a nonce
 		}
 
 		/**
@@ -404,7 +414,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				$oResponse->message = '';
 				$oResponse->success = true;
 				$oResponse->code = 0;
-				$oResponse->data = null;
+				$oResponse->data = array();
 				$oResponse->channel = '';
 				$oResponse->die = false;
 				$oResponse->handshake = 'none';
