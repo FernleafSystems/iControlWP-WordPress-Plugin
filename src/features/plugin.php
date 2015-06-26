@@ -315,8 +315,8 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		/**
 		 * @param string $sKey
 		 * @param string $mDefault
-		 *
-		 * @return mixed
+		 * @param bool $bSerialized
+		 * @return mixed|string
 		 */
 		public function fetchIcwpRequestParam( $sKey, $mDefault = '', $bSerialized = false ) {
 			$mReturn = $mDefault;

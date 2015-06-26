@@ -97,7 +97,6 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 
 		/**
 		 * @param string $sIps
-		 *
 		 * @return array
 		 */
 		protected function getValidServiceIps( $sIps = 'ipv4' ) {
@@ -110,7 +109,6 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 
 		/**
 		 * @param boolean $bCanHandshake
-		 *
 		 * @return boolean
 		 */
 		public function doVerifyCanHandshake( $bCanHandshake ) {

@@ -71,6 +71,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_SiteLink', false ) ):
 
 			$oFO->setPluginPin( $sRequestPin );
 			$oFO->setPluginAssigned( $sRequestedAcc );
+			$oFO->savePluginOptions();
 
 			$oResponse->success = true;
 			return $oResponse;

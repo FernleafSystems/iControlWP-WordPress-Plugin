@@ -23,20 +23,31 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		 * @return stdClass
 		 */
 		public function run() {
+			$oActionExecutionResponse = $this->preActionVerify();
+			if ( !$oActionExecutionResponse->success ) {
+				$this->preActionEnvironmentSetup();
+				$oActionExecutionResponse = $this->processAction();
+			}
+			return $oActionExecutionResponse;
+		}
+
+		/**
+		 * @return stdClass
+		 */
+		protected function preActionVerify() {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
-
 			$oResponse = $this->getStandardResponse();
-			$oResponse->method = $this->getApiMethod();
+			$oResponse->channel = $this->getApiChannel();
 
 			$this->preApiCheck();
 			if ( !$oResponse->success ) {
-				if ( !$this->doAttemptSiteReassign()->success ) {
+				if ( !$this->attemptSiteReassign()->success ) {
 					return $oResponse;
 				}
 			}
 
-			$this->doHandshakeVerify();
+			$this->handshake();
 			if ( !$oResponse->success ) {
 				if ( $oResponse->code == 9991 ) {
 					$oFO->setCanHandshake(); //recheck ability to handshake
@@ -44,12 +55,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				return $oResponse;
 			}
 
-			$this->doWpEngine();
-			@set_time_limit( $oFO->fetchIcwpRequestParam( 'timeout', 60 ) );
-
-			$oActionExecutionResponse = $this->processAction();
-
-			return $oActionExecutionResponse;
+			return $oResponse;
 		}
 
 		/**
@@ -60,15 +66,15 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		/**
 		 * @return string
 		 */
-		protected function getApiMethod() {
+		protected function getApiChannel() {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
 
-			$sApiMethod = $oFO->fetchIcwpRequestParam( 'm', 'index' );
-			if ( !preg_match( '/[A-Z0-9_]+/i', $sApiMethod ) ) {
-				$sApiMethod = 'index';
+			$sApiChannel = $oFO->fetchIcwpRequestParam( 'm', 'index' );
+			if ( !in_array( $sApiChannel, $oFO->getPermittedApiChannels() ) ) {
+				$sApiChannel = 'index';
 			}
-			return $sApiMethod;
+			return $sApiChannel;
 		}
 
 		/**
@@ -105,7 +111,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			}
 
 			$sPin = $oFO->getPluginPin();
-			$sRequestPin = trim( $oFO->fetchIcwpRequestParam( 'pin', false ) );
+			$sRequestPin = trim( $oFO->fetchIcwpRequestParam( 'pin', '' ) );
 			if ( empty( $sRequestPin ) ) {
 				$sErrorMessage = 'EmptyRequestPin';
 				return $this->setErrorResponse(
@@ -127,20 +133,20 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		/**
 		 * Attempts to relink/reassign a site upon API failure, with certain pre-conditions
 		 *
-		 * 1) The method is "retrieve"
+		 * 1) The channel is "retrieve"
 		 * 2) The site CAN Handshake (it will check this)
 		 * 3) The handshake is verified for this package
 		 *
 		 * @return stdClass
 		 */
-		protected function doAttemptSiteReassign() {
+		protected function attemptSiteReassign() {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
-
 			$oResponse = $this->getStandardResponse();
-			if ( !isset( $oResponse->method ) || $oResponse->method != 'retrieve' ) {
+
+			if ( !isset( $oResponse->channel ) || !in_array( $oResponse->channel, array( 'internal', 'retrieve' ) ) ) {
 				return $this->setErrorResponse(
-					sprintf( 'Attempting Site Reassign Failed: %s.', 'Site action method is not "retrieve"' ),
+					sprintf( 'Attempting Site Reassign Failed: %s.', 'Site action method is neither "retrieve" nor "internal".' ),
 					9806
 				);
 			}
@@ -152,7 +158,8 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 					9801
 				);
 			}
-			$oResponse = $this->doHandshakeVerify();
+
+			$oResponse = $this->handshake();
 			if ( !$oResponse->success ) {
 				return $this->setErrorResponse(
 					sprintf( 'Attempting Site Reassign Failed: %s.', 'Handshake verify failed' ),
@@ -198,7 +205,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		/**
 		 * @return stdClass
 		 */
-		protected function doHandshakeVerify() {
+		protected function handshake() {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
 			$oDp = $this->loadDataProcessor();
@@ -268,7 +275,17 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 
 		/**
 		 */
-		protected function doWpEngine() {
+		protected function preActionEnvironmentSetup() {
+			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
+			$oFO = $this->getFeatureOptions();
+			$this->loadWpFunctionsProcessor()->doBustCache();
+			@set_time_limit( $oFO->fetchIcwpRequestParam( 'timeout', 60 ) );
+			$this->setWpEngineAuth();
+		}
+
+		/**
+		 */
+		protected function setWpEngineAuth() {
 			if ( @getenv( 'IS_WPE' ) == '1' && class_exists( 'WpeCommon', false ) && $this->setAuthorizedUser() ) {
 				$oWpEngineCommon = WpeCommon::instance();
 				$oWpEngineCommon->set_wpe_auth_cookie();
@@ -301,6 +318,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		}
 
 		/**
+		 * Used by Execute and Retrieve
 		 * @param string $sInstallerFileToInclude
 		 * @return stdClass
 		 */
@@ -312,7 +330,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 
 			if ( !$bIncludeSuccess ) {
 				return $this->setErrorResponse(
-					'PHP failed to include the Installer file for execution'
+					'PHP failed to include the Installer file for execution.'
 				);
 			}
 
@@ -379,7 +397,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		/**
 		 * @return stdClass
 		 */
-		static protected function getStandardResponse() {
+		static public function getStandardResponse() {
 			if ( is_null( self::$oActionResponse ) ) {
 				$oResponse = new stdClass();
 				$oResponse->error_message = '';
@@ -387,9 +405,8 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				$oResponse->success = true;
 				$oResponse->code = 0;
 				$oResponse->data = null;
-				$oResponse->method = '';
+				$oResponse->channel = '';
 				$oResponse->die = false;
-				$oResponse->action_object = null;
 				$oResponse->handshake = 'none';
 				self::$oActionResponse = $oResponse;
 			}

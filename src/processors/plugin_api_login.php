@@ -12,13 +12,22 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Login', false ) ):
 		const LoginTokenKey = 'worpit_login_token';
 
 		/**
+		 * Override so that we don't run the handshaking etc.
+		 *
+		 * @return stdClass
+		 */
+		public function run() {
+			$this->preActionEnvironmentSetup();
+			return $this->processAction();
+		}
+
+		/**
 		 * @return stdClass
 		 */
 		protected function processAction() {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
 			$oWp = $this->loadWpFunctionsProcessor();
-			$oWp->doBustCache();
 
 			$oResponse = $this->getStandardResponse();
 			// If there's an error with login, we die.
