@@ -3,7 +3,7 @@ Contributors: paultgoodchild
 Donate link: http://www.icontrolwp.com/
 Tags: manage, manage wordpress, wordpress admin, backup, restore, bulk, icontrolwp, managewp, worpit, automatic updates
 Requires at least: 3.2.0
-Tested up to: 4.2
+Tested up to: 4.4
 Stable tag: 2.12.5
 
 == Description ==
@@ -114,13 +114,15 @@ No. WorpDrive is available for a small monthly fee.
 
 == Changelog ==
 
-= Lastest Point Release: 2.12.5 =
+= Lastest Point Release: 2.12.6 =
+*Released: 9th October, 2015*
 
-* ADDED:    **(v.5)** support for WP-SpamShield to prevent it blocking requests.
+* ADDED:    **(v.6)** Full support for white labelling.
 
 = 2.12 Series =
 *Released: 9th March 2015*
 
+* ADDED:    **(v.5)** support for WP-SpamShield to prevent it blocking requests.
 * FIX:      **(v.4)** bug where the white listed IPs weren't being updated correctly within security plugin white lists.
 * UPDATED:  **(v.3)** Update service IP addresses.
 * FIX:  	**(v.1)** Fix small admin-side incompatibility with BuddyPress plugin.
