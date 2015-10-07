@@ -118,6 +118,7 @@ No. WorpDrive is available for a small monthly fee.
 *Released: 9th October, 2015*
 
 * ADDED:    **(v.6)** Full support for white labelling.
+* ADDED:    **(v.6)** Added officially supported method for disabling the WP-SpamShield filtering.
 
 = 2.12 Series =
 *Released: 9th March 2015*
