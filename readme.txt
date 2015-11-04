@@ -4,7 +4,7 @@ Donate link: http://www.icontrolwp.com/
 Tags: manage, manage wordpress, wordpress admin, backup, restore, bulk, icontrolwp, managewp, worpit, automatic updates
 Requires at least: 3.2.0
 Tested up to: 4.4
-Stable tag: 2.12.5
+Stable tag: 2.12.6
 
 == Description ==
 
@@ -115,9 +115,9 @@ No. WorpDrive is available for a small monthly fee.
 == Changelog ==
 
 = Lastest Point Release: 2.12.6 =
-*Released: 9th October, 2015*
+*Released: 4th November, 2015*
 
-* ADDED:    **(v.6)** Full support for white labelling.
+* ADDED:    **(v.6)** Full support for plugin [white labelling](http://icwp.io/whitelabel).
 * ADDED:    **(v.6)** Added officially supported method for disabling the WP-SpamShield filtering.
 
 = 2.12 Series =
