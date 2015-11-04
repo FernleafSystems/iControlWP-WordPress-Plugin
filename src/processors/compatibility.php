@@ -302,9 +302,9 @@ if ( !class_exists( 'ICWP_APP_Processor_Compatibility_V1', false ) ):
 		 */
 		protected function removeWpSpamShield() {
 			add_filter( 'wpss_misc_form_spam_check_bypass', '__return_false', 100 );
-//			if ( function_exists( 'rs_wpss_misc_form_spam_check' ) ) {
-//				remove_action( 'init', 'rs_wpss_misc_form_spam_check', 2 );
-//			}
+			/* if ( function_exists( 'rs_wpss_misc_form_spam_check' ) ) {
+				remove_action( 'init', 'rs_wpss_misc_form_spam_check', 2 );
+			}*/
 		}
 
 		/**
