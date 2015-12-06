@@ -263,7 +263,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 
 			if ( $oCon->getIsValidAdminArea() && !$oFO->getIsSiteLinked() ) {
 
-				$sAckPluginNotice = $this->loadWpFunctionsProcessor()->getUserMeta( $oCon->doPluginOptionPrefix( 'ack_plugin_notice' ) );
+				$sAckPluginNotice = $this->loadWpUsersProcessor()->getUserMeta( $oCon->doPluginOptionPrefix( 'ack_plugin_notice' ) );
 				$nCurrentUserId = 0;
 				$sNonce = wp_nonce_field( $oCon->getPluginPrefix() );
 				$sServiceName = $oCon->getHumanName();

@@ -291,23 +291,23 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		protected function setAuthorizedUser() {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
-			$oWp = $this->loadWpFunctionsProcessor();
+			$oWpUser = $this->loadWpUsersProcessor();
 			$sWpUser = $oFO->fetchIcwpRequestParam( 'wpadmin_user' );
 			if ( empty( $sWpUser ) ) {
 
-				if ( version_compare( $oWp->getWordpressVersion(), '3.1', '>=' ) ) {
+				if ( version_compare( $this->loadWpFunctionsProcessor()->getWordpressVersion(), '3.1', '>=' ) ) {
 					$aUserRecords = get_users( 'role=administrator' );
 					if ( is_array( $aUserRecords ) && count( $aUserRecords ) ) {
 						$oUser = $aUserRecords[0];
 					}
 				}
 				else {
-					$oUser = $oWp->getUserById( 1 );
+					$oUser = $oWpUser->getUserById( 1 );
 				}
 				$sWpUser = ( !empty( $oUser ) && is_a( $oUser, 'WP_User' ) ) ? $oUser->get( 'user_login' ) : '';
 			}
 
-			return $oWp->setUserLoggedIn( empty( $sWpUser ) ? 'admin' : $sWpUser );
+			return $oWpUser->setUserLoggedIn( empty( $sWpUser ) ? 'admin' : $sWpUser );
 		}
 
 		/**
@@ -498,6 +498,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
 			$oWp = $this->loadWpFunctionsProcessor();
+			$oWpUser = $this->loadWpUsersProcessor();
 			$oWp->doBustCache();
 
 			$oResponse = $this->getStandardResponse();
@@ -533,7 +534,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			}
 
 			$sUsername = $oFO->fetchIcwpRequestParam( 'username', '' );
-			$oUser = $oWp->getUserByUsername( $sUsername );
+			$oUser = $oWpUser->getUserByUsername( $sUsername );
 			if ( empty( $sUsername ) || empty( $oUser ) ) {
 				$aUserRecords = version_compare( $oWp->getWordpressVersion(), '3.1', '>=' ) ? get_users( 'role=administrator' ) : array();
 				if ( empty( $aUserRecords[0] ) ) {
@@ -550,7 +551,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				wp_cookie_constants();
 			}
 
-			$bLoginSuccess = $oWp->setUserLoggedIn( $oUser->get( 'user_login' ) );
+			$bLoginSuccess = $oWpUser->setUserLoggedIn( $oUser->get( 'user_login' ) );
 			if ( !$bLoginSuccess ) {
 				return $this->setErrorResponse(
 					sprintf( 'There was a problem logging you in as "%s".', $oUser->get( 'user_login' ) ),

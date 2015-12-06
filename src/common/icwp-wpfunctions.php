@@ -1,27 +1,7 @@
 <?php
-/**
- * Copyright (c) 2015 iControlWP <support@icontrolwp.com>
- * All rights reserved.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 
-if ( !class_exists( 'ICWP_APP_WpFunctions_V7', false ) ):
-
-	class ICWP_APP_WpFunctions_V7 {
-		/**
-		 * @var ICWP_APP_WpDb
-		 */
-		private static $oWpDb;
+	class ICWP_APP_WpFunctions extends ICWP_APP_Foundation {
 
 		/**
 		 * @var WP_Automatic_Updater
@@ -29,12 +9,12 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_V7', false ) ):
 		protected $oWpAutomaticUpdater;
 
 		/**
-		 * @var ICWP_APP_WpFunctions_V7
+		 * @var ICWP_APP_WpFunctions
 		 */
 		protected static $oInstance = NULL;
 
 		/**
-		 * @return ICWP_APP_WpFunctions_V7
+		 * @return ICWP_APP_WpFunctions
 		 */
 		public static function GetInstance() {
 			if ( is_null( self::$oInstance ) ) {
@@ -54,55 +34,6 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_V7', false ) ):
 		protected $bIsMultisite;
 
 		public function __construct() {}
-
-		/**
-		 * @param WP_Post $oPost
-		 *
-		 * @return bool
-		 */
-		public function comments_getIfCommentsOpen( $oPost = null ) {
-			if ( is_null( $oPost ) ) {
-				global $post;
-				$oPost = $post;
-			}
-			return $oPost->comment_status == 'open';
-		}
-
-		/**
-		 * @param string $sAuthorEmail
-		 *
-		 * @return bool
-		 */
-		public function comments_getIfCommentAuthorPreviouslyApproved( $sAuthorEmail ) {
-
-			if ( empty( $sAuthorEmail ) || !is_email( $sAuthorEmail ) ) {
-				return false;
-			}
-
-			$oDb = $this->loadDbProcessor();
-			$sQuery = "
-				SELECT comment_approved
-				FROM %s
-				WHERE
-					comment_author_email = '%s'
-					AND comment_approved = '1'
-					LIMIT 1
-			";
-
-			$sQuery = sprintf(
-				$sQuery,
-				$oDb->getTable_Comments(),
-				$sAuthorEmail
-			);
-			return $oDb->getVar( $sQuery ) == 1;
-		}
-
-		/**
-		 * @return bool
-		 */
-		public function comments_getIsCommentPost() {
-			return $this->loadDataProcessor()->GetIsRequestPost() && $this->getIsCurrentPage( 'wp-comments-post.php' );
-		}
 
 		/**
 		 * @return null|string
@@ -196,6 +127,18 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_V7', false ) ):
 		 */
 		public function getIsPermalinksEnabled() {
 			return ( $this->getOption( 'permalink_structure' ) ? true : false );
+		}
+
+		/**
+		 * @return string
+		 */
+		public function getHomeUrl() {
+			$sUrl = home_url();
+			if ( empty( $sUrl ) ) {
+				remove_all_filters( 'home_url' );
+				$sUrl = home_url();
+			}
+			return $sUrl;
 		}
 
 		/**
@@ -340,7 +283,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_V7', false ) ):
 
 		/**
 		 * @param string $sKey
-		 * @return object
+		 * @return mixed
 		 */
 		public function getTransient( $sKey ) {
 
@@ -470,33 +413,36 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_V7', false ) ):
 			$this->doRedirect( wp_login_url(), $aQueryParams );
 		}
 		/**
-		 * @param $aQueryParams
+		 * @param array $aQueryParams
 		 */
 		public function redirectToAdmin( $aQueryParams = array() ) {
 			$this->doRedirect( is_multisite()? get_admin_url() : admin_url(), $aQueryParams );
 		}
 		/**
-		 * @param $aQueryParams
+		 * @param array $aQueryParams
 		 */
 		public function redirectToHome( $aQueryParams = array() ) {
 			$this->doRedirect( home_url(), $aQueryParams );
 		}
 
 		/**
-		 * @param $sUrl
+		 * @param string $sUrl
 		 * @param array $aQueryParams
 		 * @param bool $bSafe
+		 * @param bool $bProtectAgainstInfiniteLoops - if false, ignores the redirect loop protection
 		 */
-		public function doRedirect( $sUrl, $aQueryParams = array(), $bSafe = true ) {
+		public function doRedirect( $sUrl, $aQueryParams = array(), $bSafe = true, $bProtectAgainstInfiniteLoops = true ) {
 			$sUrl = empty( $aQueryParams ) ? $sUrl : add_query_arg( $aQueryParams, $sUrl );
 
 			$oDp = $this->loadDataProcessor();
 			// we prevent any repetitive redirect loops
-			if ( $oDp->FetchCookie( 'icwp-isredirect' ) == 'yes' ) {
-				return;
-			}
-			else {
-				$oDp->setCookie( 'icwp-isredirect', 'yes', 7 );
+			if ( $bProtectAgainstInfiniteLoops ) {
+				if ( $oDp->FetchCookie( 'icwp-isredirect' ) == 'yes' ) {
+					return;
+				}
+				else {
+					$oDp->setCookie( 'icwp-isredirect', 'yes', 7 );
+				}
 			}
 
 			// based on: https://make.wordpress.org/plugins/2015/04/20/fixing-add_query_arg-and-remove_query_arg-usage/
@@ -595,11 +541,9 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_V7', false ) ):
 		 * @return bool
 		 */
 		public function getIsLoginUrl() {
-			$sLoginUrl = wp_login_url();
+			$aLoginUrlParts = @parse_url( wp_login_url() );
 			$aRequestParts = $this->loadDataProcessor()->getRequestUriParts();
-
-			$aLoginUrlParts = @parse_url( $sLoginUrl );
-			return ( !empty( $aRequestParts['path'] ) && ( $aRequestParts['path'] == $aLoginUrlParts['path'] ) );
+			return ( !empty( $aRequestParts['path'] ) && ( rtrim( $aRequestParts['path'], '/' ) == rtrim( $aLoginUrlParts['path'], '/' ) ) );
 		}
 
 		/**
@@ -630,14 +574,6 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_V7', false ) ):
 			);
 			$nResult = $oDb->getVar( $sQuery );
 			return !is_null( $nResult ) && $nResult > 0;
-		}
-
-		/**
-		 * @return bool
-		 */
-		public function getIsXmlrpc() {
-			// XML-RPC Compatibility
-			return ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST );
 		}
 
 		/**
@@ -682,49 +618,29 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_V7', false ) ):
 		}
 
 		/**
-		 * @param int $nId
-		 * @return WP_User|null
+		 * @return boolean
 		 */
-		public function getUserById( $nId ) {
-			if ( version_compare( $this->getWordpressVersion(), '2.8.0', '<' ) || !function_exists( 'get_user_by' ) ) {
-				return null;
-			}
-			return get_user_by( 'id', $nId );
+		public function getIsXmlrpc() {
+			return defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST;
 		}
 
 		/**
-		 * @param $sUsername
-		 *
-		 * @return bool|WP_User
+		 * @return boolean
 		 */
-		public function getUserByUsername( $sUsername ) {
-			if ( empty( $sUsername ) ) {
-				return false;
-			}
-
-			if ( version_compare( $this->getWordpressVersion(), '2.8.0', '<' ) ) {
-				$oUser = get_userdatabylogin( $sUsername );
-			}
-			else {
-				$oUser = get_user_by( 'login', $sUsername );
-			}
-
-			return $oUser;
+		public function getIsMobile() {
+			return function_exists( 'wp_is_mobile' )&& wp_is_mobile();
 		}
 
 		/**
-		 * @param array $aLoginUrlParams
+		 * @return array
 		 */
-		public function forceUserRelogin( $aLoginUrlParams = array() ) {
-			$this->logoutUser();
-			$this->redirectToLogin( $aLoginUrlParams );
-		}
-
-		/**
-		 * @param string $sRedirectUrl
-		 */
-		public function logoutUser( $sRedirectUrl = '' ) {
-			empty( $sRedirectUrl ) ? wp_logout() : wp_logout_url( $sRedirectUrl );
+		public function getAllUserLoginUsernames() {
+			$aUsers = get_users( array( 'fields' => array( 'user_login' ) ) );
+			$aLogins = array();
+			foreach( $aUsers as $oUser ) {
+				$aLogins[] = $oUser->user_login;
+			}
+			return $aLogins;
 		}
 
 		/**
@@ -789,69 +705,101 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_V7', false ) ):
 		}
 
 		/**
-		 * @return null|WP_User
+		 * @param string $sPluginFile
+		 * @return int
 		 */
-		public function getCurrentWpUser() {
-			if ( is_user_logged_in() ) {
-				$oUser = wp_get_current_user();
-				if ( is_object( $oUser ) && $oUser instanceof WP_User ) {
-					return $oUser;
+		public function getActivePluginLoadPosition( $sPluginFile ) {
+			$sOptionKey = $this->isMultisite() ? 'active_sitewide_plugins' : 'active_plugins';
+			$aActive = $this->getOption( $sOptionKey );
+			$nPosition = array_search( $sPluginFile, $aActive );
+			return ( $nPosition === false ) ? -1 : $nPosition;
+		}
+
+		/**
+		 * @param string $sPluginFile
+		 * @param int $nDesiredPosition
+		 */
+		public function setActivePluginLoadPosition( $sPluginFile, $nDesiredPosition = 0 ) {
+
+			$aActive = $this->loadDataProcessor()->setArrayValueToPosition( $this->getOption( 'active_plugins' ), $sPluginFile, $nDesiredPosition );
+			$this->updateOption( 'active_plugins', $aActive );
+
+			if ( $this->isMultisite() ) {
+				$aActive = $this->loadDataProcessor()->setArrayValueToPosition( $this->getOption( 'active_sitewide_plugins' ), $sPluginFile, $nDesiredPosition );
+				$this->updateOption( 'active_sitewide_plugins', $aActive );
+			}
+		}
+
+		/**
+		 * @param string $sPluginFile
+		 */
+		public function setActivePluginLoadFirst( $sPluginFile ) {
+			$this->setActivePluginLoadPosition( $sPluginFile, 0 );
+		}
+
+		/**
+		 * @param string $sPluginFile
+		 */
+		public function setActivePluginLoadLast( $sPluginFile ) {
+			$this->setActivePluginLoadPosition( $sPluginFile, 1000 );
+		}
+
+		/**
+		 * @param int|null $nTime
+		 * @param bool $bShowTime
+		 * @param bool $bShowDate
+		 * @return string
+		 */
+		public function getTimeStringForDisplay( $nTime = null, $bShowTime = true, $bShowDate = true ) {
+			$nTime = empty( $nTime ) ? $this->loadDataProcessor()->time() : $nTime;
+
+			$sFullTimeString = $bShowTime ? $this->getTimeFormat() : '';
+			if ( empty( $sFullTimeString ) ) {
+				$sFullTimeString = $bShowDate ? $this->getDateFormat() : '';
+			}
+			else {
+				$sFullTimeString = $bShowDate ? ( $sFullTimeString . ' '. $this->getDateFormat() ) : $sFullTimeString;
+			}
+			return date_i18n( $sFullTimeString, $this->getTimeAsGmtOffset( $nTime ) );
+		}
+
+		/**
+		 * @return string
+		 */
+		public function getTimeAsGmtOffset( $nTime = null ) {
+
+			$nTimezoneOffset = wp_timezone_override_offset();
+			if ( $nTimezoneOffset === false ) {
+				$nTimezoneOffset = $this->getOption( 'gmt_offset' );
+				if ( empty( $nTimezoneOffset ) ) {
+					$nTimezoneOffset = 0;
 				}
 			}
-			return null;
+
+			$nTime = empty( $nTime ) ? $this->loadDataProcessor()->time() : $nTime;
+			return $nTime + ( $nTimezoneOffset * HOUR_IN_SECONDS );
 		}
 
 		/**
-		 * @return integer
+		 * @return string
 		 */
-		public function getCurrentUserLevel() {
-			$oUser = $this->getCurrentWpUser();
-			return ( is_object($oUser) && ($oUser instanceof WP_User) )? $oUser->get( 'user_level' ) : -1;
+		public function getTimeFormat() {
+			$sFormat = $this->getOption( 'time_format' );
+			if ( empty( $sFormat ) ) {
+				$sFormat = 'H:i';
+			}
+			return $sFormat;
 		}
 
 		/**
-		 * @param string $sUsername
-		 *
-		 * @return bool
+		 * @return string
 		 */
-		public function setUserLoggedIn( $sUsername ) {
-
-			$oUser = $this->getUserByUsername( $sUsername );
-			if ( !is_a( $oUser, 'WP_User' ) ) {
-				return false;
+		public function getDateFormat() {
+			$sFormat = $this->getOption( 'date_format' );
+			if ( empty( $sFormat ) ) {
+				$sFormat = 'F j, Y';
 			}
-
-			wp_clear_auth_cookie();
-			wp_set_current_user( $oUser->ID, $oUser->get( 'user_login' ) );
-			wp_set_auth_cookie( $oUser->ID, true );
-			do_action( 'wp_login', $oUser->get( 'user_login' ), $oUser );
-
-			return true;
-		}
-
-		/**
-		 * @param string $sKey should be already prefixed
-		 * @param int|null $nId - if omitted get for current user
-		 * @return bool|string
-		 */
-		public function getUserMeta( $sKey, $nId = null ) {
-			$nUserId = $nId;
-			if ( empty( $nUserId ) ) {
-				$oCurrentUser = $this->getCurrentWpUser();
-				if ( is_null( $oCurrentUser ) ) {
-					return false;
-				}
-				$nUserId = $oCurrentUser->ID;
-			}
-
-			$sCurrentMetaValue = get_user_meta( $nUserId, $sKey, true );
-			// A guard whereby if we can't ever get a value for this meta, it means we can never set it.
-			if ( empty( $sCurrentMetaValue ) ) {
-				//the value has never been set, or it's been installed for the first time.
-				$this->updateUserMeta( $sKey, 'temp', $nUserId );
-				return '';
-			}
-			return $sCurrentMetaValue;
+			return $sFormat;
 		}
 
 		/**
@@ -884,57 +832,135 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_V7', false ) ):
 		}
 
 		/**
+		 * @return bool
+		 */
+		public function turnOffCache() {
+			if ( !defined( 'DONOTCACHEPAGE' ) ) {
+				define( 'DONOTCACHEPAGE', true );
+			}
+			return DONOTCACHEPAGE;
+		}
+
+		/**
+		 * @param string $sMessage
+		 * @param string $sTitle
+		 * @param bool $bTurnOffCachePage
+		 */
+		public function wpDie( $sMessage, $sTitle = '', $bTurnOffCachePage = true ) {
+			if ( $bTurnOffCachePage ) {
+				$this->turnOffCache();
+			}
+			wp_die( $sMessage, $sTitle );
+		}
+
+		/** DEPRECATED: */
+
+		/**
+		 * @deprecated
+		 * @param array $aLoginUrlParams
+		 */
+		public function forceUserRelogin( $aLoginUrlParams = array() ) {
+			$this->loadWpUsersProcessor()->forceUserRelogin( $aLoginUrlParams );
+		}
+
+		/**
+		 * @deprecated
+		 * @return null|WP_User
+		 */
+		public function getCurrentWpUser() {
+			return $this->loadWpUsersProcessor()->getCurrentWpUser();
+		}
+
+		/**
+		 * @deprecated
+		 * @return integer
+		 */
+		public function getCurrentUserLevel() {
+			return $this->loadWpUsersProcessor()->getCurrentUserLevel();
+		}
+
+		/**
+		 * @deprecated
+		 * @param int $nId
+		 * @return WP_User|null
+		 */
+		public function getUserById( $nId ) {
+			return $this->loadWpUsersProcessor()->getUserById( $nId );
+		}
+
+		/**
+		 * @deprecated
+		 * @param $sUsername
+		 * @return bool|WP_User
+		 */
+		public function getUserByUsername( $sUsername ) {
+			return $this->loadWpUsersProcessor()->getUserByUsername( $sUsername );
+		}
+
+		/**
+		 * @deprecated
+		 * @param string $sKey should be already prefixed
+		 * @param int|null $nId - if omitted get for current user
+		 * @return bool|string
+		 */
+		public function getUserMeta( $sKey, $nId = null ) {
+			return $this->loadWpUsersProcessor()->getUserMeta( $sKey, $nId );
+		}
+
+		/**
+		 * @deprecated
+		 * @param string $sRedirectUrl
+		 */
+		public function logoutUser( $sRedirectUrl = '' ) {
+			$this->loadWpUsersProcessor()->logoutUser( $sRedirectUrl );
+		}
+
+		/**
 		 * Updates the user meta data for the current (or supplied user ID)
 		 *
+		 * @deprecated
 		 * @param string $sKey
 		 * @param mixed $mValue
 		 * @param integer $nId		-user ID
 		 * @return boolean
 		 */
 		public function updateUserMeta( $sKey, $mValue, $nId = null ) {
-			$nUserId = $nId;
-			if ( empty( $nUserId ) ) {
-				$oCurrentUser = $this->getCurrentWpUser();
-				if ( is_null( $oCurrentUser ) ) {
-					return false;
-				}
-				$nUserId = $oCurrentUser->ID;
-			}
-			return update_user_meta( $nUserId, $sKey, $mValue );
+			return $this->loadWpUsersProcessor()->updateUserMeta( $sKey, $mValue, $nId );
 		}
 
 		/**
-		 * @return ICWP_APP_DataProcessor
+		 * @deprecated
+		 * @param string $sUsername
+		 * @return bool
 		 */
-		public function loadDataProcessor() {
-			require_once( dirname(__FILE__).ICWP_DS.'icwp-data.php' );
-			return ICWP_APP_DataProcessor::GetInstance();
+		public function setUserLoggedIn( $sUsername ) {
+			return $this->loadWpUsersProcessor()->setUserLoggedIn( $sUsername );
 		}
 
 		/**
-		 * @return ICWP_APP_WpDb
+		 * @deprecated
+		 * @return bool
 		 */
-		public function loadDbProcessor() {
-			if ( !isset( self::$oWpDb ) ) {
-				require_once( dirname(__FILE__).ICWP_DS.'icwp-wpdb.php' );
-				self::$oWpDb = ICWP_APP_WpDb::GetInstance();
-			}
-			return self::$oWpDb;
+		public function comments_getIsCommentPost() {
+			return $this->loadWpCommentsProcessor()->isCommentPost();
 		}
-	}
-endif;
 
-if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
-
-	class ICWP_APP_WpFunctions extends ICWP_APP_WpFunctions_V7 {
 		/**
-		 * @return ICWP_APP_WpFunctions
+		 * @deprecated
+		 * @param string $sAuthorEmail
+		 * @return bool
 		 */
-		public static function GetInstance() {
-			if ( is_null( self::$oInstance ) ) {
-				self::$oInstance = new self();
-			}
-			return self::$oInstance;
+		public function comments_getIfCommentAuthorPreviouslyApproved( $sAuthorEmail ) {
+			return $this->loadWpCommentsProcessor()->isCommentAuthorPreviouslyApproved( $sAuthorEmail );
+		}
+
+		/**
+		 * @deprecated
+		 * @param WP_Post $oPost
+		 * @return bool
+		 */
+		public function comments_getIfCommentsOpen( $oPost = null ) {
+			return $this->loadWpCommentsProcessor()->isCommentsOpen( $oPost );
 		}
 	}
 endif;
