@@ -310,23 +310,23 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		protected function setAuthorizedUser() {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
-			$oWp = $this->loadWpFunctionsProcessor();
+			$oWpUser = $this->loadWpUsersProcessor();
 			$sWpUser = $oFO->fetchIcwpRequestParam( 'wpadmin_user' );
 			if ( empty( $sWpUser ) ) {
 
-				if ( version_compare( $oWp->getWordpressVersion(), '3.1', '>=' ) ) {
+				if ( version_compare( $this->loadWpFunctionsProcessor()->getWordpressVersion(), '3.1', '>=' ) ) {
 					$aUserRecords = get_users( 'role=administrator' );
 					if ( is_array( $aUserRecords ) && count( $aUserRecords ) ) {
 						$oUser = $aUserRecords[0];
 					}
 				}
 				else {
-					$oUser = $oWp->getUserById( 1 );
+					$oUser = $oWpUser->getUserById( 1 );
 				}
 				$sWpUser = ( !empty( $oUser ) && is_a( $oUser, 'WP_User' ) ) ? $oUser->get( 'user_login' ) : '';
 			}
 
-			return $oWp->setUserLoggedIn( empty( $sWpUser ) ? 'admin' : $sWpUser );
+			return $oWpUser->setUserLoggedIn( empty( $sWpUser ) ? 'admin' : $sWpUser );
 		}
 
 		/**
