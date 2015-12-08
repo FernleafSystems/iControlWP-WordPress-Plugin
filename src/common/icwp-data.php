@@ -764,7 +764,8 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 		}
 
 		/**
-		 * @return string
+		 * @param string $sAtLeastVersion
+		 * @return boolean
 		 */
 		public function getPhpVersionIsAtLeast( $sAtLeastVersion ) {
 			return ( version_compare( $this->getPhpVersion(), $sAtLeastVersion, '>=' ) );

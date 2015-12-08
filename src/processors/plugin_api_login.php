@@ -60,8 +60,10 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Login', false ) ):
 				);
 			}
 
+			$oWpUsers = $this->loadWpUsersProcessor();
+
 			$sUsername = $oFO->fetchIcwpRequestParam( 'username', '' );
-			$oUser = $oWp->getUserByUsername( $sUsername );
+			$oUser = $oWpUsers->getUserByUsername( $sUsername );
 			if ( empty( $sUsername ) || empty( $oUser ) ) {
 				$aUserRecords = version_compare( $oWp->getWordpressVersion(), '3.1', '>=' ) ? get_users( 'role=administrator' ) : array();
 				if ( empty( $aUserRecords[0] ) ) {
@@ -78,7 +80,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Login', false ) ):
 				wp_cookie_constants();
 			}
 
-			$bLoginSuccess = $oWp->setUserLoggedIn( $oUser->get( 'user_login' ) );
+			$bLoginSuccess = $oWpUsers->setUserLoggedIn( $oUser->get( 'user_login' ) );
 			if ( !$bLoginSuccess ) {
 				return $this->setErrorResponse(
 					sprintf( 'There was a problem logging you in as "%s".', $oUser->get( 'user_login' ) ),

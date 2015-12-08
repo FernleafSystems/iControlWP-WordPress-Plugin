@@ -4,11 +4,6 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 	class ICWP_APP_WpFunctions extends ICWP_APP_Foundation {
 
 		/**
-		 * @var ICWP_APP_WpFilesystem
-		 */
-		private static $oWpFs;
-
-		/**
 		 * @var WP_Automatic_Updater
 		 */
 		protected $oWpAutomaticUpdater;
@@ -390,7 +385,6 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 
 		/**
 		 * @param string $sPluginBaseFilename
-		 *
 		 * @return boolean
 		 */
 		public function getIsPluginAutomaticallyUpdated( $sPluginBaseFilename ) {
@@ -769,7 +763,8 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		}
 
 		/**
-		 * @return string
+		 * @param int $nTime
+		 * @return int
 		 */
 		public function getTimeAsGmtOffset( $nTime = null ) {
 

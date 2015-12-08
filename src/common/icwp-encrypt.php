@@ -1,16 +1,16 @@
 <?php
 
-if ( !class_exists( 'ICWP_APP_Encypt_V1', false ) ):
+if ( !class_exists( 'ICWP_APP_Encrypt', false ) ):
 
-	class ICWP_APP_Encrypt_V1 {
+	class ICWP_APP_Encrypt {
 
 		/**
-		 * @var ICWP_APP_Encrypt_V1
+		 * @var ICWP_APP_Encrypt
 		 */
 		protected static $oInstance = NULL;
 
 		/**
-		 * @return ICWP_APP_Encrypt_V1
+		 * @return ICWP_APP_Encrypt
 		 */
 		public static function GetInstance() {
 			if ( is_null( self::$oInstance ) ) {
@@ -108,21 +108,6 @@ if ( !class_exists( 'ICWP_APP_Encypt_V1', false ) ):
 			$oEncryptResponse->encrypted_data = null;
 			$oEncryptResponse->encrypted_password = null;
 			return $oEncryptResponse;
-		}
-	}
-endif;
-
-if ( !class_exists( 'ICWP_APP_Encrypt', false ) ) :
-
-	class ICWP_APP_Encrypt extends ICWP_APP_Encrypt_V1 {
-		/**
-		 * @return ICWP_APP_Encrypt
-		 */
-		public static function GetInstance() {
-			if ( is_null( self::$oInstance ) ) {
-				self::$oInstance = new self();
-			}
-			return self::$oInstance;
 		}
 	}
 endif;

@@ -302,7 +302,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 				}
 				/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 				$oFO = $this->getFeatureOptions();
-				$oFO->doClearAdminFeedback( 'feedback_admin_notice', array() );
+				$oFO->doClearAdminFeedback();
 			}
 			return $aAdminNotices;
 		}
