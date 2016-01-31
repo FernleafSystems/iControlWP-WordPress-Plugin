@@ -140,7 +140,6 @@ options:
     immutable: true
     value:
       - 'index'
-      - 'internal'
       - 'retrieve'
       - 'execute'
       - 'login'
