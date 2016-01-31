@@ -88,6 +88,13 @@ class Worpit_Plugin extends ICWP_APP_Foundation {
 	}
 
 	/**
+	 * @return boolean
+	 */
+	static public function GetAssignedToEmail() {
+		return self::getController()->loadCorePluginFeatureHandler()->getAssignedTo();
+	}
+
+	/**
 	 * @return bool
 	 */
 	public static function GetHandshakingEnabled() {
