@@ -614,6 +614,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 						else {
 							$mCurrentOptionVal = implode( "\n", $mCurrentOptionVal );
 						}
+						$aOptionParams[ 'rows' ] = substr_count( $mCurrentOptionVal, "\n" ) + 1;
 					}
 					else if ( $sOptionType == 'ip_addresses' ) {
 
@@ -623,6 +624,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 						else {
 							$mCurrentOptionVal = implode( "\n", $this->convertIpListForDisplay( $mCurrentOptionVal ) );
 						}
+						$aOptionParams[ 'rows' ] = substr_count( $mCurrentOptionVal, "\n" ) + 1;
 					}
 					else if ( $sOptionType == 'yubikey_unique_keys' ) {
 
@@ -636,6 +638,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 							}
 							$mCurrentOptionVal = implode( "\n", $aDisplay );
 						}
+						$aOptionParams[ 'rows' ] = substr_count( $mCurrentOptionVal, "\n" ) + 1;
 					}
 					else if ( $sOptionType == 'comma_separated_lists' ) {
 
@@ -649,7 +652,14 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 							}
 							$mCurrentOptionVal = implode( "\n", $aNewValues );
 						}
+						$aOptionParams[ 'rows' ] = substr_count( $mCurrentOptionVal, "\n" ) + 1;
 					}
+
+					if ( $sOptionType == 'text' ) {
+						$mCurrentOptionVal = stripslashes( $mCurrentOptionVal );
+					}
+					$mCurrentOptionVal = is_scalar( $mCurrentOptionVal ) ? esc_attr( $mCurrentOptionVal ) : $mCurrentOptionVal;
+
 					$aOptionParams['value'] = $mCurrentOptionVal;
 
 					// Build strings
