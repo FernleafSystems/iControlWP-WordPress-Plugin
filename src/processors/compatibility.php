@@ -1,10 +1,10 @@
 <?php
 
-if ( !class_exists( 'ICWP_APP_Processor_Compatibility_V1', false ) ):
+if ( !class_exists( 'ICWP_APP_Processor_Compatibility', false ) ):
 
 	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
 
-	class ICWP_APP_Processor_Compatibility_V1 extends ICWP_APP_Processor_Base {
+	class ICWP_APP_Processor_Compatibility extends ICWP_APP_Processor_Base {
 
 		/**
 		 */
@@ -338,8 +338,4 @@ if ( !class_exists( 'ICWP_APP_Processor_Compatibility_V1', false ) ):
 		}
 	}
 
-endif;
-
-if ( !class_exists('ICWP_APP_Processor_Compatibility') ):
-	class ICWP_APP_Processor_Compatibility extends ICWP_APP_Processor_Compatibility_V1 { }
 endif;

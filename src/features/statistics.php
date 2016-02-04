@@ -7,13 +7,6 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Statistics', false ) ):
 	class ICWP_APP_FeatureHandler_Statistics extends ICWP_APP_FeatureHandler_Base {
 
 		/**
-		 * @return string
-		 */
-		protected function getProcessorClassName() {
-			return 'ICWP_APP_Processor_Statistics';
-		}
-
-		/**
 		 * @return array
 		 */
 		public function retrieveDailyStats() {

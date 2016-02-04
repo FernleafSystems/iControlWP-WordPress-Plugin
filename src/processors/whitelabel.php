@@ -1,10 +1,10 @@
 <?php
 
-if ( !class_exists( 'ICWP_APP_Processor_Whitelabel_V1', false ) ):
+if ( !class_exists( 'ICWP_APP_Processor_Whitelabel', false ) ):
 
 	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
 
-	class ICWP_APP_Processor_Whitelabel_V1 extends ICWP_APP_Processor_Base {
+	class ICWP_APP_Processor_Whitelabel extends ICWP_APP_Processor_Base {
 
 		/**
 		 */
@@ -15,7 +15,6 @@ if ( !class_exists( 'ICWP_APP_Processor_Whitelabel_V1', false ) ):
 
 		/**
 		 * @param array $aPluginLabels
-		 *
 		 * @return array
 		 */
 		public function doRelabelPlugin( $aPluginLabels ) {
@@ -66,8 +65,4 @@ if ( !class_exists( 'ICWP_APP_Processor_Whitelabel_V1', false ) ):
 		}
 	}
 
-endif;
-
-if ( !class_exists( 'ICWP_APP_Processor_Whitelabel', false ) ):
-	class ICWP_APP_Processor_Whitelabel extends ICWP_APP_Processor_Whitelabel_V1 { }
 endif;

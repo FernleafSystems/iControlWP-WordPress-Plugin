@@ -7,15 +7,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Autoupdates', false ) ):
 	class ICWP_APP_FeatureHandler_Autoupdates extends ICWP_APP_FeatureHandler_Base {
 
 		/**
-		 * @return string
-		 */
-		protected function getProcessorClassName() {
-			return 'ICWP_APP_Processor_Autoupdates';
-		}
-
-		/**
 		 * @param string $sContext
-		 *
 		 * @return array
 		 */
 		public function getAutoUpdates( $sContext = 'plugins' ) {
@@ -26,7 +18,6 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Autoupdates', false ) ):
 		/**
 		 * @param array $aUpdateItems
 		 * @param string $sContext
-		 *
 		 * @return array
 		 */
 		public function setAutoUpdates( $aUpdateItems, $sContext = 'plugins' ) {

@@ -1,10 +1,10 @@
 <?php
 
-if ( !class_exists( 'ICWP_APP_AutoupdatesProcessor_V7', false ) ):
+if ( !class_exists( 'ICWP_APP_Processor_Autoupdates', false ) ):
 
 	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
 
-	class ICWP_APP_AutoupdatesProcessor_V7 extends ICWP_APP_Processor_Base {
+	class ICWP_APP_Processor_Autoupdates extends ICWP_APP_Processor_Base {
 
 		/**
 		 * @var boolean
@@ -324,8 +324,4 @@ if ( !class_exists( 'ICWP_APP_AutoupdatesProcessor_V7', false ) ):
 		}
 	}
 
-endif;
-
-if ( !class_exists('ICWP_APP_Processor_Autoupdates') ):
-	class ICWP_APP_Processor_Autoupdates extends ICWP_APP_AutoupdatesProcessor_V7 { }
 endif;

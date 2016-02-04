@@ -1,10 +1,10 @@
 <?php
 
-if ( !class_exists( 'ICWP_APP_Processor_GoogleAnalytics_V1', false ) ):
+if ( !class_exists( 'ICWP_APP_Processor_GoogleAnalytics', false ) ):
 
 	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
 
-	class ICWP_APP_Processor_GoogleAnalytics_V1 extends ICWP_APP_Processor_Base {
+	class ICWP_APP_Processor_GoogleAnalytics extends ICWP_APP_Processor_Base {
 
 		/**
 		 */
@@ -92,8 +92,4 @@ if ( !class_exists( 'ICWP_APP_Processor_GoogleAnalytics_V1', false ) ):
 		}
 	}
 
-endif;
-
-if ( !class_exists('ICWP_APP_Processor_GoogleAnalytics') ):
-	class ICWP_APP_Processor_GoogleAnalytics extends ICWP_APP_Processor_GoogleAnalytics_V1 { }
 endif;
