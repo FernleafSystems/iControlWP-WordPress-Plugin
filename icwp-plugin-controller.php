@@ -46,6 +46,11 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	/**
 	 * @var boolean
 	 */
+	protected $bForceOffState;
+
+	/**
+	 * @var boolean
+	 */
 	protected $bResetPlugin;
 
 	/**
@@ -1288,12 +1293,30 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	}
 
 	/**
+	 */
+	public function clearSession() {
+		$this->loadDataProcessor()->setDeleteCookie( $this->getPluginPrefix() );
+		self::$sSessionId = null;
+	}
+
+	/**
+	 * Returns true if you're overriding OFF.  We don't do override ON any more (as of 3.5.1)
+	 */
+	public function getIfOverrideOff() {
+		if ( !isset( $this->bForceOffState ) ) {
+			$this->bForceOffState = $this->loadFileSystemProcessor()->fileExistsInDir( 'forceOff', $this->getRootDir(), false );
+		}
+		return $this->bForceOffState;
+	}
+
+	/**
+	 * @param boolean $bSetIfNeeded
 	 * @return string
 	 */
-	public function getSessionId() {
-		if ( !isset( self::$sSessionId ) ) {
+	public function getSessionId( $bSetIfNeeded = true ) {
+		if ( empty( self::$sSessionId ) ) {
 			self::$sSessionId = $this->loadDataProcessor()->FetchCookie( $this->getPluginPrefix(), '' );
-			if ( empty( self::$sSessionId ) ) {
+			if ( empty( self::$sSessionId ) && $bSetIfNeeded ) {
 				self::$sSessionId = md5( uniqid( $this->getPluginPrefix() ) );
 				$this->setSessionCookie();
 			}
@@ -1307,9 +1330,17 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	public function getUniqueRequestId() {
 		if ( !isset( self::$sRequestId ) ) {
 			$oDp = $this->loadDataProcessor();
-			self::$sRequestId = md5( $this->getSessionId().$oDp->getVisitorIpAddress().$oDp->time() );
+			self::$sRequestId = md5( $this->getSessionId( false ).$oDp->getVisitorIpAddress().$oDp->time() );
 		}
 		return self::$sRequestId;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function hasSessionId() {
+		$sSessionId = $this->getSessionId( false );
+		return !empty( $sSessionId );
 	}
 
 	/**
