@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2015 iControlWP <support@icontrolwp.com>
+ * Copyright (c) 2016 iControlWP <support@icontrolwp.com>
  * All rights reserved.
  *
  * "iControlWP" is distributed under the GNU General Public License, Version 2,
@@ -67,6 +67,11 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @var string
 	 */
 	protected static $sRequestId;
+
+	/**
+	 * @var string
+	 */
+	private $sConfigOptionsHashWhenLoaded;
 
 	/**
 	 * @param $sRootFile
@@ -465,20 +470,28 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 */
 	public function setUpdateFirstDetectedAt( $oPluginUpdateData ) {
 
-		if ( !empty( $oPluginUpdateData ) && !empty( $oPluginUpdateData->response ) ) {
+		if ( !empty( $oPluginUpdateData ) && !empty( $oPluginUpdateData->response )
+			&& isset( $oPluginUpdateData->response[ $this->getPluginBaseFile() ] ) ) {
 			// i.e. there's an update available
-			if ( isset( $oPluginUpdateData->response[ $this->getPluginBaseFile() ] ) ) {
+			$sNewVersion = $this->loadWpFunctionsProcessor()->getPluginUpdateNewVersion( $this->getPluginBaseFile() );
+			if ( !empty( $sNewVersion ) ) {
+				$oConOptions = $this->getPluginControllerOptions();
+				if ( !isset( $oConOptions->update_first_detected ) || ( count( $oConOptions->update_first_detected ) > 3 ) ) {
+					$oConOptions->update_first_detected = array();
+				}
+				if ( !isset( $oConOptions->update_first_detected[ $sNewVersion ] ) ) {
+					$oConOptions->update_first_detected[ $sNewVersion ] = $this->loadDataProcessor()->time();
+				}
 
-				$sNewVersion = $this->loadWpFunctionsProcessor()->getPluginUpdateNewVersion( $this->getPluginBaseFile() );
-				if ( !empty( $sNewVersion ) ) {
-					$sKey = 'update_first_detected_'.$sNewVersion;
-					$oConOptions = $this->getPluginControllerOptions();
-					if ( !isset( $oConOptions->{$sKey} ) ) {
-						$oConOptions->{$sKey} = $this->loadDataProcessor()->time();
+				// a bit of cleanup to remove the old-style entries which would gather foreva-eva
+				foreach ( $oConOptions as $sKey => $aData ) {
+					if ( strpos( $sKey, 'update_first_detected_' ) !== false ) {
+						unset( $oConOptions->{$sKey} );
 					}
 				}
 			}
 		}
+
 		return $oPluginUpdateData;
 	}
 
@@ -488,7 +501,6 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 *
 	 * @param boolean $bDoAutoUpdate
 	 * @param string|object $mItemToUpdate
-	 *
 	 * @return boolean
 	 */
 	public function onWpAutoUpdate( $bDoAutoUpdate, $mItemToUpdate ) {
@@ -529,8 +541,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 					$bDoAutoUpdate = false;
 					$sNewVersion = $oWp->getPluginUpdateNewVersion( $this->getPluginBaseFile() );
 					if ( !empty( $sNewVersion ) ) {
-						$sNewVersionKey = 'update_first_detected_'.$sNewVersion;
-						$nFirstDetected = isset( $oConOptions->{$sNewVersionKey} ) ? $oConOptions->{$sNewVersionKey} : 0;
+						$nFirstDetected = isset( $oConOptions->update_first_detected[ $sNewVersion ] ) ? $oConOptions->update_first_detected[ $sNewVersion ] : 0;
 						$nTimeUpdateAvailable =  $this->loadDataProcessor()->time() - $nFirstDetected;
 						$bDoAutoUpdate = ( $nFirstDetected > 0 && ( $nTimeUpdateAvailable > DAY_IN_SECONDS * 2 ) );
 					}
@@ -1087,8 +1098,6 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	}
 
 	/**
-	 * get the root directory for the plugin with the trailing slash
-	 *
 	 * @return string
 	 */
 	public function getPath_Views() {
@@ -1165,6 +1174,11 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 				self::$oControllerOptions->rebuild_time = $this->loadDataProcessor()->time() + MINUTE_IN_SECONDS * 5;
 			}
 		}
+
+		// Used at the time of saving during WP Shutdown to determine whether saving is necessary. TODO: Extend to plugin options
+		if ( empty( $this->sConfigOptionsHashWhenLoaded ) ) {
+			$this->sConfigOptionsHashWhenLoaded = md5( serialize( self::$oControllerOptions ) );
+		}
 		return self::$oControllerOptions;
 	}
 
@@ -1172,26 +1186,30 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 */
 	protected function deletePluginControllerOptions() {
 		$this->setPluginControllerOptions( false );
+		$this->saveCurrentPluginControllerOptions();
 	}
 
 	/**
 	 * @return bool
 	 */
 	protected function saveCurrentPluginControllerOptions() {
-		$this->setPluginControllerOptions( $this->getPluginControllerOptions() );
+
+		$oOptions = $this->getPluginControllerOptions();
+		if ( $this->sConfigOptionsHashWhenLoaded != md5( serialize( $oOptions ) ) ) {
+			add_filter( $this->doPluginPrefix( 'has_permission_to_submit' ), '__return_true' );
+			$this->loadWpFunctionsProcessor()->updateOption( $this->getPluginControllerOptionsKey(), $oOptions );
+			remove_filter( $this->doPluginPrefix( 'has_permission_to_submit' ), '__return_true' );
+		}
 	}
 
 	/**
 	 * This should always be used to modify or delete the options as it works within the Admin Access Permission system.
 	 *
-	 * @param stdClass $oOptions
+	 * @param stdClass|bool $oOptions
 	 * @return bool
 	 */
 	protected function setPluginControllerOptions( $oOptions ) {
-		add_filter( $this->doPluginPrefix( 'has_permission_to_submit' ), '__return_true' );
-		$bUpdated = $this->loadWpFunctionsProcessor()->updateOption( $this->getPluginControllerOptionsKey(), $oOptions );
-		remove_filter( $this->doPluginPrefix( 'has_permission_to_submit' ), '__return_true' );
-		return $bUpdated;
+		self::$oControllerOptions = $oOptions;
 	}
 
 	/**
@@ -1259,12 +1277,12 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	/**
 	 * @return ICWP_APP_FeatureHandler_Plugin
 	 */
-	public function loadCorePluginFeatureHandler() {
+	public function &loadCorePluginFeatureHandler() {
 		if ( !isset( $this->oFeatureHandlerPlugin ) ) {
 			$this->loadFeatureHandler(
 				array(
 					'slug' => 'plugin',
-					'load_priority' => 5
+					'load_priority' => 10
 				)
 			);
 		}
