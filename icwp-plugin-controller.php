@@ -348,15 +348,25 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 
 			$aLinksToAdd = $this->getPluginSpec_ActionLinks( 'add' );
 			if ( !empty( $aLinksToAdd ) && is_array( $aLinksToAdd ) ) {
+
+				$sLinkTemplate = '<a href="%s" target="%s">%s</a>';
 				foreach( $aLinksToAdd as $aLink ){
-					if ( empty( $aLink['name'] ) || empty( $aLink['url_method_name'] ) ) {
+					if ( empty( $aLink['name'] ) || ( empty( $aLink['url_method_name'] ) && empty( $aLink['href'] ) ) ) {
 						continue;
 					}
-					$sMethod = $aLink['url_method_name'];
-					if ( method_exists( $this, $sMethod ) ) {
-						$sSettingsLink = sprintf( '<a href="%s">%s</a>', $this->{$sMethod}(), $aLink['name'] ); ;
+
+					if ( !empty( $aLink['url_method_name'] ) ) {
+						$sMethod = $aLink['url_method_name'];
+						if ( method_exists( $this, $sMethod ) ) {
+							$sSettingsLink = sprintf( $sLinkTemplate, $this->{$sMethod}(), "_top", $aLink['name'] ); ;
+							array_unshift( $aActionLinks, $sSettingsLink );
+						}
+					}
+					else if ( !empty( $aLink['href'] ) ) {
+						$sSettingsLink = sprintf( $sLinkTemplate, $aLink['href'], "_blank", $aLink['name'] ); ;
 						array_unshift( $aActionLinks, $sSettingsLink );
 					}
+
 				}
 			}
 		}
