@@ -1,23 +1,8 @@
 <?php
-/**
- * Copyright (c) 2015 iControlWP <support@icontrolwp.com>
- * All rights reserved.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
 
-if ( !class_exists( 'ICWP_APP_FeatureHandler_Base_V3', false ) ):
+if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 
-	abstract class ICWP_APP_FeatureHandler_Base_V3 extends ICWP_APP_Foundation {
+	abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 
 		/**
 		 * @var ICWP_APP_Plugin_Controller
@@ -168,6 +153,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base_V3', false ) ):
 				$this->oOptions = new ICWP_APP_OptionsVO( $this->getFeatureSlug() );
 				$this->oOptions->setRebuildFromFile( $this->getController()->getIsRebuildOptionsFromFile() );
 				$this->oOptions->setOptionsStorageKey( $this->getOptionsStorageKey() );
+				$this->oOptions->setIfLoadOptionsFromStorage( !$this->getController()->getIsResetPlugin() );
 			}
 			return $this->oOptions;
 		}
@@ -423,6 +409,14 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base_V3', false ) ):
 		}
 
 		/**
+		 * @param string $sDefinitionKey
+		 * @return mixed|null
+		 */
+		public function getDefinition( $sDefinitionKey ) {
+			return $this->getOptionsVo()->getFeatureDefinition( $sDefinitionKey );
+		}
+
+		/**
 		 * @param string $sOptionKey
 		 * @param mixed $mDefault
 		 * @return mixed
@@ -478,6 +472,48 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base_V3', false ) ):
 			foreach( $aOptions as $sKey => $mValue ) {
 				$this->setOpt( $sKey, $mValue );
 			}
+		}
+
+		protected function setupAjaxHandlers() {
+			if ( $this->loadWpFunctionsProcessor()->getIsAjax() ) {
+				if ( is_admin() || is_network_admin() ) {
+					$this->adminAjaxHandlers();
+				}
+				$this->frontEndAjaxHandlers();
+			}
+		}
+		protected function adminAjaxHandlers() { }
+
+		protected function frontEndAjaxHandlers() { }
+
+		/**
+		 * Will send ajax error response immediately upon failure
+		 * @return bool
+		 */
+		protected function checkAjaxNonce() {
+
+			$sNonce = $this->loadDataProcessor()->FetchRequest( '_ajax_nonce', '' );
+			if ( empty( $sNonce ) ) {
+				$sMessage = _wpsf__( 'Nonce security checking failed - the nonce value was empty.' );
+			}
+			else if ( wp_verify_nonce( $sNonce, 'icwp_ajax' ) === false ) {
+				$sMessage = sprintf( _wpsf__( 'Nonce security checking failed - the nonce supplied was "%s".' ), $sNonce );
+			}
+			else {
+				return true; // At this stage we passed the nonce check
+			}
+
+			// At this stage we haven't returned after success so we failed the nonce check
+			$this->sendAjaxResponse( false, array( 'message' => $sMessage ) );
+			return false; //unreachable
+		}
+
+		/**
+		 * @param $bSuccess
+		 * @param array $aData
+		 */
+		protected function sendAjaxResponse( $bSuccess, $aData = array() ) {
+			$bSuccess ? wp_send_json_success( $aData ) : wp_send_json_error( $aData );
 		}
 
 		/**
@@ -610,7 +646,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base_V3', false ) ):
 		/**
 		 */
 		protected function updateOptionsVersion() {
-			if ( $this->getIsUpgrading() ) {
+			if ( $this->getIsUpgrading() || $this->getController()->getIsRebuildOptionsFromFile() ) {
 				$this->setOpt( self::PluginVersionKey, $this->getController()->getVersion() );
 				$this->getOptionsVo()->cleanTransientStorage();
 			}
@@ -995,5 +1031,3 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base_V3', false ) ):
 	}
 
 endif;
-
-abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_FeatureHandler_Base_V3 { }
