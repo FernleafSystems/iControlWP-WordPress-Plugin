@@ -1172,6 +1172,21 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getPath_Templates() {
+		return $this->getRootDir().$this->getPluginSpec_Path( 'templates' ).ICWP_DS;
+	}
+
+	/**
+	 * @param string $sTemplate
+	 * @return string
+	 */
+	public function getPath_TemplatesFile( $sTemplate ) {
+		return $this->getPath_Templates().$sTemplate;
+	}
+
+	/**
 	 * @param string $sSnippet
 	 * @return string
 	 */
