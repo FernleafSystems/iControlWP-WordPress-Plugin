@@ -64,11 +64,6 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 		protected $oFeatureProcessor;
 
 		/**
-		 * @var boolean
-		 */
-		protected $bOverrideState;
-
-		/**
 		 * @param ICWP_APP_Plugin_Controller $oPluginController
 		 * @param array $aFeatureProperties
 		 * @throws Exception
@@ -87,19 +82,25 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 				$this->sFeatureSlug = $aFeatureProperties['slug'];
 			}
 
-			$nRunPriority = isset( $aFeatureProperties['load_priority'] ) ? $aFeatureProperties['load_priority'] : 100;
-			// Handle any upgrades as necessary (only go near this if it's the admin area)
-			add_action( 'plugins_loaded', array( $this, 'onWpPluginsLoaded' ), $nRunPriority );
-			add_action( 'init', array( $this, 'onWpInit' ), 1 );
-			add_action( $this->doPluginPrefix( 'form_submit' ), array( $this, 'handleFormSubmit' ) );
-			add_filter( $this->doPluginPrefix( 'filter_plugin_submenu_items' ), array( $this, 'filter_addPluginSubMenuItem' ) );
-			add_filter( $this->doPluginPrefix( 'get_feature_summary_data' ), array( $this, 'filter_getFeatureSummaryData' ) );
-			add_action( $this->doPluginPrefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureShutdown' ) );
-			add_action( $this->doPluginPrefix( 'delete_plugin' ), array( $this, 'deletePluginOptions' )  );
-			add_filter( $this->doPluginPrefix( 'aggregate_all_plugin_options' ), array( $this, 'aggregateOptionsValues' ) );
-			add_filter( $this->doPluginPrefix( 'override_off' ), array( $this, 'fDoCheckForForceOffFile' ) );
+			// before proceeding, we must now test the system meets the minimum requirements.
+			if ( $this->getModuleMeetRequirements() ) {
 
-			$this->doPostConstruction();
+				$nRunPriority = isset( $aFeatureProperties['load_priority'] ) ? $aFeatureProperties['load_priority'] : 100;
+				// Handle any upgrades as necessary (only go near this if it's the admin area)
+				add_action( 'plugins_loaded', array( $this, 'onWpPluginsLoaded' ), $nRunPriority );
+				add_action( 'init', array( $this, 'onWpInit' ), 1 );
+				add_action( $this->doPluginPrefix( 'form_submit' ), array( $this, 'handleFormSubmit' ) );
+				add_filter( $this->doPluginPrefix( 'filter_plugin_submenu_items' ), array( $this, 'filter_addPluginSubMenuItem' ) );
+				add_filter( $this->doPluginPrefix( 'get_feature_summary_data' ), array( $this, 'filter_getFeatureSummaryData' ) );
+				add_action( $this->doPluginPrefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureShutdown' ) );
+				add_action( $this->doPluginPrefix( 'delete_plugin' ), array( $this, 'deletePluginOptions' )  );
+				add_filter( $this->doPluginPrefix( 'aggregate_all_plugin_options' ), array( $this, 'aggregateOptionsValues' ) );
+
+				add_filter($this->doPluginPrefix( 'register_admin_notices' ), array( $this, 'fRegisterAdminNotices' ) );
+
+				$this->doPostConstruction();
+			}
+
 		}
 
 		protected function doPostConstruction() { }
@@ -121,7 +122,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 		 */
 		protected function doExecutePreProcessor() {
 			$oProcessor = $this->getProcessor();
-			return ( is_object( $oProcessor ) && $oProcessor instanceof ICWP_WPSF_Processor_Base );
+			return ( is_object( $oProcessor ) && $oProcessor instanceof ICWP_APP_Processor_Base );
 		}
 
 		protected function doExecuteProcessor() {
@@ -170,6 +171,17 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 				$this->oOptions->setIfLoadOptionsFromStorage( !$this->getController()->getIsResetPlugin() );
 			}
 			return $this->oOptions;
+		}
+
+		/**
+		 * @param array $aAdminNotices
+		 * @return array
+		 */
+		public function fRegisterAdminNotices( $aAdminNotices ) {
+			if ( !is_array( $aAdminNotices ) ) {
+				$aAdminNotices = array();
+			}
+			return array_merge( $aAdminNotices, $this->getOptionsVo()->getAdminNotices() );
 		}
 
 		/**
@@ -296,41 +308,15 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 		 * @return mixed
 		 */
 		public function getIsMainFeatureEnabled() {
-			if ( $this->getIfOverrideOff() ) {
+			if ( apply_filters( $this->doPluginPrefix( 'globally_disabled' ), false ) ) {
 				return false;
 			}
 
-			$bEnabled = $this->getOptIs( 'enable_'.$this->getFeatureSlug(), 'Y' ) || $this->getOptIs( 'enable_'.$this->getFeatureSlug(), true, true );
-			// we have the option to auto-enable a feature
-			$bEnabled = $bEnabled || ( $this->getOptionsVo()->getFeatureProperty( 'auto_enabled' ) === true );
+			$bEnabled =
+				$this->getOptIs( 'enable_'.$this->getFeatureSlug(), 'Y' )
+				|| $this->getOptIs( 'enable_'.$this->getFeatureSlug(), true, true )
+				|| ( $this->getOptionsVo()->getFeatureProperty( 'auto_enabled' ) === true );
 			return $bEnabled;
-		}
-
-		/**
-		 * @param $bOverrideOff
-		 *
-		 * @return boolean
-		 */
-		public function fDoCheckForForceOffFile( $bOverrideOff ) {
-			if ( $bOverrideOff ) {
-				return $bOverrideOff;
-			}
-			if ( !isset( self::$bForceOffFileExists ) ) {
-				self::$bForceOffFileExists = $this->loadFileSystemProcessor()
-					->fileExistsInDir( 'forceOff', $this->getController()->getRootDir(), false );
-			}
-			return self::$bForceOffFileExists;
-		}
-
-		/**
-		 * Returns true if you're overriding OFF.  We don't do override ON any more (as of 3.5.1)
-		 */
-		public function getIfOverrideOff() {
-			if ( !is_null( $this->bOverrideState ) ) {
-				return $this->bOverrideState;
-			}
-			$this->bOverrideState = apply_filters( $this->doPluginPrefix( 'override_off' ), false );
-			return $this->bOverrideState;
 		}
 
 		/**
@@ -546,10 +532,10 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 
 			$sNonce = $this->loadDataProcessor()->FetchRequest( '_ajax_nonce', '' );
 			if ( empty( $sNonce ) ) {
-				$sMessage = _wpsf__( 'Nonce security checking failed - the nonce value was empty.' );
+				$sMessage = __( 'Nonce security checking failed - the nonce value was empty.' );
 			}
 			else if ( wp_verify_nonce( $sNonce, 'icwp_ajax' ) === false ) {
-				$sMessage = sprintf( _wpsf__( 'Nonce security checking failed - the nonce supplied was "%s".' ), $sNonce );
+				$sMessage = sprintf( __( 'Nonce security checking failed - the nonce supplied was "%s".' ), $sNonce );
 			}
 			else {
 				return true; // At this stage we passed the nonce check
@@ -575,6 +561,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 		 * @return bool
 		 */
 		public function savePluginOptions() {
+			$this->initialiseKeyVars();
 			$this->doPrePluginOptionsSave();
 			$this->updateOptionsVersion();
 			return $this->getOptionsVo()->doOptionsSave();
@@ -689,6 +676,11 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 		protected function loadStrings_SectionTitles( $aOptionsParams ) {
 			return $aOptionsParams;
 		}
+
+		/**
+		 * Ensures that certain key options are always initialized.
+		 */
+		protected function initialiseKeyVars() {}
 
 		/**
 		 * This is the point where you would want to do any options verification
@@ -992,8 +984,10 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 				'var_prefix'		=> $oCon->getOptionStoragePrefix(),
 				'sPluginName'		=> $oCon->getHumanName(),
 				'sFeatureName'		=> $this->getMainFeatureName(),
+				'bFeatureEnabled'	=> $this->getIsMainFeatureEnabled(),
+				'sTagline'			=> $this->getOptionsVo()->getFeatureTagline(),
 				'fShowAds'			=> $this->getIsShowMarketing(),
-				'nonce_field'		=> $oCon->getPluginPrefix(),
+				'nonce_field'		=> wp_nonce_field( $oCon->getPluginPrefix() ),
 				'sFeatureSlug'		=> $this->doPluginPrefix( $this->getFeatureSlug() ),
 				'form_action'		=> 'admin.php?page='.$this->doPluginPrefix( $this->getFeatureSlug() ),
 				'nOptionsPerRow'	=> 1,
