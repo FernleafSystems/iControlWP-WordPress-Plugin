@@ -44,6 +44,11 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	protected $bRebuildOptions;
 
 	/**
+	 * @var boolean
+	 */
+	protected $bResetPlugin;
+
+	/**
 	 * @var string
 	 */
 	private $sPluginUrl;
@@ -589,16 +594,20 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * Hooked to 'shutdown'
 	 */
 	public function onWpShutdown() {
+		do_action( $this->doPluginPrefix( 'pre_plugin_shutdown' ) );
 		do_action( $this->doPluginPrefix( 'plugin_shutdown' ) );
 		$this->saveCurrentPluginControllerOptions();
-		$this->deleteRebuildFlag();
+		$this->deleteFlags();
 	}
 
 	/**
 	 */
-	protected function deleteRebuildFlag() {
+	protected function deleteFlags() {
 		if ( $this->getIsRebuildOptionsFromFile() ) {
 			$this->loadFileSystemProcessor()->deleteFile( $this->getPath_Flags( 'rebuild' ) );
+		}
+		if ( $this->getIsResetPlugin() ) {
+			$this->loadFileSystemProcessor()->deleteFile( $this->getPath_Flags( 'reset' ) );
 		}
 	}
 
@@ -898,6 +907,17 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 			$this->bRebuildOptions = is_null( $bExists ) ? false : $bExists;
 		}
 		return $this->bRebuildOptions;
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function getIsResetPlugin() {
+		if ( !isset( $this->bResetPlugin ) ) {
+			$bExists = $this->loadFileSystemProcessor()->isFile( $this->getPath_Flags( 'reset' ) );
+			$this->bResetPlugin = is_null( $bExists ) ? false : $bExists;
+		}
+		return $this->bResetPlugin;
 	}
 
 	/**
