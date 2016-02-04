@@ -287,7 +287,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 			}
 
 			$sMenuIcon = $this->getPluginUrl_Image( $this->getPluginSpec_Menu( 'icon_image' ) );
-			$sIconUrl = empty( $aPluginLabels['icon_url_16x16'] ) ? $sMenuIcon : $aPluginLabels['icon_url_16x16'] ;
+			$sIconUrl = empty( $aPluginLabels['icon_url_16x16'] ) ? $sMenuIcon : $aPluginLabels['icon_url_16x16'];
 
 			$sFullParentMenuId = $this->getPluginPrefix();
 			add_menu_page(
@@ -337,6 +337,25 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * what to display based on the name of current hook/filter being processed.
 	 */
 	public function onDisplayTopMenu() { }
+
+	/**
+	 * @param array $aPluginMeta
+	 * @param string $sPluginFile
+	 * @return array
+	 */
+	public function onPluginRowMeta( $aPluginMeta, $sPluginFile ) {
+
+		if ( $sPluginFile == $this->getPluginBaseFile() ) {
+			$aMeta = $this->getPluginSpec_PluginMeta();
+
+			$sLinkTemplate = '<strong><a href="%s" target="%s">%s</a></strong>';
+			foreach( $aMeta as $aMetaLink ){
+				$sSettingsLink = sprintf( $sLinkTemplate, $aMetaLink['href'], "_blank", $aMetaLink['name'] ); ;
+				array_push( $aPluginMeta, $sSettingsLink );
+			}
+		}
+		return $aPluginMeta;
+	}
 
 	/**
 	 * @param array $aActionLinks
@@ -805,6 +824,14 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	}
 
 	/**
+	 * @return array
+	 */
+	protected function getPluginSpec_PluginMeta() {
+		$oConOptions = $this->getPluginControllerOptions();
+		return ( isset( $oConOptions->plugin_spec['plugin_meta'] ) && is_array( $oConOptions->plugin_spec['plugin_meta'] ) ) ? $oConOptions->plugin_spec['plugin_meta'] : array();
+	}
+
+	/**
 	 * @param string $sKey
 	 * @return mixed|null
 	 */
@@ -1015,25 +1042,10 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	}
 
 	/**
-	 * @param string $sFeature
-	 * @return string
-	 */
-	public function getPluginUrl_AdminPage( $sFeature = 'plugin' ) {
-		$sUrl = sprintf( 'admin.php?page=%s', $this->doPluginPrefix( $sFeature ) );
-		if ( $this->getIsWpmsNetworkAdminOnly() ) {
-			$sUrl = network_admin_url( $sUrl );
-		}
-		else {
-			$sUrl = admin_url( $sUrl );
-		}
-		return $sUrl;
-	}
-
-	/**
 	 * @return string
 	 */
 	public function getPluginUrl_AdminMainPage() {
-		return $this->getPluginUrl_AdminPage();
+		return $this->loadCorePluginFeatureHandler()->getFeatureAdminPageUrl();
 	}
 
 	/**
@@ -1294,7 +1306,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 */
 	protected function setSessionCookie() {
 		$oWp = $this->loadWpFunctionsProcessor();
-		setcookie(
+		$this->loadDataProcessor()->setCookie(
 			$this->getPluginPrefix(),
 			$this->getSessionId(),
 			$this->loadDataProcessor()->time() + DAY_IN_SECONDS*30,
@@ -1336,7 +1348,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 				$bSuccess = true;
 			}
 			catch( Exception $oE ) {
-				wp_die( $oE->getMessage() );
+				$this->loadWpFunctionsProcessor()->wpDie( $oE->getMessage() );
 			}
 		}
 		return $bSuccess;

@@ -55,6 +55,7 @@ labels: #the keys below must correspond exactly for the 'all_plugins' filter
   icon_url_32x32: 'icontrolwp_32x32.png'
 
 # This is on the plugins.php page with the option to remove or add custom links.
+plugin_meta:
 action_links:
   remove:
   add:
