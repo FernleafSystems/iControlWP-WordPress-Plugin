@@ -15,6 +15,11 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 		protected $oOptions;
 
 		/**
+		 * @var boolean
+		 */
+		protected $bModuleMeetsRequirements;
+
+		/**
 		 * @var string
 		 */
 		const CollateSeparator = '--SEP--';
@@ -104,15 +109,23 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 		 */
 		public function onWpPluginsLoaded() {
 			if ( $this->getIsMainFeatureEnabled() ) {
-				$this->doExecuteProcessor();
+				if ( $this->doExecutePreProcessor() && !$this->getController()->getIfOverrideOff() ) {
+					$this->doExecuteProcessor();
+				}
 			}
 		}
 
-		protected function doExecuteProcessor() {
+		/**
+		 * Used to effect certain processing that is to do with options etc. but isn't related to processing
+		 * functionality of the plugin.
+		 */
+		protected function doExecutePreProcessor() {
 			$oProcessor = $this->getProcessor();
-			if ( is_object( $oProcessor ) && $oProcessor instanceof ICWP_APP_Processor_Base ) {
-				$oProcessor->run();
-			}
+			return ( is_object( $oProcessor ) && $oProcessor instanceof ICWP_WPSF_Processor_Base );
+		}
+
+		protected function doExecuteProcessor() {
+			$this->getProcessor()->run();
 		}
 
 		/**
@@ -120,6 +133,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 		 */
 		public function onWpInit() {
 			$this->updateHandler();
+			$this->setupAjaxHandlers();
 		}
 
 		/**
@@ -128,7 +142,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 		 */
 		protected function loadFeatureProcessor() {
 			if ( !isset( $this->oFeatureProcessor ) ) {
-				require_once( $this->getController()->getPath_SourceFile( sprintf( 'processors/%s.php', $this->getFeatureSlug() ) ) );
+				@include_once( $this->getController()->getPath_SourceFile( sprintf( 'processors%s%s.php', ICWP_DS, $this->getFeatureSlug() ) ) );
 				$sClassName = $this->getProcessorClassName();
 				if ( !class_exists( $sClassName, false ) ) {
 					return null;
@@ -156,6 +170,44 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 				$this->oOptions->setIfLoadOptionsFromStorage( !$this->getController()->getIsResetPlugin() );
 			}
 			return $this->oOptions;
+		}
+
+		/**
+		 * @return bool
+		 */
+		protected function getModuleMeetRequirements() {
+			if ( !isset( $this->bModuleMeetsRequirements ) ) {
+				$this->bModuleMeetsRequirements = $this->verifyModuleMeetRequirements();
+			}
+			return $this->bModuleMeetsRequirements;
+		}
+
+		/**
+		 * @return bool
+		 */
+		protected function verifyModuleMeetRequirements() {
+			$bMeetsReqs = true;
+
+			$aPhpReqs = $this->getOptionsVo()->getFeatureRequirement( 'php' );
+			if ( !empty( $aPhpReqs ) ) {
+
+				if ( !empty( $aPhpReqs['version'] ) ) {
+					$bMeetsReqs = $bMeetsReqs && $this->loadDataProcessor()->getPhpVersionIsAtLeast( $aPhpReqs['version'] );
+				}
+
+				if ( !empty( $aPhpReqs['functions'] ) && is_array( $aPhpReqs['functions'] )  ) {
+					foreach( $aPhpReqs['functions'] as $sFunction ) {
+						$bMeetsReqs = $bMeetsReqs && function_exists( $sFunction );
+					}
+				}
+				if ( !empty( $aPhpReqs['constants'] ) && is_array( $aPhpReqs['constants'] )  ) {
+					foreach( $aPhpReqs['constants'] as $sConstant ) {
+						$bMeetsReqs = $bMeetsReqs && defined( $sConstant );
+					}
+				}
+			}
+
+			return $bMeetsReqs;
 		}
 
 		/**
