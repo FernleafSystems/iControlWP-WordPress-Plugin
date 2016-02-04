@@ -46,11 +46,6 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	/**
 	 * @var boolean
 	 */
-	protected $bForceOffState;
-
-	/**
-	 * @var boolean
-	 */
 	protected $bResetPlugin;
 
 	/**
@@ -106,7 +101,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	private function __construct( $sRootFile ) {
 		self::$sRootFile = $sRootFile;
 		$this->checkMinimumRequirements();
-		add_action( 'plugins_loaded', array( $this, 'onWpPluginsLoaded' ), 0 ); // this hook then registers everything
+		$this->doRegisterHooks();
 	}
 
 	/**
@@ -166,24 +161,15 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	/**
 	 */
 	public function adminNoticeDoesNotMeetRequirements() {
+		$sMessage = sprintf( 'Web Hosting requirements for Plugin "%s" are not met and you should deactivate the plugin.',
+			'<strong>'.$this->getHumanName().'</strong>'
+		);
 		$aMessages = $this->getRequirementsMessages();
 		if ( !empty( $aMessages ) && is_array( $aMessages ) ) {
-			$aDisplayData = array(
-				'strings' => array(
-					'requirements' => $aMessages,
-					'summary_title' => sprintf( 'Web Hosting requirements for Plugin "%s" are not met and you should deactivate the plugin.', $this->getHumanName() ),
-					'more_information' => 'Click here for more information on requirements'
-				),
-				'hrefs' => array(
-					'more_information' => sprintf( 'https://wordpress.org/plugins/%s/faq', $this->getTextDomain() )
-				)
-			);
-
-			$this->loadRenderer( $this->getPath_Templates() )
-				 ->setTemplate( 'notices/does-not-meet-requirements' )
-				 ->setRenderVars( $aDisplayData )
-				 ->display();
+			$sMessage .= sprintf( '<ul style="list-style: inside none disc;"><li>%s</li></ul>', implode( '</li><li>', $aMessages ) );
 		}
+		$sMessage .= sprintf( '<a href="https://wordpress.org/plugins/%s/faq" target="_blank">Click here for more information on requirements</a>.', $this->getTextDomain() );
+		echo $this->wrapAdminNoticeHtml( $sMessage, 'error' );
 	}
 
 	/**
@@ -194,6 +180,33 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 			$this->aRequirementsMessages = array();
 		}
 		return $this->aRequirementsMessages;
+	}
+
+	/**
+	 */
+	protected function doRegisterHooks() {
+		$this->registerActivationHooks();
+		add_action( 'plugins_loaded',					array( $this, 'onWpPluginsLoaded' ) );
+
+		add_action( 'init',			        			array( $this, 'onWpInit' ) );
+		add_action( 'admin_init',						array( $this, 'onWpAdminInit' ) );
+		add_action( 'wp_loaded',			    		array( $this, 'onWpLoaded' ) );
+
+		add_action( 'admin_menu',						array( $this, 'onWpAdminMenu' ) );
+		add_action(	'network_admin_menu',				array( $this, 'onWpAdminMenu' ) );
+		add_action( 'admin_notices',					array( $this, 'onWpAdminNotices' ) );
+		add_action( 'network_admin_notices',			array( $this, 'onWpAdminNotices' ) );
+
+		add_filter( 'all_plugins', 						array( $this, 'filter_hidePluginFromTableList' ) );
+		add_filter( 'all_plugins',						array( $this, 'doPluginLabels' ) );
+		add_filter( 'plugin_action_links_'.$this->getPluginBaseFile(), array( $this, 'onWpPluginActionLinks' ), 50, 1 );
+		add_filter( 'site_transient_update_plugins',	array( $this, 'filter_hidePluginUpdatesFromUI' ) );
+		add_action( 'in_plugin_update_message-'.$this->getPluginBaseFile(), array( $this, 'onWpPluginUpdateMessage' ) );
+
+		add_filter( 'auto_update_plugin',						array( $this, 'onWpAutoUpdate' ), 10001, 2 );
+		add_filter( 'set_site_transient_update_plugins',		array( $this, 'setUpdateFirstDetectedAt' ) );
+
+		add_action( 'shutdown',							array( $this, 'onWpShutdown' ) );
 	}
 
 	/**
@@ -223,39 +236,8 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 */
 	public function onWpPluginsLoaded() {
 		$this->doLoadTextDomain();
-		$this->doRegisterHooks();
 //		add_filter( $this->doPluginPrefix( 'has_permission_to_view' ), array( $this, 'filter_hasPermissionToView' ) );
 //		add_filter( $this->doPluginPrefix( 'has_permission_to_submit' ), array( $this, 'filter_hasPermissionToSubmit' ) );
-	}
-
-	/**
-	 */
-	protected function doRegisterHooks() {
-		$this->registerActivationHooks();
-
-		add_action( 'init',			        			array( $this, 'onWpInit' ) );
-		add_action( 'admin_init',						array( $this, 'onWpAdminInit' ) );
-		add_action( 'wp_loaded',			    		array( $this, 'onWpLoaded' ) );
-
-		add_action( 'admin_menu',						array( $this, 'onWpAdminMenu' ) );
-		add_action(	'network_admin_menu',				array( $this, 'onWpAdminMenu' ) );
-
-		add_filter( 'all_plugins', 						array( $this, 'filter_hidePluginFromTableList' ) );
-		add_filter( 'all_plugins',						array( $this, 'doPluginLabels' ) );
-		add_filter( 'plugin_action_links_'.$this->getPluginBaseFile(), array( $this, 'onWpPluginActionLinks' ), 50, 1 );
-		add_filter( 'plugin_row_meta',					array( $this, 'onPluginRowMeta' ), 50, 2 );
-		add_filter( 'site_transient_update_plugins',	array( $this, 'filter_hidePluginUpdatesFromUI' ) );
-		add_action( 'in_plugin_update_message-'.$this->getPluginBaseFile(), array( $this, 'onWpPluginUpdateMessage' ) );
-
-		add_filter( 'auto_update_plugin',						array( $this, 'onWpAutoUpdate' ), 10001, 2 );
-		add_filter( 'set_site_transient_update_plugins',		array( $this, 'setUpdateFirstDetectedAt' ) );
-
-		add_action( 'shutdown',							array( $this, 'onWpShutdown' ) );
-
-		// outsource the collection of admin notices
-		if ( is_admin() ) {
-			$this->loadAdminNoticesProcessor()->setActionPrefix( $this->doPluginPrefix() );
-		}
 	}
 
 	/**
@@ -357,25 +339,6 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	public function onDisplayTopMenu() { }
 
 	/**
-	 * @param array $aPluginMeta
-	 * @param string $sPluginFile
-	 * @return array
-	 */
-	public function onPluginRowMeta( $aPluginMeta, $sPluginFile ) {
-
-		if ( $sPluginFile == $this->getPluginBaseFile() ) {
-			$aMeta = $this->getPluginSpec_PluginMeta();
-
-			$sLinkTemplate = '<strong><a href="%s" target="%s">%s</a></strong>';
-			foreach( $aMeta as $aMetaLink ){
-				$sSettingsLink = sprintf( $sLinkTemplate, $aMetaLink['href'], "_blank", $aMetaLink['name'] ); ;
-				array_push( $aPluginMeta, $sSettingsLink );
-			}
-		}
-		return $aPluginMeta;
-	}
-
-	/**
 	 * @param array $aActionLinks
 	 * @return array
 	 */
@@ -410,6 +373,33 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 		return $aActionLinks;
 	}
 
+	/**
+	 */
+	public function onWpAdminNotices() {
+		if ( $this->getIsValidAdminArea() ) {
+			$aAdminNotices = apply_filters( $this->doPluginPrefix( 'admin_notices' ), array() );
+			if ( !empty( $aAdminNotices ) && is_array( $aAdminNotices ) ) {
+				foreach( $aAdminNotices as $sAdminNotice ) {
+					echo $sAdminNotice;
+				}
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Provides the basic HTML template for printing a WordPress Admin Notices
+	 *
+	 * @param $sNotice - The message to be displayed.
+	 * @param $sMessageClass - either error or updated
+	 * @return string
+	 */
+	protected function wrapAdminNoticeHtml( $sNotice = '', $sMessageClass = 'updated' ) {
+		$sWrapper = '<div class="%s icwp-admin-notice">%s</div>';
+		$sFullNotice = sprintf( $sWrapper, $sMessageClass, $sNotice );
+		return $sFullNotice;
+	}
+
 	public function onWpEnqueueFrontendCss() {
 
 		$aFrontendIncludes = $this->getPluginSpec_Include( 'frontend' );
@@ -428,15 +418,11 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 		if ( $this->getIsPage_PluginAdmin() ) {
 			$aAdminJs = $this->getPluginSpec_Include( 'plugin_admin' );
 			if ( isset( $aAdminJs['js'] ) && !empty( $aAdminJs['js'] ) && is_array( $aAdminJs['js'] ) ) {
-				$sDependent = false;
 				foreach( $aAdminJs['js'] as $sJsAsset ) {
-					$sUrl = $this->getPluginUrl_Js( $sJsAsset . '.js' );
-					if ( !empty( $sUrl ) ) {
-						$sUnique = $this->doPluginPrefix( $sJsAsset );
-						wp_register_script( $sUnique, $sUrl, $sDependent, $this->getVersion() );
-						wp_enqueue_script( $sUnique );
-						$sDependent = $sUnique;
-					}
+					$sUnique = $this->doPluginPrefix( $sJsAsset );
+					wp_register_script( $sUnique, $this->getPluginUrl_Js( $sJsAsset.'.js' ), ( empty( $sDependent ) ? false : $sDependent ), $this->getVersion() );
+					wp_enqueue_script( $sUnique );
+					$sDependent = $sUnique;
 				}
 			}
 		}
@@ -444,18 +430,16 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 
 	public function onWpEnqueueAdminCss() {
 
+		$sDependent = '';
+
 		if ( $this->getIsValidAdminArea() ) {
 			$aAdminCss = $this->getPluginSpec_Include( 'admin' );
 			if ( isset( $aAdminCss['css'] ) && !empty( $aAdminCss['css'] ) && is_array( $aAdminCss['css'] ) ) {
-				$sDependent = false;
 				foreach( $aAdminCss['css'] as $sCssAsset ) {
-					$sUrl = $this->getPluginUrl_Css( $sCssAsset . '.css' );
-					if ( !empty( $sUrl ) ) {
-						$sUnique = $this->doPluginPrefix( $sCssAsset );
-						wp_register_style( $sUnique, $sUrl, $sDependent, $this->getVersion().rand() );
-						wp_enqueue_style( $sUnique );
-						$sDependent = $sUnique;
-					}
+					$sUnique = $this->doPluginPrefix( $sCssAsset );
+					wp_register_style( $sUnique, $this->getPluginUrl_Css( $sCssAsset.'.css' ), ( empty( $sDependent ) ? false : $sDependent ), $this->getVersion() );
+					wp_enqueue_style( $sUnique );
+					$sDependent = $sUnique;
 				}
 			}
 		}
@@ -463,15 +447,11 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 		if ( $this->getIsPage_PluginAdmin() ) {
 			$aAdminCss = $this->getPluginSpec_Include( 'plugin_admin' );
 			if ( isset( $aAdminCss['css'] ) && !empty( $aAdminCss['css'] ) && is_array( $aAdminCss['css'] ) ) {
-				$sDependent = false;
 				foreach( $aAdminCss['css'] as $sCssAsset ) {
-					$sUrl = $this->getPluginUrl_Css( $sCssAsset . '.css' );
-					if ( !empty( $sUrl ) ) {
-						$sUnique = $this->doPluginPrefix( $sCssAsset );
-						wp_register_style( $sUnique, $sUrl, $sDependent, $this->getVersion().rand() );
-						wp_enqueue_style( $sUnique );
-						$sDependent = $sUnique;
-					}
+					$sUnique = $this->doPluginPrefix( $sCssAsset );
+					wp_register_style( $sUnique, $this->getPluginUrl_Css( $sCssAsset.'.css' ), ( empty( $sDependent ) ? false : $sDependent ), $this->getVersion() );
+					wp_enqueue_style( $sUnique );
+					$sDependent = $sUnique;
 				}
 			}
 		}
@@ -825,14 +805,6 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	}
 
 	/**
-	 * @return array
-	 */
-	protected function getPluginSpec_PluginMeta() {
-		$oConOptions = $this->getPluginControllerOptions();
-		return ( isset( $oConOptions->plugin_spec['plugin_meta'] ) && is_array( $oConOptions->plugin_spec['plugin_meta'] ) ) ? $oConOptions->plugin_spec['plugin_meta'] : array();
-	}
-
-	/**
 	 * @param string $sKey
 	 * @return mixed|null
 	 */
@@ -1043,10 +1015,25 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	}
 
 	/**
+	 * @param string $sFeature
+	 * @return string
+	 */
+	public function getPluginUrl_AdminPage( $sFeature = 'plugin' ) {
+		$sUrl = sprintf( 'admin.php?page=%s', $this->doPluginPrefix( $sFeature ) );
+		if ( $this->getIsWpmsNetworkAdminOnly() ) {
+			$sUrl = network_admin_url( $sUrl );
+		}
+		else {
+			$sUrl = admin_url( $sUrl );
+		}
+		return $sUrl;
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getPluginUrl_AdminMainPage() {
-		return $this->loadCorePluginFeatureHandler()->getFeatureAdminPageUrl();
+		return $this->getPluginUrl_AdminPage();
 	}
 
 	/**
@@ -1155,21 +1142,6 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 */
 	public function getPath_ViewsFile( $sView ) {
 		return $this->getPath_Views().$sView.'.php';
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getPath_Templates() {
-		return $this->getRootDir().$this->getPluginSpec_Path( 'templates' ).ICWP_DS;
-	}
-
-	/**
-	 * @param string $sTemplate
-	 * @return string
-	 */
-	public function getPath_TemplatesFile( $sTemplate ) {
-		return $this->getPath_Templates().$sTemplate;
 	}
 
 	/**
@@ -1294,30 +1266,12 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	}
 
 	/**
-	 */
-	public function clearSession() {
-		$this->loadDataProcessor()->setDeleteCookie( $this->getPluginPrefix() );
-		self::$sSessionId = null;
-	}
-
-	/**
-	 * Returns true if you're overriding OFF.  We don't do override ON any more (as of 3.5.1)
-	 */
-	public function getIfOverrideOff() {
-		if ( !isset( $this->bForceOffState ) ) {
-			$this->bForceOffState = $this->loadFileSystemProcessor()->fileExistsInDir( 'forceOff', $this->getRootDir(), false );
-		}
-		return $this->bForceOffState;
-	}
-
-	/**
-	 * @param boolean $bSetIfNeeded
 	 * @return string
 	 */
-	public function getSessionId( $bSetIfNeeded = true ) {
-		if ( empty( self::$sSessionId ) ) {
+	public function getSessionId() {
+		if ( !isset( self::$sSessionId ) ) {
 			self::$sSessionId = $this->loadDataProcessor()->FetchCookie( $this->getPluginPrefix(), '' );
-			if ( empty( self::$sSessionId ) && $bSetIfNeeded ) {
+			if ( empty( self::$sSessionId ) ) {
 				self::$sSessionId = md5( uniqid( $this->getPluginPrefix() ) );
 				$this->setSessionCookie();
 			}
@@ -1331,24 +1285,16 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	public function getUniqueRequestId() {
 		if ( !isset( self::$sRequestId ) ) {
 			$oDp = $this->loadDataProcessor();
-			self::$sRequestId = md5( $this->getSessionId( false ).$oDp->getVisitorIpAddress().$oDp->time() );
+			self::$sRequestId = md5( $this->getSessionId().$oDp->getVisitorIpAddress().$oDp->time() );
 		}
 		return self::$sRequestId;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function hasSessionId() {
-		$sSessionId = $this->getSessionId( false );
-		return !empty( $sSessionId );
 	}
 
 	/**
 	 */
 	protected function setSessionCookie() {
 		$oWp = $this->loadWpFunctionsProcessor();
-		$this->loadDataProcessor()->setCookie(
+		setcookie(
 			$this->getPluginPrefix(),
 			$this->getSessionId(),
 			$this->loadDataProcessor()->time() + DAY_IN_SECONDS*30,
@@ -1390,7 +1336,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 				$bSuccess = true;
 			}
 			catch( Exception $oE ) {
-				$this->loadWpFunctionsProcessor()->wpDie( $oE->getMessage() );
+				wp_die( $oE->getMessage() );
 			}
 		}
 		return $bSuccess;
