@@ -176,12 +176,8 @@ if ( !class_exists( 'ICWP_APP_Render', false ) ):
 		 * @return string
 		 */
 		public function getTemplate() {
-			$sTemplate = $this->sTemplate;
-			$sStub = $this->getEngineStub();
-			if ( !preg_match( sprintf( '#\.%s$#', $sStub ), $sTemplate ) ) {
-				$sTemplate = $sTemplate.'.'.$sStub;
-			}
-			return $sTemplate;
+			$this->sTemplate = $this->loadDataProcessor()->addExtensionToFilePath( $this->sTemplate, $this->getEngineStub() );
+			return $this->sTemplate;
 		}
 
 		/**
@@ -193,6 +189,27 @@ if ( !class_exists( 'ICWP_APP_Render', false ) ):
 				$this->nTemplateEngine = self::TEMPLATE_ENGINE_PHP;
 			}
 			return $this->nTemplateEngine;
+		}
+
+		/**
+		 * @param string $sTemplate
+		 * @return string
+		 */
+		public function getTemplateExists( $sTemplate = '' ) {
+			$sFullPath = $this->getTemplateFullPath( $sTemplate );
+			return $this->loadFileSystemProcessor()->exists( $sFullPath );
+		}
+
+		/**
+		 * @param string $sTemplate
+		 * @return string
+		 */
+		public function getTemplateFullPath( $sTemplate = '' ) {
+			if ( empty( $sTemplate ) ) {
+				$sTemplate = $this->getTemplate();
+			}
+			$sTemplate = $this->loadDataProcessor()->addExtensionToFilePath( $sTemplate, $this->getEngineStub() );
+			return path_join( $this->getTemplateRoot(), $sTemplate );
 		}
 
 		/**
