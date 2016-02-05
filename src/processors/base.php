@@ -1,8 +1,8 @@
 <?php
 
-if ( !class_exists( 'ICWP_APP_BaseProcessor_V3', false ) ):
+if ( !class_exists( 'ICWP_APP_Processor_Base', false ) ):
 
-	abstract class ICWP_APP_BaseProcessor_V3 extends ICWP_APP_Foundation {
+	abstract class ICWP_APP_Processor_Base extends ICWP_APP_Foundation {
 
 		/**
 		 * @var array
@@ -313,8 +313,4 @@ if ( !class_exists( 'ICWP_APP_BaseProcessor_V3', false ) ):
 		}
 	}
 
-endif;
-
-if ( !class_exists( 'ICWP_APP_Processor_Base', false ) ):
-	abstract class ICWP_APP_Processor_Base extends ICWP_APP_BaseProcessor_V3 { }
 endif;

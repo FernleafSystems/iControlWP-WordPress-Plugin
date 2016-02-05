@@ -103,79 +103,6 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 
 		}
 
-		protected function doPostConstruction() { }
-
-		/**
-		 * A action added to WordPress 'plugins_loaded' hook
-		 */
-		public function onWpPluginsLoaded() {
-			if ( $this->getIsMainFeatureEnabled() ) {
-				if ( $this->doExecutePreProcessor() && !$this->getController()->getIfOverrideOff() ) {
-					$this->doExecuteProcessor();
-				}
-			}
-		}
-
-		/**
-		 * Used to effect certain processing that is to do with options etc. but isn't related to processing
-		 * functionality of the plugin.
-		 */
-		protected function doExecutePreProcessor() {
-			$oProcessor = $this->getProcessor();
-			return ( is_object( $oProcessor ) && $oProcessor instanceof ICWP_APP_Processor_Base );
-		}
-
-		protected function doExecuteProcessor() {
-			$this->getProcessor()->run();
-		}
-
-		/**
-		 * A action added to WordPress 'init' hook
-		 */
-		public function onWpInit() {
-			$this->updateHandler();
-			$this->setupAjaxHandlers();
-		}
-
-		/**
-		 * Override this and adapt per feature
-		 * @return ICWP_APP_Processor_Base
-		 */
-		protected function loadFeatureProcessor() {
-			if ( !isset( $this->oFeatureProcessor ) ) {
-				@include_once( $this->getController()->getPath_SourceFile( sprintf( 'processors%s%s.php', ICWP_DS, $this->getFeatureSlug() ) ) );
-				$sClassName = $this->getProcessorClassName();
-				if ( !class_exists( $sClassName, false ) ) {
-					return null;
-				}
-				$this->oFeatureProcessor = new $sClassName( $this );
-			}
-			return $this->oFeatureProcessor;
-		}
-
-		/**
-		 * Override this and adapt per feature
-		 * @return string
-		 */
-		protected function getProcessorClassName() {
-			return ucwords( $this->getController()->getOptionStoragePrefix() ).'Processor_'.
-				str_replace( ' ', '', ucwords( str_replace( '_', ' ', $this->getFeatureSlug() ) ) );
-		}
-
-		/**
-		 * @return ICWP_APP_OptionsVO
-		 */
-		public function getOptionsVo() {
-			if ( !isset( $this->oOptions ) ) {
-				require_once( dirname(__FILE__).ICWP_DS.'options-vo.php' );
-				$this->oOptions = new ICWP_APP_OptionsVO( $this->getFeatureSlug() );
-				$this->oOptions->setRebuildFromFile( $this->getController()->getIsRebuildOptionsFromFile() );
-				$this->oOptions->setOptionsStorageKey( $this->getOptionsStorageKey() );
-				$this->oOptions->setIfLoadOptionsFromStorage( !$this->getController()->getIsResetPlugin() );
-			}
-			return $this->oOptions;
-		}
-
 		/**
 		 * @param array $aAdminNotices
 		 * @return array
@@ -223,6 +150,79 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 			}
 
 			return $bMeetsReqs;
+		}
+
+		protected function doPostConstruction() { }
+
+		/**
+		 * A action added to WordPress 'plugins_loaded' hook
+		 */
+		public function onWpPluginsLoaded() {
+			if ( $this->getIsMainFeatureEnabled() ) {
+				if ( $this->doExecutePreProcessor() && !$this->getController()->getIfOverrideOff() ) {
+					$this->doExecuteProcessor();
+				}
+			}
+		}
+
+		/**
+		 * Used to effect certain processing that is to do with options etc. but isn't related to processing
+		 * functionality of the plugin.
+		 */
+		protected function doExecutePreProcessor() {
+			$oProcessor = $this->getProcessor();
+			return ( is_object( $oProcessor ) && $oProcessor instanceof ICWP_APP_Processor_Base );
+		}
+
+		protected function doExecuteProcessor() {
+			$this->getProcessor()->run();
+		}
+
+		/**
+		 * A action added to WordPress 'init' hook
+		 */
+		public function onWpInit() {
+			$this->updateHandler();
+			$this->setupAjaxHandlers();
+		}
+
+		/**
+		 * Override this and adapt per feature
+		 * @return ICWP_APP_Processor_Base
+		 */
+		protected function loadFeatureProcessor() {
+			if ( !isset( $this->oFeatureProcessor ) ) {
+				include_once( $this->getController()->getPath_SourceFile( sprintf( 'processors%s%s.php', ICWP_DS, $this->getFeatureSlug() ) ) );
+				$sClassName = $this->getProcessorClassName();
+				if ( !class_exists( $sClassName, false ) ) {
+					return null;
+				}
+				$this->oFeatureProcessor = new $sClassName( $this );
+			}
+			return $this->oFeatureProcessor;
+		}
+
+		/**
+		 * Override this and adapt per feature
+		 * @return string
+		 */
+		protected function getProcessorClassName() {
+			return ucwords( $this->getController()->getOptionStoragePrefix() ).'Processor_'.
+				str_replace( ' ', '', ucwords( str_replace( '_', ' ', $this->getFeatureSlug() ) ) );
+		}
+
+		/**
+		 * @return ICWP_APP_OptionsVO
+		 */
+		public function getOptionsVo() {
+			if ( !isset( $this->oOptions ) ) {
+				require_once( dirname(__FILE__).ICWP_DS.'options-vo.php' );
+				$this->oOptions = new ICWP_APP_OptionsVO( $this->getFeatureSlug() );
+				$this->oOptions->setRebuildFromFile( $this->getController()->getIsRebuildOptionsFromFile() );
+				$this->oOptions->setOptionsStorageKey( $this->getOptionsStorageKey() );
+				$this->oOptions->setIfLoadOptionsFromStorage( !$this->getController()->getIsResetPlugin() );
+			}
+			return $this->oOptions;
 		}
 
 		/**
@@ -340,6 +340,13 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 				$this->sFeatureSlug = $this->getOptionsVo()->getFeatureProperty( 'slug' );
 			}
 			return $this->sFeatureSlug;
+		}
+
+		/**
+		 * @return int
+		 */
+		public function getPluginInstallationTime() {
+			return $this->getOpt( 'installation_time', 0 );
 		}
 
 		/**
@@ -535,10 +542,11 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 
 			$sNonce = $this->loadDataProcessor()->FetchRequest( '_ajax_nonce', '' );
 			if ( empty( $sNonce ) ) {
-				$sMessage = __( 'Nonce security checking failed - the nonce value was empty.' );
+				$sMessage = $this->getTranslatedString( 'nonce_failed_empty', 'Nonce security checking failed - the nonce value was empty.' );
 			}
 			else if ( wp_verify_nonce( $sNonce, 'icwp_ajax' ) === false ) {
-				$sMessage = sprintf( __( 'Nonce security checking failed - the nonce supplied was "%s".' ), $sNonce );
+				$sMessage = $this->getTranslatedString( 'nonce_failed_supplied', 'Nonce security checking failed - the nonce supplied was "%s".' );
+				$sMessage = sprintf( $sMessage, $sNonce );
 			}
 			else {
 				return true; // At this stage we passed the nonce check
@@ -547,6 +555,15 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 			// At this stage we haven't returned after success so we failed the nonce check
 			$this->sendAjaxResponse( false, array( 'message' => $sMessage ) );
 			return false; //unreachable
+		}
+
+		/**
+		 * @param string $sKey
+		 * @param string $sDefault
+		 * @return string
+		 */
+		protected function getTranslatedString( $sKey, $sDefault ) {
+			return $sDefault;
 		}
 
 		/**
