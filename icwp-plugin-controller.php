@@ -1157,23 +1157,6 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	/**
 	 * @return string
 	 */
-	public function getPath_Views() {
-		return $this->getRootDir().$this->getPluginSpec_Path( 'views' ).ICWP_DS;
-	}
-
-	/**
-	 * Retrieve the full path to the plugin view
-	 *
-	 * @param string $sView
-	 * @return string
-	 */
-	public function getPath_ViewsFile( $sView ) {
-		return $this->getPath_Views().$sView.'.php';
-	}
-
-	/**
-	 * @return string
-	 */
 	public function getPath_Templates() {
 		return $this->getRootDir().$this->getPluginSpec_Path( 'templates' ).ICWP_DS;
 	}
@@ -1184,14 +1167,6 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 */
 	public function getPath_TemplatesFile( $sTemplate ) {
 		return $this->getPath_Templates().$sTemplate;
-	}
-
-	/**
-	 * @param string $sSnippet
-	 * @return string
-	 */
-	public function getPath_ViewsSnippet( $sSnippet ) {
-		return $this->getPath_Views().'snippets'.ICWP_DS.$sSnippet.'.php';
 	}
 
 	/**

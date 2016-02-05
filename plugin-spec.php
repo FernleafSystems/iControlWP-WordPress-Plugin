@@ -19,7 +19,7 @@ paths:
   assets: 'assets'
   temp: 'tmp'
   languages: 'languages'
-  views: 'views'
+  templates: 'templates'
   flags: 'flags'
 
 includes:
