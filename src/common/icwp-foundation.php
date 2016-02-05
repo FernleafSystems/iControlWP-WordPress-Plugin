@@ -35,6 +35,10 @@ if ( !class_exists( 'ICWP_APP_Foundation', false ) ) :
 		 */
 		private static $oIp;
 		/**
+		 * @var ICWP_APP_GoogleAuthenticator
+		 */
+		private static $oGA;
+		/**
 		 * @var ICWP_APP_WpAdminNotices
 		 */
 		private static $oAdminNotices;
@@ -81,7 +85,6 @@ if ( !class_exists( 'ICWP_APP_Foundation', false ) ) :
 		}
 
 		/**
-		 * @return ICWP_APP_WpCron
 		 */
 		static public function loadWpCronProcessor() {
 			if ( !isset( self::$oWpCron ) ) {
@@ -118,6 +121,17 @@ if ( !class_exists( 'ICWP_APP_Foundation', false ) ) :
 				self::$oIp = ICWP_APP_Ip::GetInstance();
 			}
 			return self::$oIp;
+		}
+
+		/**
+		 * @return ICWP_APP_GoogleAuthenticator
+		 */
+		static public function loadGoogleAuthenticatorProcessor() {
+			if ( !isset( self::$oGA ) ) {
+				require_once( dirname(__FILE__).ICWP_DS.'icwp-googleauthenticator.php' );
+				self::$oGA = ICWP_APP_GoogleAuthenticator::GetInstance();
+			}
+			return self::$oGA;
 		}
 
 		/**

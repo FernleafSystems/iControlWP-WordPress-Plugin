@@ -130,15 +130,66 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		}
 
 		/**
+		 * @return array|false
+		 */
+		public function getCoreChecksums() {
+			$aChecksumData = false;
+			$sCurrentVersion = $this->getWordpressVersion();
+
+			if ( function_exists( 'get_core_checksums' ) ) { // if it's loaded, we use it.
+				$aChecksumData = get_core_checksums( $sCurrentVersion, $this->getLocale( true ) );
+			}
+			else {
+				$aQueryArgs = array(
+					'version' 	=> $sCurrentVersion,
+					'locale'	=> $this->getLocale( true )
+				);
+				$sQueryUrl = add_query_arg( $aQueryArgs, 'https://api.wordpress.org/core/checksums/1.0/' );
+				$sResponse = $this->loadFileSystemProcessor()->getUrlContent( $sQueryUrl );
+				if ( !empty( $sResponse ) ) {
+					$aDecodedResponse = json_decode( trim( $sResponse ), true );
+					if ( is_array( $aDecodedResponse ) && isset( $aDecodedResponse['checksums'] ) && is_array( $aDecodedResponse['checksums'] ) ) {
+						$aChecksumData = $aDecodedResponse[ 'checksums' ];
+					}
+				}
+			}
+			return $aChecksumData;
+		}
+
+		/**
 		 * @return string
 		 */
-		public function getHomeUrl() {
+		public function getUrl_WpAdmin() {
+			return get_admin_url();
+		}
+
+		/**
+		 * @param bool $bRemoveSchema
+		 * @return string
+		 */
+		public function getHomeUrl( $bRemoveSchema = false ) {
 			$sUrl = home_url();
 			if ( empty( $sUrl ) ) {
 				remove_all_filters( 'home_url' );
 				$sUrl = home_url();
 			}
+			if ( $bRemoveSchema ) {
+				$sUrl = preg_replace( '#^((http|https):)?\/\/#i', '', $sUrl );
+			}
 			return $sUrl;
+		}
+
+		/**
+		 * @param bool $bForChecksums
+		 * @return string
+		 */
+		public function getLocale( $bForChecksums = false ) {
+			$sLocale = get_locale();
+			if ( $bForChecksums ) {
+				global $wp_local_package;
+				$sLocale = empty( $wp_local_package ) ? 'en_US' : $wp_local_package;
+			}
+			return $sLocale;
 		}
 
 		/**
@@ -270,6 +321,16 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 				'_wpnonce'	=> wp_create_nonce( 'upgrade-plugin_' . $sPluginFile )
 			);
 			return add_query_arg( $aQueryArgs, $sUrl );
+		}
+
+		/**
+		 * @return array
+		 */
+		public function getThemes() {
+			if ( !function_exists( 'wp_get_themes' ) ) {
+				require_once( ABSPATH . 'wp-admin/includes/theme.php' );
+			}
+			return function_exists( 'wp_get_themes' ) ? wp_get_themes() : array();
 		}
 
 		/**
@@ -474,6 +535,14 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		public function getCurrentPostId() {
 			$oPost = $this->getCurrentPost();
 			return empty( $oPost->ID ) ? -1 : $oPost->ID;
+		}
+
+		/**
+		 * @param $nPostId
+		 * @return false|WP_Post
+		 */
+		public function getPostById( $nPostId ) {
+			return WP_Post::get_instance( $nPostId );
 		}
 
 		/**
