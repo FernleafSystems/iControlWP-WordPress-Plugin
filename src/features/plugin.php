@@ -17,6 +17,12 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		}
 
 		/**
+		 */
+		public function displayFeatureConfigPage() {
+			$this->display( array(), 'feature-plugin' );
+		}
+
+		/**
 		 * @param $aActions
 		 * @return $aActions
 		 */
