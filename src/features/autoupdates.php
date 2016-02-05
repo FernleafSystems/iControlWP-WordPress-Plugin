@@ -1,10 +1,10 @@
 <?php
 
-require_once( dirname(__FILE__).ICWP_DS.'base.php' );
-
 if ( !class_exists( 'ICWP_APP_FeatureHandler_Autoupdates', false ) ):
 
-	class ICWP_APP_FeatureHandler_Autoupdates extends ICWP_APP_FeatureHandler_Base {
+	require_once( dirname(__FILE__).ICWP_DS.'base_app.php' );
+
+	class ICWP_APP_FeatureHandler_Autoupdates extends ICWP_APP_FeatureHandler_BaseApp {
 
 		/**
 		 * @param string $sContext
