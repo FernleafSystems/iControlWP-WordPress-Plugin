@@ -11,13 +11,6 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		 */
 		protected $aRequestParams;
 
-		/**
-		 * @return string
-		 */
-		protected function getProcessorClassName() {
-			return 'ICWP_APP_Processor_Plugin';
-		}
-
 		protected function doPostConstruction() {
 			add_action( 'wp_loaded', array( $this, 'doAutoRemoteSiteAdd' ) );
 			add_filter( 'plugin_action_links_'.$this->getController()->getPluginBaseFile(), array( $this, 'onWpPluginActionLinks' ), 100, 1 );
