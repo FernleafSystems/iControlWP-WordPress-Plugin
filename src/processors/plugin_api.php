@@ -2,12 +2,12 @@
 
 if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 
-	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
+	require_once( dirname(__FILE__).ICWP_DS.'base_app.php' );
 
 	/**
 	 * Class ICWP_APP_Processor_Plugin_Api
 	 */
-	class ICWP_APP_Processor_Plugin_Api extends ICWP_APP_Processor_Base {
+	class ICWP_APP_Processor_Plugin_Api extends ICWP_APP_Processor_BaseApp {
 
 		/**
 		 * @var stdClass
