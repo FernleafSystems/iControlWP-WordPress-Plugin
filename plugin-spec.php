@@ -13,6 +13,8 @@ properties:
   autoupdate: 'confidence' #yes/block/pass/confidence - confidence is where the version update detected has been available for at least 48hrs.
 
 requirements:
+  php: '5.2.4'
+  wordpress: '3.5.0'
 
 paths:
   source: 'src'
