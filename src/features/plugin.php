@@ -19,7 +19,17 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		/**
 		 */
 		public function displayFeatureConfigPage() {
-			$this->display( array(), 'feature-plugin' );
+			$this->display(
+				array(
+					'aPluginLabels' => $this->getController()->getPluginLabels(),
+					'sAuthKey' => $this->getPluginAuthKey(),
+					'sAssignedTo' => $this->getAssignedTo(),
+					'bAssigned' => $this->getAssigned(),
+					'bIsLinked' => $this->getIsSiteLinked(),
+					'bCanHandshake' => $this->getCanHandshake(),
+				),
+				'feature-plugin'
+			);
 		}
 
 		/**
@@ -97,7 +107,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		 * @return bool
 		 */
 		public function getIsSiteLinked() {
-			return ( $this->getAssigned() == 'Y' && is_email( $this->getAssignedTo() ) );
+			return ( $this->getAssigned() && is_email( $this->getAssignedTo() ) );
 		}
 
 		public function doExtraSubmitProcessing() {
@@ -208,34 +218,19 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		}
 
 		/**
-		 * @return string
+		 * @return bool
 		 */
 		public function getAssigned() {
 			$sOptionKey = 'assigned';
-			$sNewPlugin = $this->getOpt( $sOptionKey );
-			if ( $sNewPlugin != 'Y' ) {
-				$sOldPlugin = $this->getPluginOptionPre290( $sOptionKey );
-				$this->deletePluginOptionPre290( $sOptionKey );
-				if ( $sOldPlugin == 'Y' ) {
-					$sNewPlugin = $sOldPlugin;
-					$this->setOpt( $sOptionKey, $sNewPlugin );
-				}
-			}
-			return $sNewPlugin;
+			return $this->getOptIs( $sOptionKey, 'Y' );
 		}
 
+		/**
+		 * @return string (email)
+		 */
 		public function getAssignedTo() {
 			$sOptionKey = 'assigned_to';
-			$sNewPlugin = $this->getOpt( $sOptionKey );
-			if ( empty( $sNewPlugin ) ) {
-				$sOldPlugin = $this->getPluginOptionPre290( $sOptionKey );
-				$this->deletePluginOptionPre290( $sOptionKey );
-				if ( !empty( $sOldPlugin ) ) {
-					$sNewPlugin = $sOldPlugin;
-					$this->setOpt( $sOptionKey, $sNewPlugin );
-				}
-			}
-			return $sNewPlugin;
+			return $this->getOpt( $sOptionKey, '' );
 		}
 
 		/**
@@ -263,7 +258,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		 *
 		 * @param $sAccountEmail
 		 */
-		public function setPluginAssigned( $sAccountEmail ) {
+		public function setPluginAssigned( $sAccountEmail = null ) {
 			if ( empty( $sAccountEmail ) ) {
 				$this->setOpt( 'assigned', 'N' );
 				$this->setOpt( 'assigned_to', '' );
