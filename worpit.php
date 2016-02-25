@@ -129,12 +129,18 @@ class Worpit_Plugin extends ICWP_APP_Foundation {
 	}
 
 	/**
+	 * @return ICWP_APP_FeatureHandler_Plugin
+	 */
+	public static function GetPluginSystem() {
+		return self::getController()->loadCorePluginFeatureHandler();
+	}
+
+	/**
 	 * @return ICWP_APP_FeatureHandler_Statistics
 	 */
 	public static function GetStatsSystem() {
 		return self::getController()->loadFeatureHandler( array( 'slug' => 'statistics' ) );
 	}
-
 	/**
 	 * @return ICWP_APP_FeatureHandler_GoogleAnalytics
 	 */
