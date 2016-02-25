@@ -119,7 +119,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 
 				if ( !empty( $sTo ) && !empty( $sKey ) && !empty( $sPin ) ) {
 					$aParts = array( urlencode( $sTo ), $sKey, $sPin );
-					$this->loadFileSystemProcessor()->getUrl( $this->getOpt( 'reset_site_url' ) . implode( '/', $aParts ) );
+					$this->loadFileSystemProcessor()->getUrl( $this->getAppUrl( 'reset_site_url' ) . implode( '/', $aParts ) );
 				}
 				$this->setOpt( 'key', '' );
 				$this->setPluginPin( '' );
@@ -172,7 +172,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 				$aArgs = array(
 					'body'	=> $aPostVars
 				);
-				return $this->loadFileSystemProcessor()->postUrl( $this->getOpt( 'remote_add_site_url' ), $aArgs );
+				return $this->loadFileSystemProcessor()->postUrl( $this->getAppUrl( 'remote_add_site_url' ), $aArgs );
 			}
 			return false;
 		}
@@ -321,6 +321,15 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 			}
 
 			$this->setOpt( 'installed_version', $this->getController()->getVersion() );
+		}
+
+		/**
+		 * @param string $sUrlKey
+		 * @return string
+		 */
+		public function getAppUrl( $sUrlKey ) {
+			$aUrls = $this->getDefinition( 'urls' );
+			return ( empty( $aUrls[ $sUrlKey ] ) ? '' : $aUrls[ $sUrlKey ] );
 		}
 	}
 

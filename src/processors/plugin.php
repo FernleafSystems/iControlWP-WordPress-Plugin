@@ -94,13 +94,12 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 
 		/**
 		 * @param string $sIps
-		 *
 		 * @return array
 		 */
 		protected function getValidServiceIps( $sIps = 'ipv4' ) {
-			$aLists = $this->getOption( 'service_ip_addresses_'.$sIps, array() );
-			if ( isset( $aLists['valid'] ) && is_array( $aLists['valid'] ) ) {
-				return $aLists['valid'];
+			$aLists = $this->getFeatureOptions()->getDefinition( 'service_ip_addresses' );
+			if ( isset( $aLists[$sIps] ) && is_array( $aLists[$sIps] ) && isset( $aLists[$sIps]['valid'] ) && is_array( $aLists[$sIps]['valid'] ) ) {
+				return $aLists[$sIps]['valid'];
 			}
 			return array();
 		}
@@ -122,7 +121,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 			}
 
 			$nTimeout = 20;
-			$sHandshakeVerifyTestUrl = $oFO->getOpt( 'handshake_verify_test_url' );
+			$sHandshakeVerifyTestUrl = $oFO->getAppUrl( 'handshake_verify_test_url' );
 			$aArgs = array(
 				'timeout'		=> $nTimeout,
 				'redirection'	=> $nTimeout,
