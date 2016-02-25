@@ -12,6 +12,13 @@ sections:
     slug: 'section_non_ui'
     hidden: true
 
+admin_notices:
+  'add-site':
+    id: 'add-site'
+    schedule: 'conditions'
+    valid_admin: true
+    type: 'error'
+
 # Define Options
 options:
   -

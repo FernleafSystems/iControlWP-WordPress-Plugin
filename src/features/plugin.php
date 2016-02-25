@@ -17,6 +17,22 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		}
 
 		/**
+		 */
+		public function displayFeatureConfigPage() {
+			$this->display(
+				array(
+					'aPluginLabels' => $this->getController()->getPluginLabels(),
+					'sAuthKey' => $this->getPluginAuthKey(),
+					'sAssignedTo' => $this->getAssignedTo(),
+					'bAssigned' => $this->getAssigned(),
+					'bIsLinked' => $this->getIsSiteLinked(),
+					'bCanHandshake' => $this->getCanHandshake(),
+				),
+				'feature-plugin'
+			);
+		}
+
+		/**
 		 * @param $aActions
 		 * @return $aActions
 		 */
@@ -90,7 +106,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		 * @return bool
 		 */
 		public function getIsSiteLinked() {
-			return ( $this->getAssigned() == 'Y' && is_email( $this->getAssignedTo() ) );
+			return ( $this->getAssigned() && is_email( $this->getAssignedTo() ) );
 		}
 
 		public function doExtraSubmitProcessing() {
@@ -200,16 +216,19 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		}
 
 		/**
-		 * @return string
+		 * @return bool
 		 */
 		public function getAssigned() {
 			$sOptionKey = 'assigned';
-			return $this->getOpt( $sOptionKey );
+			return $this->getOptIs( $sOptionKey, 'Y' );
 		}
 
+		/**
+		 * @return string (email)
+		 */
 		public function getAssignedTo() {
 			$sOptionKey = 'assigned_to';
-			return $this->getOpt( $sOptionKey );
+			return $this->getOpt( $sOptionKey, '' );
 		}
 
 		/**
@@ -230,7 +249,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		 *
 		 * @param $sAccountEmail
 		 */
-		public function setPluginAssigned( $sAccountEmail ) {
+		public function setPluginAssigned( $sAccountEmail = null ) {
 			if ( empty( $sAccountEmail ) ) {
 				$this->setOpt( 'assigned', 'N' );
 				$this->setOpt( 'assigned_to', '' );

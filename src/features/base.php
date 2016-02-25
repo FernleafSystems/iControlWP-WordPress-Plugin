@@ -64,6 +64,11 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 		protected $oFeatureProcessor;
 
 		/**
+		 * @var string
+		 */
+		protected static $sActivelyDisplayedModuleOptions = '';
+
+		/**
 		 * @param ICWP_APP_Plugin_Controller $oPluginController
 		 * @param array $aFeatureProperties
 		 * @throws Exception
@@ -415,10 +420,14 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 				return $aSummaryData;
 			}
 
+			$sMenuTitle = $this->getOptionsVo()->getFeatureProperty( 'menu_title' );
 			$aSummaryData[] = array(
-				$this->getIsMainFeatureEnabled(),
-				$this->getMainFeatureName(),
-				$this->doPluginPrefix( $this->getFeatureSlug() )
+				'enabled' => $this->getIsMainFeatureEnabled(),
+				'active' => self::$sActivelyDisplayedModuleOptions == $this->getFeatureSlug(),
+				'slug' => $this->getFeatureSlug(),
+				'name' => $this->getMainFeatureName(),
+				'menu_title' => empty( $sMenuTitle ) ? $this->getMainFeatureName() : $sMenuTitle,
+				'href' => network_admin_url( 'admin.php?page='.$this->doPluginPrefix( $this->getFeatureSlug() ) )
 			);
 
 			return $aSummaryData;
@@ -1004,6 +1013,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 		 */
 		protected function getBaseDisplayData() {
 			$oCon = $this->getController();
+			self::$sActivelyDisplayedModuleOptions = $this->getFeatureSlug();
 			return array(
 				'var_prefix'		=> $oCon->getOptionStoragePrefix(),
 				'sPluginName'		=> $oCon->getHumanName(),
@@ -1017,9 +1027,23 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 				'nOptionsPerRow'	=> 1,
 				'aPluginLabels'		=> $oCon->getPluginLabels(),
 
+				'bShowStateSummary'	=> false,
+				'aSummaryData'		=> apply_filters( $this->doPluginPrefix( 'get_feature_summary_data' ), array() ),
+
 				'aAllOptions'		=> $this->buildOptions(),
 				'aHiddenOptions'	=> $this->getOptionsVo()->getHiddenOptions(),
-				'all_options_input'	=> $this->collateAllFormInputsForAllOptions()
+				'all_options_input'	=> $this->collateAllFormInputsForAllOptions(),
+
+				'sPageTitle'		=> $this->getMainFeatureName(),
+				'strings'			=> array(
+					'go_to_settings' => __( 'Settings' ),
+					'on' => __( 'On' ),
+					'off' => __( 'Off' ),
+					'more_info' => __( 'More Info' ),
+					'blog' => __( 'Blog' ),
+					'plugin_activated_features_summary' => __( 'Plugin Activated Features Summary:' ),
+					'save_all_settings' => __( 'Save All Settings' ),
+				)
 			);
 		}
 
@@ -1036,6 +1060,39 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 		 * @return bool
 		 */
 		protected function display( $aData = array(), $sSubView = '' ) {
+			$oRndr = $this->loadRenderer( $this->getController()->getPath_Templates());
+
+			// Get Base Data
+			$aData = apply_filters( $this->doPluginPrefix( $this->getFeatureSlug().'display_data' ), array_merge( $this->getBaseDisplayData(), $aData ) );
+			$bPermissionToView = apply_filters( $this->doPluginPrefix( 'has_permission_to_view' ), true );
+
+			if ( !$bPermissionToView ) {
+				$sSubView = 'subfeature-access_restricted';
+			}
+
+			if ( empty( $sSubView ) || !$oRndr->getTemplateExists( $sSubView ) ) {
+				$sSubView = 'feature-default';
+			}
+
+			$aData[ 'sFeatureInclude' ] = $this->loadDataProcessor()->addExtensionToFilePath( $sSubView, '.php' );
+			$aData[ 'strings' ] = array_merge( $aData[ 'strings' ], $this->getDisplayStrings() );
+			try {
+				echo $oRndr
+					->setTemplate( 'index.php' )
+					->setRenderVars( $aData )
+					->render();
+			}
+			catch( Exception $oE ) {
+				echo $oE->getMessage();
+			}
+		}
+
+		/**
+		 * @param array $aData
+		 * @param string $sSubView
+		 * @return bool
+		 */
+		protected function displayByTemplate( $aData = array(), $sSubView = '' ) {
 
 			// Get Base Data
 			$aData = apply_filters( $this->doPluginPrefix( $this->getFeatureSlug().'display_data' ), array_merge( $this->getBaseDisplayData(), $aData ) );
@@ -1048,40 +1105,87 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 			if ( empty( $sSubView ) ) {
 				$oWpFs = $this->loadFileSystemProcessor();
 				$sFeatureInclude = 'feature-'.$this->getFeatureSlug();
-				if ( $oWpFs->exists( $this->getController()->getPath_ViewsFile( $sFeatureInclude ) ) ) {
+				if ( $oWpFs->exists( $this->getController()->getPath_TemplatesFile( $sFeatureInclude ) ) ) {
 					$sSubView = $sFeatureInclude;
 				}
 				else {
 					$sSubView = 'feature-default';
 				}
 			}
+
 			$aData[ 'sFeatureInclude' ] = $sSubView;
-
-			$sFile = $this->getController()->getPath_ViewsFile( 'config_index' );
-			if ( !is_file( $sFile ) ) {
-				echo "View not found: ".$sFile;
-				return false;
+			$aData['strings'] = array_merge( $aData['strings'], $this->getDisplayStrings() );
+			try {
+				$this
+					->loadRenderer( $this->getController()->getPath_Templates() )
+					->setTemplate( 'features/'.$sSubView )
+					->setRenderVars( $aData )
+					->display();
 			}
-
-			if ( count( $aData ) > 0 ) {
-				extract( $aData, EXTR_PREFIX_ALL, $this->getController()->getParentSlug() ); //slug being 'icwp'
+			catch( Exception $oE ) {
+				echo $oE->getMessage();
 			}
-
-			ob_start();
-			include( $sFile );
-			$sContents = ob_get_contents();
-			ob_end_clean();
-
-			echo $sContents;
-			return true;
 		}
 
 		/**
-		 * @param string $sSnippet
+		 * @param array $aData
+		 * @return string
+		 * @throws Exception
+		 */
+		public function renderAdminNotice( $aData ) {
+			if ( empty( $aData['notice_attributes'] ) ) {
+				throw new Exception( 'notice_attributes is empty' );
+			}
+
+			if ( !isset( $aData['icwp_ajax_nonce'] ) ) {
+				$aData[ 'icwp_ajax_nonce' ] = wp_create_nonce( 'icwp_ajax' );
+			}
+			if ( !isset( $aData['icwp_admin_notice_template'] ) ) {
+				$aData[ 'icwp_admin_notice_template' ] = $aData[ 'notice_attributes' ][ 'notice_id' ];
+			}
+
+			if ( !isset( $aData['notice_classes'] ) ) {
+				$aData[ 'notice_classes' ] = array();
+			}
+			if ( is_array( $aData['notice_classes'] ) ) {
+				if ( empty( $aData['notice_classes'] ) ) {
+					$aData[ 'notice_classes' ][] = 'updated';
+				}
+				$aData[ 'notice_classes' ][] = $aData[ 'notice_attributes' ][ 'type' ];
+			}
+			$aData[ 'notice_classes' ] = implode( ' ', $aData[ 'notice_classes' ] );
+
+			return $this->renderTemplate( 'notices'.ICWP_DS.'admin-notice-template', $aData );
+		}
+
+		/**
+		 * @param string $sTemplate
+		 * @param array $aData
 		 * @return string
 		 */
-		public function getViewSnippet( $sSnippet = '' ) {
-			return $this->getController()->getPath_ViewsSnippet( $sSnippet );
+		public function renderTemplate( $sTemplate, $aData ) {
+			if ( empty( $aData['unique_render_id'] ) ) {
+				$aData[ 'unique_render_id' ] = substr( md5( mt_rand() ), 0, 5 );
+			}
+			try {
+				$sOutput = $this
+					->loadRenderer( $this->getController()->getPath_Templates() )
+					->setTemplate( $sTemplate )
+					->setRenderVars( $aData )
+					->render();
+			}
+			catch( Exception $oE ) {
+				$sOutput = $oE->getMessage();
+			}
+
+			return $sOutput;
+		}
+
+		/**
+		 * @return array
+		 */
+		protected function getDisplayStrings() {
+			return array();
 		}
 
 		/**
