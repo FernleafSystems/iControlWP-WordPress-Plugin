@@ -261,6 +261,13 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		}
 
 		/**
+		 * @param $sEmail
+		 */
+		public function setAssignedTo( $sEmail ) {
+			$this->setOpt( 'assigned_to', $sEmail );
+		}
+
+		/**
 		 * @return string
 		 */
 		public function getPluginPin() {
