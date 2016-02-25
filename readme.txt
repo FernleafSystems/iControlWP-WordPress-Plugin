@@ -3,8 +3,8 @@ Contributors: paultgoodchild
 Donate link: http://www.icontrolwp.com/
 Tags: manage, manage wordpress, wordpress admin, backup, restore, bulk, icontrolwp, managewp, worpit, automatic updates
 Requires at least: 3.2.0
-Tested up to: 4.4
-Stable tag: 2.12.7
+Tested up to: 4.5
+Stable tag: 2.12.8
 
 == Description ==
 
@@ -114,15 +114,19 @@ No. WorpDrive is available for a small monthly fee.
 
 == Changelog ==
 
+= Lastest Point Release: 2.12.8 =
+
 = Lastest Point Release: 2.12.7 =
 *Released: 6th November, 2015*
 
-* FIXED:    **(v.7)** Supported method for disabling the WP-SpamShield filtering.
-* ADDED:    **(v.6)** Full support for plugin [white labelling](http://icwp.io/whitelabel).
+* ADDED:	**(v.8)** Support for Shield Pro.
+* UPDATED:	**(v.8)** Various improvements and optimizations including database queries.
 
 = 2.12 Series =
 *Released: 9th March 2015*
 
+* FIXED:    **(v.7)** Supported method for disabling the WP-SpamShield filtering.
+* ADDED:    **(v.6)** Full support for plugin [white labelling](http://icwp.io/whitelabel).
 * ADDED:    **(v.6)** Full support for plugin [white labelling](http://icwp.io/whitelabel).
 * ADDED:    **(v.6)** Added officially supported method for disabling the WP-SpamShield filtering.
 * ADDED:    **(v.5)** support for WP-SpamShield to prevent it blocking requests.
