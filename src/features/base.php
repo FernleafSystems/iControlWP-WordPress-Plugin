@@ -905,15 +905,9 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 
 		/**
 		 * Should be over-ridden by each new class to handle upgrades.
-		 *
 		 * Called upon construction and after plugin options are initialized.
 		 */
-		protected function updateHandler() {
-			if ( version_compare( $this->getVersion(), '3.0.0', '<' ) ) {
-				$sKey = $this->doPluginPrefix( $this->getFeatureSlug().'_processor', '_' );
-				$this->loadWpFunctionsProcessor()->deleteOption( $sKey );
-			}
-		}
+		protected function updateHandler() { }
 
 		/**
 		 * @return boolean
