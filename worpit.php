@@ -122,25 +122,12 @@ class Worpit_Plugin extends ICWP_APP_Foundation {
 	}
 
 	/**
-	 * @return ICWP_APP_FeatureHandler_WhiteLabel
+	 * @return ICWP_APP_FeatureHandler_AutoUpdates
 	 */
-	public static function GetWhiteLabelSystem() {
-		return self::getController()->loadFeatureHandler( array( 'slug' => 'whitelabel' ) );
+	public static function GetAutoUpdatesSystem() {
+		return self::getController()->loadFeatureHandler( array( 'slug' => 'autoupdates' ) );
 	}
 
-	/**
-	 * @return ICWP_APP_FeatureHandler_Plugin
-	 */
-	public static function GetPluginSystem() {
-		return self::getController()->loadCorePluginFeatureHandler();
-	}
-
-	/**
-	 * @return ICWP_APP_FeatureHandler_Statistics
-	 */
-	public static function GetStatsSystem() {
-		return self::getController()->loadFeatureHandler( array( 'slug' => 'statistics' ) );
-	}
 	/**
 	 * @return ICWP_APP_FeatureHandler_GoogleAnalytics
 	 */
@@ -149,10 +136,23 @@ class Worpit_Plugin extends ICWP_APP_Foundation {
 	}
 
 	/**
-	 * @return ICWP_APP_FeatureHandler_AutoUpdates
+	 * @return ICWP_APP_FeatureHandler_Plugin
 	 */
-	public static function GetAutoUpdatesSystem() {
-		return self::getController()->loadFeatureHandler( array( 'slug' => 'autoupdates' ) );
+	public static function GetPluginSystem() {
+		return self::getController()->loadCorePluginFeatureHandler();
+	}
+	/**
+	 * @return ICWP_APP_FeatureHandler_Statistics
+	 */
+	public static function GetStatsSystem() {
+		return self::getController()->loadFeatureHandler( array( 'slug' => 'statistics' ) );
+	}
+
+	/**
+	 * @return ICWP_APP_FeatureHandler_WhiteLabel
+	 */
+	public static function GetWhiteLabelSystem() {
+		return self::getController()->loadFeatureHandler( array( 'slug' => 'whitelabel' ) );
 	}
 
 	/**

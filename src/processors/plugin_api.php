@@ -72,6 +72,11 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 					break;
 			}
 
+			if ( $oResponse->success ) {
+				$oFO->setHelpdeskSsoUrl( $oFO->fetchIcwpRequestParam( 'sso_url' ) );
+				$oFO->setAssignedTo( $oFO->fetchIcwpRequestParam( 'accname' ) );
+			}
+
 			return $oResponse;
 		}
 
