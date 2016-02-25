@@ -41,6 +41,10 @@ options:
     section: 'section_non_ui'
     default: ''
   -
+    key: 'helpdesk_sso_url'
+    section: 'section_non_ui'
+    default: ''
+  -
     key: 'time_last_check_can_handshake'
     section: 'section_non_ui'
     value: 0

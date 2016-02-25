@@ -232,6 +232,14 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		}
 
 		/**
+		 * @return string (URL)
+		 */
+		public function getHelpdeskSsoUrl() {
+			$sOptionKey = 'helpdesk_sso_url';
+			return $this->getOpt( $sOptionKey, '' );
+		}
+
+		/**
 		 * @return string
 		 */
 		public function getPluginAuthKey() {
@@ -261,18 +269,29 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		}
 
 		/**
-		 * @param $sEmail
-		 */
-		public function setAssignedTo( $sEmail ) {
-			$this->setOpt( 'assigned_to', $sEmail );
-		}
-
-		/**
 		 * @return string
 		 */
 		public function getPluginPin() {
 			$sOptionKey = 'pin';
 			return $this->getOpt( $sOptionKey );
+		}
+
+		/**
+		 * @param string $sEmail
+		 * @return $this
+		 */
+		public function setAssignedTo( $sEmail ) {
+			$this->setOpt( 'assigned_to', $sEmail );
+			return $this;
+		}
+
+		/**
+		 * @param string $sUrl
+		 * @return $this
+		 */
+		public function setHelpdeskSsoUrl( $sUrl ) {
+			$this->setOpt( 'helpdesk_sso_url', $sUrl );
+			return $this;
 		}
 
 		/**

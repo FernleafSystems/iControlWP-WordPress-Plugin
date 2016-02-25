@@ -77,7 +77,6 @@ class Worpit_Plugin extends ICWP_APP_Foundation {
 	/**
 	 * @param string $sKey
 	 * @param bool $mValue
-	 *
 	 * @return mixed
 	 */
 	static public function updateOption( $sKey, $mValue ) {
@@ -88,10 +87,17 @@ class Worpit_Plugin extends ICWP_APP_Foundation {
 	}
 
 	/**
-	 * @return boolean
+	 * @return string
 	 */
 	static public function GetAssignedToEmail() {
 		return self::getController()->loadCorePluginFeatureHandler()->getAssignedTo();
+	}
+
+	/**
+	 * @return string
+	 */
+	static public function GetHelpdeskSsoUrl() {
+		return self::getController()->loadCorePluginFeatureHandler()->getHelpdeskSsoUrl();
 	}
 
 	/**
