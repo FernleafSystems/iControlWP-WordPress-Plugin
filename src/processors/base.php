@@ -211,23 +211,10 @@ if ( !class_exists( 'ICWP_APP_Processor_Base', false ) ):
 		}
 
 		/**
-		 * Provides the basic HTML template for printing a WordPress Admin Notices
-		 *
-		 * @param $sNotice - The message to be displayed.
-		 * @param $sMessageClass - either error or updated
-		 * @param $bPrint - if true, will echo. false will return the string
-		 *
-		 * @return boolean|string
+		 * @return bool|int|string
 		 */
-		protected function getAdminNoticeHtml( $sNotice = '', $sMessageClass = 'updated', $bPrint = false ) {
-			$sWrapper = '<div class="%s icwp-admin-notice">%s</div>';
-			$sFullNotice = sprintf( $sWrapper, $sMessageClass, $sNotice );
-			if ( $bPrint ) {
-				echo $sFullNotice;
-				return true;
-			} else {
-				return $sFullNotice;
-			}
+		protected function human_ip() {
+			return $this->loadDataProcessor()->getVisitorIpAddress();
 		}
 
 		/**
