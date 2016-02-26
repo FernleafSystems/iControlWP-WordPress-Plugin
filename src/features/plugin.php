@@ -123,7 +123,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 				}
 				$this->setOpt( 'key', '' );
 				$this->setPluginPin( '' );
-				$this->setPluginAssigned( '' );
+				$this->setAssignedAccount( '' );
 				return;
 			}
 
@@ -253,27 +253,27 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		}
 
 		/**
-		 * No checking or validation done for email.  If it's empty, the site is unassigned.
-		 *
-		 * @param $sAccountEmail
-		 */
-		public function setPluginAssigned( $sAccountEmail = null ) {
-			if ( empty( $sAccountEmail ) ) {
-				$this->setOpt( 'assigned', 'N' );
-				$this->setOpt( 'assigned_to', '' );
-			}
-			else {
-				$this->setOpt( 'assigned', 'Y' );
-				$this->setOpt( 'assigned_to', $sAccountEmail );
-			}
-		}
-
-		/**
 		 * @return string
 		 */
 		public function getPluginPin() {
 			$sOptionKey = 'pin';
 			return $this->getOpt( $sOptionKey );
+		}
+
+		/**
+		 * No checking or validation done for email.  If it's empty, the site is unassigned.
+		 *
+		 * @param $sAccountEmail
+		 */
+		public function setAssignedAccount( $sAccountEmail = null ) {
+			if ( !empty( $sAccountEmail ) && is_email( $sAccountEmail ) ) {
+				$this->setOpt( 'assigned', 'Y' );
+				$this->setOpt( 'assigned_to', $sAccountEmail );
+			}
+			else {
+				$this->setOpt( 'assigned', 'N' );
+				$this->setOpt( 'assigned_to', '' );
+			}
 		}
 
 		/**
@@ -303,7 +303,8 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		public function setPluginPin( $sRawPin ) {
 			$sTrimmed = trim( $sRawPin );
 			$sPin = empty( $sTrimmed ) ? '' : md5( $sTrimmed );
-			return $this->setOpt( 'pin', $sPin );
+			$this->setOpt( 'pin', $sPin );
+			return $this;
 		}
 
 		/**

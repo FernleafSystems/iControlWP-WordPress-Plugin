@@ -74,7 +74,10 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 
 			if ( $oResponse->success ) {
 				$oFO->setHelpdeskSsoUrl( $oFO->fetchIcwpRequestParam( 'sso_url' ) );
-				$oFO->setAssignedTo( $oFO->fetchIcwpRequestParam( 'accname' ) );
+				$sAssignedTo = $oFO->fetchIcwpRequestParam( 'accname' );
+				if ( !empty( $sAssignedTo ) ) {
+					$oFO->setAssignedTo( $sAssignedTo );
+				}
 			}
 
 			return $oResponse;
@@ -201,7 +204,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			}
 
 			$oFO->setOpt( 'key', $sRequestedKey );
-			$oFO->setPluginAssigned( $sRequestedAcc );
+			$oFO->setAssignedAccount( $sRequestedAcc );
 			$oFO->setPluginPin( $sRequestPin );
 			$oFO->savePluginOptions();
 
