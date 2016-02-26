@@ -3,13 +3,13 @@
 Plugin Name: iControlWP
 Plugin URI: http://icwp.io/home
 Description: Advanced WordPress Management - helping you get more done with less time and effort
-Version: 2.13.0
+Version: 2.13.0-beta1
 Author: iControlWP
 Author URI: http://www.icontrolwp.com/
 */
 
 /**
- * Copyright (c) 2015 iControlWP <support@icontrolwp.com>
+ * Copyright (c) 2016 iControlWP <support@icontrolwp.com>
  * All rights reserved.
  *
  * "iControlWP" (previously "Worpit") is distributed under the GNU General Public License, Version 2,
