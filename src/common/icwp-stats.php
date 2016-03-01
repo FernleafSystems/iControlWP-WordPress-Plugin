@@ -1,9 +1,9 @@
 <?php
-if ( !class_exists('ICWP_Stats_WPSF') ):
+if ( !class_exists('ICWP_Stats_APP') ):
 
-class ICWP_Stats_WPSF {
+class ICWP_Stats_APP {
 
-	const Stats_Key = 'icwp_wpsf_stats';
+	const Stats_Key = 'icwp_app_stats';
 
 	/**
 	 * @var array

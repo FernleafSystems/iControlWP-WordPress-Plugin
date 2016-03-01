@@ -3,7 +3,7 @@
 Plugin Name: iControlWP
 Plugin URI: http://icwp.io/home
 Description: Advanced WordPress Management - helping you get more done with less time and effort
-Version: 2.13.0-beta1
+Version: 2.13.0
 Author: iControlWP
 Author URI: http://www.icontrolwp.com/
 */

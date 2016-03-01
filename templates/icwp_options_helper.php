@@ -95,9 +95,9 @@ function getPluginOptionSpan( $aOption, $nSpanSize, $insVarPrefix = '' ) {
 		$sLink = '';
 		$sLinkTemplate = '<br /><span>[%s]</span>';
 		if ( !empty($sHelpLink) ) {
-			$sLink = sprintf( $sLinkTemplate, '<a href="'.$sHelpLink.'" target="_blank">'._wpsf__('More Info').'</a>%s' );
+			$sLink = sprintf( $sLinkTemplate, '<a href="'.$sHelpLink.'" target="_blank">'.__('More Info').'</a>%s' );
 			if ( !empty( $sBlogLink ) ) {
-				$sLink = sprintf( $sLink, ' | <a href="'.$sBlogLink.'" target="_blank">'._wpsf__('Blog').'</a>' );
+				$sLink = sprintf( $sLink, ' | <a href="'.$sBlogLink.'" target="_blank">'.__('Blog').'</a>' );
 			}
 			else {
 				$sLink = sprintf( $sLink, '' );
