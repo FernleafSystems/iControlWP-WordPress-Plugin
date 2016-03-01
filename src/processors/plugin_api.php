@@ -72,6 +72,14 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 					break;
 			}
 
+			if ( $oResponse->success ) {
+				$oFO->setHelpdeskSsoUrl( $oFO->fetchIcwpRequestParam( 'sso_url' ) );
+				$sAssignedTo = $oFO->fetchIcwpRequestParam( 'accname' );
+				if ( !empty( $sAssignedTo ) ) {
+					$oFO->setAssignedTo( $sAssignedTo );
+				}
+			}
+
 			return $oResponse;
 		}
 
@@ -196,7 +204,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			}
 
 			$oFO->setOpt( 'key', $sRequestedKey );
-			$oFO->setPluginAssigned( $sRequestedAcc );
+			$oFO->setAssignedAccount( $sRequestedAcc );
 			$oFO->setPluginPin( $sRequestPin );
 			$oFO->savePluginOptions();
 
@@ -224,7 +232,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			$sVerificationCode = $oFO->fetchIcwpRequestParam( 'verification_code', false );
 			if ( $oDp->getCanOpensslSign() ) {
 				$sSignature = base64_decode( $oFO->fetchIcwpRequestParam( 'opensig', '' ) );
-				$sPublicKey = $this->getOption( 'icwp_public_key', '' );
+				$sPublicKey = $oFO->getDefinition( 'icwp_public_key' );
 				if ( !empty( $sSignature ) && !empty( $sPublicKey ) ) {
 					$oResponse->openssl_verify = openssl_verify( $sVerificationCode, $sSignature, base64_decode( $sPublicKey ) );
 					if ( $oResponse->openssl_verify === 1 ) {
@@ -244,7 +252,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				);
 			}
 
-			$sHandshakeVerifyBaseUrl = $this->getOption( 'handshake_verify_url' );
+			$sHandshakeVerifyBaseUrl = $oFO->getAppUrl( 'handshake_verify_url' );
 			// We can do this because we've assumed at this point we've validated the communication with iControlWP
 			$sHandshakeVerifyUrl = sprintf(
 				'%s/%s/%s/%s',
@@ -351,8 +359,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			}
 
 			// We can do this because we've assumed at this point we've validated the communication with iControlWP
-			$sRetrieveBaseUrl = $oFO->fetchIcwpRequestParam( 'package_retrieve_url', $this->getOption( 'package_retrieve_url' ) );
-//			$sRetrieveUrl = 'http://staging.worpitapp.com/system/package/retrieve/';
+			$sRetrieveBaseUrl = $oFO->fetchIcwpRequestParam( 'package_retrieve_url', $oFO->getAppUrl( 'package_retrieve_url' ) );
 			$sPackageRetrieveUrl = sprintf(
 				'%s/%s/%s/%s',
 				rtrim( $sRetrieveBaseUrl, '/' ),

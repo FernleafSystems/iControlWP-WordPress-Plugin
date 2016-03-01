@@ -119,11 +119,11 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 
 				if ( !empty( $sTo ) && !empty( $sKey ) && !empty( $sPin ) ) {
 					$aParts = array( urlencode( $sTo ), $sKey, $sPin );
-					$this->loadFileSystemProcessor()->getUrl( $this->getOpt( 'reset_site_url' ) . implode( '/', $aParts ) );
+					$this->loadFileSystemProcessor()->getUrl( $this->getAppUrl( 'reset_site_url' ) . implode( '/', $aParts ) );
 				}
 				$this->setOpt( 'key', '' );
 				$this->setPluginPin( '' );
-				$this->setPluginAssigned( '' );
+				$this->setAssignedAccount( '' );
 				return;
 			}
 
@@ -172,7 +172,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 				$aArgs = array(
 					'body'	=> $aPostVars
 				);
-				return $this->loadFileSystemProcessor()->postUrl( $this->getOpt( 'remote_add_site_url' ), $aArgs );
+				return $this->loadFileSystemProcessor()->postUrl( $this->getAppUrl( 'remote_add_site_url' ), $aArgs );
 			}
 			return false;
 		}
@@ -232,6 +232,14 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		}
 
 		/**
+		 * @return string (URL)
+		 */
+		public function getHelpdeskSsoUrl() {
+			$sOptionKey = 'helpdesk_sso_url';
+			return $this->getOpt( $sOptionKey, '' );
+		}
+
+		/**
 		 * @return string
 		 */
 		public function getPluginAuthKey() {
@@ -245,27 +253,45 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		}
 
 		/**
-		 * No checking or validation done for email.  If it's empty, the site is unassigned.
-		 *
-		 * @param $sAccountEmail
-		 */
-		public function setPluginAssigned( $sAccountEmail = null ) {
-			if ( empty( $sAccountEmail ) ) {
-				$this->setOpt( 'assigned', 'N' );
-				$this->setOpt( 'assigned_to', '' );
-			}
-			else {
-				$this->setOpt( 'assigned', 'Y' );
-				$this->setOpt( 'assigned_to', $sAccountEmail );
-			}
-		}
-
-		/**
 		 * @return string
 		 */
 		public function getPluginPin() {
 			$sOptionKey = 'pin';
 			return $this->getOpt( $sOptionKey );
+		}
+
+		/**
+		 * No checking or validation done for email.  If it's empty, the site is unassigned.
+		 *
+		 * @param $sAccountEmail
+		 */
+		public function setAssignedAccount( $sAccountEmail = null ) {
+			if ( !empty( $sAccountEmail ) && is_email( $sAccountEmail ) ) {
+				$this->setOpt( 'assigned', 'Y' );
+				$this->setOpt( 'assigned_to', $sAccountEmail );
+			}
+			else {
+				$this->setOpt( 'assigned', 'N' );
+				$this->setOpt( 'assigned_to', '' );
+			}
+		}
+
+		/**
+		 * @param string $sEmail
+		 * @return $this
+		 */
+		public function setAssignedTo( $sEmail ) {
+			$this->setOpt( 'assigned_to', $sEmail );
+			return $this;
+		}
+
+		/**
+		 * @param string $sUrl
+		 * @return $this
+		 */
+		public function setHelpdeskSsoUrl( $sUrl ) {
+			$this->setOpt( 'helpdesk_sso_url', $sUrl );
+			return $this;
 		}
 
 		/**
@@ -277,7 +303,8 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		public function setPluginPin( $sRawPin ) {
 			$sTrimmed = trim( $sRawPin );
 			$sPin = empty( $sTrimmed ) ? '' : md5( $sTrimmed );
-			return $this->setOpt( 'pin', $sPin );
+			$this->setOpt( 'pin', $sPin );
+			return $this;
 		}
 
 		/**
@@ -321,6 +348,15 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 			}
 
 			$this->setOpt( 'installed_version', $this->getController()->getVersion() );
+		}
+
+		/**
+		 * @param string $sUrlKey
+		 * @return string
+		 */
+		public function getAppUrl( $sUrlKey ) {
+			$aUrls = $this->getDefinition( 'urls' );
+			return ( empty( $aUrls[ $sUrlKey ] ) ? '' : $aUrls[ $sUrlKey ] );
 		}
 	}
 
