@@ -1,10 +1,10 @@
 <?php
 
-if ( !class_exists( 'ICWP_APP_Processor_Security_V1', false ) ):
+if ( !class_exists( 'ICWP_APP_Processor_Security', false ) ):
 
-	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
+	require_once( dirname(__FILE__).ICWP_DS.'base_app.php' );
 
-	class ICWP_APP_Processor_Security_V1 extends ICWP_APP_Processor_Base {
+	class ICWP_APP_Processor_Security extends ICWP_APP_Processor_BaseApp {
 
 		/**
 		 */
@@ -75,8 +75,4 @@ if ( !class_exists( 'ICWP_APP_Processor_Security_V1', false ) ):
 
 	}
 
-endif;
-
-if ( !class_exists( 'ICWP_APP_Processor_Security', false ) ):
-	class ICWP_APP_Processor_Security extends ICWP_APP_Processor_Security_V1 { }
 endif;

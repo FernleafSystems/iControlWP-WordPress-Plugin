@@ -35,6 +35,12 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 	protected $sOptionsStorageKey;
 
 	/**
+	 *  by default we load from saved
+	 * @var string
+	 */
+	protected $bLoadFromSaved = true;
+
+	/**
 	 * @var string
 	 */
 	protected $sOptionsName;
@@ -70,7 +76,9 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 	 * @return bool
 	 */
 	public function doOptionsDelete() {
-		return $this->loadWpFunctionsProcessor()->deleteOption( $this->getOptionsStorageKey() );
+		$oWp = $this->loadWpFunctionsProcessor();
+		$oWp->deleteTransient( $this->getSpecTransientStorageKey() );
+		return $oWp->deleteOption( $this->getOptionsStorageKey() );
 	}
 
 	/**
@@ -87,6 +95,39 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 	public function getFeatureProperty( $sProperty ) {
 		$aRawConfig = $this->getRawData_FullFeatureConfig();
 		return ( isset( $aRawConfig['properties'] ) && isset( $aRawConfig['properties'][$sProperty] ) ) ? $aRawConfig['properties'][$sProperty] : null;
+	}
+
+	/**
+	 * @param string
+	 * @return null|array
+	 */
+	public function getFeatureDefinition( $sDefinition ) {
+		$aRawConfig = $this->getRawData_FullFeatureConfig();
+		return ( isset( $aRawConfig['definitions'] ) && isset( $aRawConfig['definitions'][$sDefinition] ) ) ? $aRawConfig['definitions'][$sDefinition] : null;
+	}
+
+	/**
+	 * @param string $sReq
+	 * @return null|mixed
+	 */
+	public function getFeatureRequirement( $sReq ) {
+		$aReqs = $this->getRawData_Requirements();
+		return ( is_array( $aReqs ) && isset( $aReqs[ $sReq ] ) ) ? $aReqs[ $sReq ] : null;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getAdminNotices(){
+		$aRawConfig = $this->getRawData_FullFeatureConfig();
+		return ( isset( $aRawConfig[ 'admin_notices' ] ) && is_array( $aRawConfig[ 'admin_notices' ] ) ) ? $aRawConfig[ 'admin_notices' ] : array();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getFeatureTagline() {
+		return $this->getFeatureProperty( 'tagline' );
 	}
 
 	/**
@@ -308,6 +349,16 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 	 *
 	 * @return array
 	 */
+	protected function getRawData_Requirements() {
+		$aAllRawOptions = $this->getRawData_FullFeatureConfig();
+		return isset( $aAllRawOptions['requirements'] ) ? $aAllRawOptions['requirements'] : array();
+	}
+
+	/**
+	 * Return the section of the Raw config that is the "options" key only.
+	 *
+	 * @return array
+	 */
 	protected function getRawData_MenuItems() {
 		$aAllRawOptions = $this->getRawData_FullFeatureConfig();
 		return isset( $aAllRawOptions['menu_items'] ) ? $aAllRawOptions['menu_items'] : array();
@@ -351,6 +402,20 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 	 */
 	public function setOptionsStorageKey( $sKey ) {
 		$this->sOptionsStorageKey = $sKey;
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function getIfLoadOptionsFromStorage() {
+		return $this->bLoadFromSaved;
+	}
+
+	/**
+	 * @param boolean $bLoadFromSaved
+	 */
+	public function setIfLoadOptionsFromStorage( $bLoadFromSaved ) {
+		$this->bLoadFromSaved = $bLoadFromSaved;
 	}
 
 	/**
@@ -437,7 +502,6 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 
 	/**
 	 * @param bool $bReload
-	 *
 	 * @return array|mixed
 	 * @throws Exception
 	 */
@@ -445,12 +509,15 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 
 		if ( $bReload || empty( $this->aOptionsValues ) ) {
 
-			$sStorageKey = $this->getOptionsStorageKey();
-			if ( empty( $sStorageKey ) ) {
-				throw new Exception( 'Options Storage Key Is Empty' );
+			if ( $this->getIfLoadOptionsFromStorage() ) {
+
+				$sStorageKey = $this->getOptionsStorageKey();
+				if ( empty( $sStorageKey ) ) {
+					throw new Exception( 'Options Storage Key Is Empty' );
+				}
+				$this->aOptionsValues = $this->loadWpFunctionsProcessor()->getOption( $sStorageKey, array() );
 			}
 
-			$this->aOptionsValues = $this->loadWpFunctionsProcessor()->getOption( $sStorageKey, array() );
 			if ( empty( $this->aOptionsValues ) ) {
 				$this->aOptionsValues = array();
 				$this->setNeedSave( true );
@@ -473,8 +540,7 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 			$sConfigFile = $this->getConfigFilePath();
 			$sContents = include( $sConfigFile );
 			if ( !empty( $sContents ) ) {
-				$oYaml = $this->loadYamlProcessor();
-				$aConfig = $oYaml->parseYamlString( $sContents );
+				$aConfig = $this->loadYamlProcessor()->parseYamlString( $sContents );
 				if ( is_null( $aConfig ) ) {
 					throw new Exception( 'YAML parser could not load to process the options configuration.' );
 				}

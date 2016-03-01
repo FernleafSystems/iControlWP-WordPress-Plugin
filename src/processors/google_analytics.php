@@ -1,10 +1,10 @@
 <?php
 
-if ( !class_exists( 'ICWP_APP_Processor_GoogleAnalytics_V1', false ) ):
+if ( !class_exists( 'ICWP_APP_Processor_GoogleAnalytics', false ) ):
 
-	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
+	require_once( dirname(__FILE__).ICWP_DS.'base_app.php' );
 
-	class ICWP_APP_Processor_GoogleAnalytics_V1 extends ICWP_APP_Processor_Base {
+	class ICWP_APP_Processor_GoogleAnalytics extends ICWP_APP_Processor_BaseApp {
 
 		/**
 		 */
@@ -28,7 +28,7 @@ if ( !class_exists( 'ICWP_APP_Processor_GoogleAnalytics_V1', false ) ):
 		 */
 		protected function getIfIgnoreUser() {
 			$bIgnoreLoggedInUser = $this->getIsOption( 'ignore_logged_in_user', 'Y' );
-			$nCurrentUserLevel = $this->loadWpFunctionsProcessor()->getCurrentUserLevel();
+			$nCurrentUserLevel = $this->loadWpUsersProcessor()->getCurrentUserLevel();
 			if ( $bIgnoreLoggedInUser && $nCurrentUserLevel >= 0 ) { // logged in
 				$nIgnoreFromUserLevel = $this->getOption( 'ignore_from_user_level', 11 );
 				if ( $nCurrentUserLevel >= $nIgnoreFromUserLevel ) {
@@ -92,8 +92,4 @@ if ( !class_exists( 'ICWP_APP_Processor_GoogleAnalytics_V1', false ) ):
 		}
 	}
 
-endif;
-
-if ( !class_exists('ICWP_APP_Processor_GoogleAnalytics') ):
-	class ICWP_APP_Processor_GoogleAnalytics extends ICWP_APP_Processor_GoogleAnalytics_V1 { }
 endif;

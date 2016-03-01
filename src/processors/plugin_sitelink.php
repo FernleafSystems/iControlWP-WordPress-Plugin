@@ -2,9 +2,9 @@
 
 if ( !class_exists( 'ICWP_APP_Processor_Plugin_SiteLink', false ) ):
 
-	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
+	require_once( dirname(__FILE__).ICWP_DS.'base_app.php' );
 
-	class ICWP_APP_Processor_Plugin_SiteLink extends ICWP_APP_Processor_Base {
+	class ICWP_APP_Processor_Plugin_SiteLink extends ICWP_APP_Processor_BaseApp {
 
 		/**
 		 * @return stdClass
@@ -70,7 +70,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_SiteLink', false ) ):
 			}
 
 			$oFO->setPluginPin( $sRequestPin );
-			$oFO->setPluginAssigned( $sRequestedAcc );
+			$oFO->setAssignedAccount( $sRequestedAcc );
 
 			$oResponse->success = true;
 			return $oResponse;

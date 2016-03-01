@@ -1,10 +1,10 @@
 <?php
 
-if ( !class_exists( 'ICWP_APP_Processor_Statistics_V1', false ) ):
+if ( !class_exists( 'ICWP_APP_Processor_Statistics', false ) ):
 
 	require_once( dirname(__FILE__).ICWP_DS.'basedb.php' );
 
-	class ICWP_APP_Processor_Statistics_V1 extends ICWP_APP_BaseDbProcessor {
+	class ICWP_APP_Processor_Statistics extends ICWP_APP_BaseDbProcessor {
 
 		/**
 		 * @var integer
@@ -82,7 +82,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Statistics_V1', false ) ):
 		 */
 		protected function getIfIgnoreUser() {
 			$bIgnoreLoggedInUser = $this->getIsOption( 'ignore_logged_in_user', 'Y' );
-			$nCurrentUserLevel = $this->loadWpFunctionsProcessor()->getCurrentUserLevel();
+			$nCurrentUserLevel = $this->loadWpUsersProcessor()->getCurrentUserLevel();
 			if ( $bIgnoreLoggedInUser && $nCurrentUserLevel >= 0 ) { // logged in
 				$nIgnoreFromUserLevel = $this->getOption( 'ignore_from_user_level', 11 );
 				if ( $nCurrentUserLevel >= $nIgnoreFromUserLevel ) {
@@ -420,8 +420,4 @@ if ( !class_exists( 'ICWP_APP_Processor_Statistics_V1', false ) ):
 		}
 	}
 
-endif;
-
-if ( !class_exists( 'ICWP_APP_Processor_Statistics', false ) ):
-	class ICWP_APP_Processor_Statistics extends ICWP_APP_Processor_Statistics_V1 { }
 endif;

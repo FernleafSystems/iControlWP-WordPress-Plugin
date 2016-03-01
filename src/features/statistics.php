@@ -1,17 +1,10 @@
 <?php
 
-if ( !class_exists( 'ICWP_APP_FeatureHandler_Statistics_V1', false ) ):
+if ( !class_exists( 'ICWP_APP_FeatureHandler_Statistics', false ) ):
 
-	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
+	require_once( dirname(__FILE__).ICWP_DS.'base_app.php' );
 
-	class ICWP_APP_FeatureHandler_Statistics_V1 extends ICWP_APP_FeatureHandler_Base {
-
-		/**
-		 * @return string
-		 */
-		protected function getProcessorClassName() {
-			return 'ICWP_APP_Processor_Statistics';
-		}
+	class ICWP_APP_FeatureHandler_Statistics extends ICWP_APP_FeatureHandler_BaseApp {
 
 		/**
 		 * @return array
@@ -40,5 +33,3 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Statistics_V1', false ) ):
 	}
 
 endif;
-
-class ICWP_APP_FeatureHandler_Statistics extends ICWP_APP_FeatureHandler_Statistics_V1 { }

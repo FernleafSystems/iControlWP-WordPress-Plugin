@@ -1,7 +1,7 @@
 <?php
 return "---
 properties:
-  version: '2.12.7'
+  version: '2.13.0'
 #  slug_parent: 'worpit'
 #  slug_plugin: 'admin'
   slug_parent: 'icwp'
@@ -13,13 +13,15 @@ properties:
   autoupdate: 'confidence' #yes/block/pass/confidence - confidence is where the version update detected has been available for at least 48hrs.
 
 requirements:
+  php: '5.2.4'
+  wordpress: '3.5.0'
 
 paths:
   source: 'src'
   assets: 'assets'
   temp: 'tmp'
   languages: 'languages'
-  views: 'views'
+  templates: 'templates'
   flags: 'flags'
 
 includes:
@@ -55,6 +57,7 @@ labels: #the keys below must correspond exactly for the 'all_plugins' filter
   icon_url_32x32: 'icontrolwp_32x32.png'
 
 # This is on the plugins.php page with the option to remove or add custom links.
+plugin_meta:
 action_links:
   remove:
   add:

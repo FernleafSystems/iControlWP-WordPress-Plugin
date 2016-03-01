@@ -1,19 +1,10 @@
 <?php
 
-if ( !class_exists( 'ICWP_APP_FeatureHandler_Security_V1', false ) ):
+if ( !class_exists( 'ICWP_APP_FeatureHandler_Security', false ) ):
 
-	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
+	require_once( dirname(__FILE__).ICWP_DS.'base_app.php' );
 
-	class ICWP_APP_FeatureHandler_Security_V1 extends ICWP_APP_FeatureHandler_Base {
-
-		/**
-		 * @return string
-		 */
-		protected function getProcessorClassName() {
-			return 'ICWP_APP_Processor_Security';
-		}
+	class ICWP_APP_FeatureHandler_Security extends ICWP_APP_FeatureHandler_BaseApp {
 	}
 
 endif;
-
-class ICWP_APP_FeatureHandler_Security extends ICWP_APP_FeatureHandler_Security_V1 { }

@@ -1,27 +1,10 @@
 <?php
-/**
- * Copyright (c) 2015 iControlWP <support@icontrolwp.com>
- * All rights reserved.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 
-if ( !class_exists( 'ICWP_APP_DataProcessor_V4', false ) ):
-
-	class ICWP_APP_DataProcessor_V4 {
+	class ICWP_APP_DataProcessor {
 
 		/**
-		 * @var ICWP_APP_DataProcessor_V4
+		 * @var ICWP_APP_DataProcessor
 		 */
 		protected static $oInstance = NULL;
 
@@ -50,6 +33,18 @@ if ( !class_exists( 'ICWP_APP_DataProcessor_V4', false ) ):
 		 */
 		protected $aRequestUriParts;
 
+		protected function __construct() { }
+
+		/**
+		 * @return ICWP_APP_DataProcessor
+		 */
+		public static function GetInstance() {
+			if ( is_null( self::$oInstance ) ) {
+				self::$oInstance = new self();
+			}
+			return self::$oInstance;
+		}
+
 		/**
 		 * @return int
 		 */
@@ -61,9 +56,8 @@ if ( !class_exists( 'ICWP_APP_DataProcessor_V4', false ) ):
 		}
 
 		/**
-		 *
 		 * @param boolean $bAsHuman
-		 * @return bool|integer - visitor IP Address as IP2Long
+		 * @return int|string|bool - visitor IP Address as IP2Long
 		 */
 		public function getVisitorIpAddress( $bAsHuman = true ) {
 
@@ -81,17 +75,19 @@ if ( !class_exists( 'ICWP_APP_DataProcessor_V4', false ) ):
 
 		/**
 		 * Cloudflare compatible.
-		 *
 		 * @return string|bool
 		 */
 		protected function findViableVisitorIp() {
 
 			$aAddressSourceOptions = array(
 				'HTTP_CF_CONNECTING_IP',
-				'HTTP_CLIENT_IP',
 				'HTTP_X_FORWARDED_FOR',
 				'HTTP_X_FORWARDED',
+				'HTTP_X_REAL_IP',
+				'HTTP_X_SUCURI_CLIENTIP',
+				'HTTP_INCAP_CLIENT_IP',
 				'HTTP_FORWARDED',
+				'HTTP_CLIENT_IP',
 				'REMOTE_ADDR'
 			);
 
@@ -137,20 +133,26 @@ if ( !class_exists( 'ICWP_APP_DataProcessor_V4', false ) ):
 		}
 
 		/**
+		 * @param bool $bIncludeCookie
+		 * @return array
+		 */
+		public function getRawRequestParams( $bIncludeCookie = true ) {
+			$aParams = array_merge( $_GET, $_POST );
+			return $bIncludeCookie ? array_merge( $aParams, $_COOKIE ) : $aParams;
+		}
+
+		/**
 		 * @return array|false
 		 */
 		public function getRequestUriParts() {
 			if ( !isset( $this->aRequestUriParts ) ) {
-				$aParts = @parse_url( $this->getRequestUri() );
-				if ( empty( $aParts ) ) { //we failed so we'll try manually.
-					$aParts = array();
-					$aExploded = explode( '?', $this->getRequestUri() );
-					if ( !empty( $aExploded[0] ) ) {
-						$aParts['path'] = $aExploded[0];
-					}
-					if ( !empty( $aExploded[1] ) ) {
-						$aParts['query'] = $aExploded[1];
-					}
+				$aParts = array();
+				$aExploded = explode( '?', $this->getRequestUri(), 2 );
+				if ( !empty( $aExploded[0] ) ) {
+					$aParts['path'] = $aExploded[0];
+				}
+				if ( !empty( $aExploded[1] ) ) {
+					$aParts['query'] = $aExploded[1];
 				}
 				$this->aRequestUriParts = $aParts;
 			}
@@ -158,12 +160,31 @@ if ( !class_exists( 'ICWP_APP_DataProcessor_V4', false ) ):
 		}
 
 		/**
-		 * @param bool $bIncludeCookie
-		 * @return array
+		 * @param string $sPath
+		 * @param string $sExtensionToAdd
+		 * @return string
 		 */
-		public function getRawRequestParams( $bIncludeCookie = true ) {
-			$aParams = array_merge( $_GET, $_POST );
-			return $bIncludeCookie ? array_merge( $aParams, $_COOKIE ) : $aParams;
+		public function addExtensionToFilePath( $sPath, $sExtensionToAdd ) {
+
+			if ( strpos( $sExtensionToAdd, '.' ) === false ) {
+				$sExtensionToAdd = '.'.$sExtensionToAdd;
+			}
+
+			if ( !$this->getIfStringEndsIn( $sPath, $sExtensionToAdd ) ) {
+				$sPath = $sPath.$sExtensionToAdd;
+			}
+			return $sPath;
+		}
+
+		/**
+		 * @param string $sHaystack
+		 * @param string $sNeedle
+		 * @return bool
+		 */
+		public function getIfStringEndsIn( $sHaystack, $sNeedle ) {
+			$nNeedleLength = strlen( $sNeedle );
+			$sStringEndsIn = substr( $sHaystack, strlen( $sHaystack ) - $nNeedleLength, $nNeedleLength );
+			return ( $sStringEndsIn == $sNeedle );
 		}
 
 		/**
@@ -678,6 +699,9 @@ if ( !class_exists( 'ICWP_APP_DataProcessor_V4', false ) ):
 		 * @return bool
 		 */
 		public function setCookie( $sKey, $mValue, $nExpireLength = 3600, $sPath = null, $sDomain = null, $bSsl = false ) {
+			if ( function_exists( 'headers_sent' ) && headers_sent() ) {
+				return false;
+			}
 			return setcookie(
 				$sKey,
 				$mValue,
@@ -690,7 +714,6 @@ if ( !class_exists( 'ICWP_APP_DataProcessor_V4', false ) ):
 
 		/**
 		 * @param string $sKey
-		 *
 		 * @return bool
 		 */
 		public function setDeleteCookie( $sKey ) {
@@ -742,6 +765,13 @@ if ( !class_exists( 'ICWP_APP_DataProcessor_V4', false ) ):
 		}
 
 		/**
+		 * @return string
+		 */
+		public function getPhpVersionIsAtLeast( $sAtLeastVersion ) {
+			return ( version_compare( $this->getPhpVersion(), $sAtLeastVersion, '>=' ) );
+		}
+
+		/**
 		 * @return bool
 		 */
 		public function getCanOpensslSign() {
@@ -767,25 +797,42 @@ if ( !class_exists( 'ICWP_APP_DataProcessor_V4', false ) ):
 		}
 
 		/**
+		 * @param array $aSubjectArray
+		 * @param mixed $mValue
+		 * @param int $nDesiredPosition
+		 * @return array
+		 */
+		public function setArrayValueToPosition( $aSubjectArray, $mValue, $nDesiredPosition ) {
+
+			if ( $nDesiredPosition < 0 ) {
+				return $aSubjectArray;
+			}
+
+			$nMaxPossiblePosition = count( $aSubjectArray ) - 1;
+			if ( $nDesiredPosition > $nMaxPossiblePosition ) {
+				$nDesiredPosition = $nMaxPossiblePosition;
+			}
+
+			$nPosition = array_search( $mValue, $aSubjectArray );
+			if ( $nPosition !== false && $nPosition != $nDesiredPosition ) {
+
+				// remove existing and reset index
+				unset( $aSubjectArray[ $nPosition ] );
+				$aSubjectArray = array_values( $aSubjectArray );
+
+				// insert and update
+				// http://stackoverflow.com/questions/3797239/insert-new-item-in-array-on-any-position-in-php
+				array_splice( $aSubjectArray, $nDesiredPosition, 0, $mValue );
+			}
+
+			return $aSubjectArray;
+		}
+
+		/**
 		 * @return int
 		 */
 		public function time() {
 			return self::GetRequestTime();
-		}
-	}
-endif;
-
-if ( !class_exists('ICWP_APP_DataProcessor') ):
-
-	class ICWP_APP_DataProcessor extends ICWP_APP_DataProcessor_V4 {
-		/**
-		 * @return ICWP_APP_DataProcessor
-		 */
-		public static function GetInstance() {
-			if ( is_null( self::$oInstance ) ) {
-				self::$oInstance = new self();
-			}
-			return self::$oInstance;
 		}
 	}
 endif;

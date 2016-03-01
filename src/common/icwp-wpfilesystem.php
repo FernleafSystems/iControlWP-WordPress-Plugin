@@ -1,20 +1,4 @@
 <?php
-/**
- * Copyright (c) 2015 iControlWP <support@icontrolwp.com>
- * All rights reserved.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
 if ( !class_exists( 'ICWP_APP_WpFilesystem', false ) ):
 
 	class ICWP_APP_WpFilesystem {
@@ -221,7 +205,7 @@ if ( !class_exists( 'ICWP_APP_WpFilesystem', false ) ):
 		 * @param string $sUrl
 		 * @param array $aRequestArgs
 		 *
-		 * @return bool|string
+		 * @return false|string
 		 */
 		public function getUrlContent( $sUrl, $aRequestArgs = array() ) {
 			$aResponse = $this->getUrl( $sUrl, $aRequestArgs );
@@ -351,6 +335,18 @@ if ( !class_exists( 'ICWP_APP_WpFilesystem', false ) ):
 		}
 
 		/**
+		 * @param $sFilePath
+		 * @return bool
+		 */
+		public function getFileSize( $sFilePath ) {
+			$oFs = $this->getWpfs();
+			if ( $oFs && ( $oFs->size( $sFilePath ) > 0 ) ) {
+				return $oFs->size( $sFilePath );
+			}
+			return @filesize( $sFilePath );
+		}
+
+		/**
 		 * @param string|null $sBaseDir
 		 * @param string $sPrefix
 		 * @param string $outsRandomDir
@@ -380,18 +376,18 @@ if ( !class_exists( 'ICWP_APP_WpFilesystem', false ) ):
 		/**
 		 * @param string $sFilePath
 		 * @param string $sContents
-		 * @return boolean|null
+		 * @return boolean
 		 */
 		public function putFileContent( $sFilePath, $sContents ) {
 			$oFs = $this->getWpfs();
-			if ( $oFs ) {
-				return $oFs->put_contents( $sFilePath, $sContents, FS_CHMOD_FILE );
+			if ( $oFs && $oFs->put_contents( $sFilePath, $sContents, FS_CHMOD_FILE ) ) {
+				return true;
 			}
 
 			if ( function_exists( 'file_put_contents' ) ) {
 				return file_put_contents( $sFilePath, $sContents ) !== false;
 			}
-			return null;
+			return false;
 		}
 
 		/**
@@ -458,7 +454,7 @@ if ( !class_exists( 'ICWP_APP_WpFilesystem', false ) ):
 		 * @param int $nTime
 		 * @return bool|mixed
 		 */
-		public function touch( $sFilePath, $nTime ) {
+		public function touch( $sFilePath, $nTime = null ) {
 			$oFs = $this->getWpfs();
 			if ( $oFs && $oFs->touch( $sFilePath, $nTime ) ) {
 				return true;
@@ -480,14 +476,13 @@ if ( !class_exists( 'ICWP_APP_WpFilesystem', false ) ):
 		 */
 		private function initFileSystem() {
 			if ( is_null( $this->oWpfs ) ) {
+				$this->oWpfs = false;
 				require_once( ABSPATH . 'wp-admin'.ICWP_DS.'includes'.ICWP_DS.'file.php' );
-				WP_Filesystem();
-				global $wp_filesystem;
-				if ( isset( $wp_filesystem ) && is_object( $wp_filesystem ) ) {
-					$this->oWpfs = $wp_filesystem;
-				}
-				else {
-					$this->oWpfs = false;
+				if ( WP_Filesystem() ) {
+					global $wp_filesystem;
+					if ( isset( $wp_filesystem ) && is_object( $wp_filesystem ) ) {
+						$this->oWpfs = $wp_filesystem;
+					}
 				}
 			}
 		}

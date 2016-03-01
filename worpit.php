@@ -3,13 +3,13 @@
 Plugin Name: iControlWP
 Plugin URI: http://icwp.io/home
 Description: Advanced WordPress Management - helping you get more done with less time and effort
-Version: 2.12.7
+Version: 2.13.0
 Author: iControlWP
 Author URI: http://www.icontrolwp.com/
 */
 
 /**
- * Copyright (c) 2015 iControlWP <support@icontrolwp.com>
+ * Copyright (c) 2016 iControlWP <support@icontrolwp.com>
  * All rights reserved.
  *
  * "iControlWP" (previously "Worpit") is distributed under the GNU General Public License, Version 2,
@@ -77,7 +77,6 @@ class Worpit_Plugin extends ICWP_APP_Foundation {
 	/**
 	 * @param string $sKey
 	 * @param bool $mValue
-	 *
 	 * @return mixed
 	 */
 	static public function updateOption( $sKey, $mValue ) {
@@ -85,6 +84,20 @@ class Worpit_Plugin extends ICWP_APP_Foundation {
 		$oCorePluginFeature->setOpt( $sKey, $mValue );
 		$oCorePluginFeature->savePluginOptions();
 		return true;
+	}
+
+	/**
+	 * @return string
+	 */
+	static public function GetAssignedToEmail() {
+		return self::getController()->loadCorePluginFeatureHandler()->getAssignedTo();
+	}
+
+	/**
+	 * @return string
+	 */
+	static public function GetHelpdeskSsoUrl() {
+		return self::getController()->loadCorePluginFeatureHandler()->getHelpdeskSsoUrl();
 	}
 
 	/**
@@ -109,17 +122,10 @@ class Worpit_Plugin extends ICWP_APP_Foundation {
 	}
 
 	/**
-	 * @return ICWP_APP_FeatureHandler_WhiteLabel
+	 * @return ICWP_APP_FeatureHandler_AutoUpdates
 	 */
-	public static function GetWhiteLabelSystem() {
-		return self::getController()->loadFeatureHandler( array( 'slug' => 'whitelabel' ) );
-	}
-
-	/**
-	 * @return ICWP_APP_FeatureHandler_Statistics
-	 */
-	public static function GetStatsSystem() {
-		return self::getController()->loadFeatureHandler( array( 'slug' => 'statistics' ) );
+	public static function GetAutoUpdatesSystem() {
+		return self::getController()->loadFeatureHandler( array( 'slug' => 'autoupdates' ) );
 	}
 
 	/**
@@ -130,10 +136,23 @@ class Worpit_Plugin extends ICWP_APP_Foundation {
 	}
 
 	/**
-	 * @return ICWP_APP_FeatureHandler_AutoUpdates
+	 * @return ICWP_APP_FeatureHandler_Plugin
 	 */
-	public static function GetAutoUpdatesSystem() {
-		return self::getController()->loadFeatureHandler( array( 'slug' => 'autoupdates' ) );
+	public static function GetPluginSystem() {
+		return self::getController()->loadCorePluginFeatureHandler();
+	}
+	/**
+	 * @return ICWP_APP_FeatureHandler_Statistics
+	 */
+	public static function GetStatsSystem() {
+		return self::getController()->loadFeatureHandler( array( 'slug' => 'statistics' ) );
+	}
+
+	/**
+	 * @return ICWP_APP_FeatureHandler_WhiteLabel
+	 */
+	public static function GetWhiteLabelSystem() {
+		return self::getController()->loadFeatureHandler( array( 'slug' => 'whitelabel' ) );
 	}
 
 	/**

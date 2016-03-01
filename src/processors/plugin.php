@@ -2,9 +2,9 @@
 
 if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 
-	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
+	require_once( dirname(__FILE__).ICWP_DS.'base_plugin.php' );
 
-	class ICWP_APP_Processor_Plugin extends ICWP_APP_Processor_Base {
+	class ICWP_APP_Processor_Plugin extends ICWP_APP_Processor_BasePlugin {
 
 		/**
 		 */
@@ -29,9 +29,6 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 			if ( ( $oDp->FetchRequest( 'getworpitpluginurl', false ) == 1 ) || $oDp->FetchRequest( 'geticwppluginurl', false ) == 1 ) {
 				$this->returnIcwpPluginUrl();
 			}
-
-			add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeFeedback' ) );
-			add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeAddSite' ) );
 
 			add_action( 'wp_footer', array( $this, 'printPluginUri') );
 		}
@@ -97,20 +94,18 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 
 		/**
 		 * @param string $sIps
-		 *
 		 * @return array
 		 */
 		protected function getValidServiceIps( $sIps = 'ipv4' ) {
-			$aLists = $this->getOption( 'service_ip_addresses_'.$sIps, array() );
-			if ( isset( $aLists['valid'] ) && is_array( $aLists['valid'] ) ) {
-				return $aLists['valid'];
+			$aLists = $this->getFeatureOptions()->getDefinition( 'service_ip_addresses' );
+			if ( isset( $aLists[$sIps] ) && is_array( $aLists[$sIps] ) && isset( $aLists[$sIps]['valid'] ) && is_array( $aLists[$sIps]['valid'] ) ) {
+				return $aLists[$sIps]['valid'];
 			}
 			return array();
 		}
 
 		/**
 		 * @param boolean $bCanHandshake
-		 *
 		 * @return boolean
 		 */
 		public function doVerifyCanHandshake( $bCanHandshake ) {
@@ -126,7 +121,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 			}
 
 			$nTimeout = 20;
-			$sHandshakeVerifyTestUrl = $oFO->getOpt( 'handshake_verify_test_url' );
+			$sHandshakeVerifyTestUrl = $oFO->getAppUrl( 'handshake_verify_test_url' );
 			$aArgs = array(
 				'timeout'		=> $nTimeout,
 				'redirection'	=> $nTimeout,
@@ -231,66 +226,31 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 		}
 
 		/**
-		 * @param array $aAdminNotices
+		 * @param array $aNoticeAttributes
 		 * @return array
 		 */
-		public function adminNoticeFeedback( $aAdminNotices ) {
-			$aAdminFeedbackNotice = $this->getOption( 'feedback_admin_notice' );
+		public function addNotice_add_site( $aNoticeAttributes ) {
 
-			if ( $this->getController()->getIsValidAdminArea() && !empty( $aAdminFeedbackNotice ) && is_array( $aAdminFeedbackNotice ) ) {
-
-				foreach ( $aAdminFeedbackNotice as $sNotice ) {
-					if ( empty( $sNotice ) || !is_string( $sNotice ) ) {
-						continue;
-					}
-					$aAdminNotices[] = $this->getAdminNoticeHtml( '<p>'.$sNotice.'</p>', 'updated', false );
-				}
-				/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-				$oFO = $this->getFeatureOptions();
-				$oFO->doClearAdminFeedback( 'feedback_admin_notice', array() );
-			}
-			return $aAdminNotices;
-		}
-
-		/**
-		 * @param array $aAdminNotices
-		 * @return array
-		 */
-		public function adminNoticeAddSite( $aAdminNotices ) {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
 			$oCon = $this->getController();
 
-			if ( $oCon->getIsValidAdminArea() && !$oFO->getIsSiteLinked() ) {
-
-				$sAckPluginNotice = $this->loadWpFunctionsProcessor()->getUserMeta( $oCon->doPluginOptionPrefix( 'ack_plugin_notice' ) );
-				$nCurrentUserId = 0;
-				$sNonce = wp_nonce_field( $oCon->getPluginPrefix() );
-				$sServiceName = $oCon->getHumanName();
-				$sFormAction = $oCon->getPluginUrl_AdminMainPage();
-				$sAuthKey = $oFO->getPluginAuthKey();
-				
-				ob_start();
-				include( $oFO->getViewSnippet( 'admin_notice_add_site' ) );
-				$sNoticeMessage = ob_get_contents();
-				ob_end_clean();
-
-				$aAdminNotices[] = $this->getAdminNoticeHtml( $sNoticeMessage, 'error', false );
+			if ( $oFO->getIsSiteLinked() || !$oCon->getIsValidAdminArea() ) {
+				return;
 			}
-			return $aAdminNotices;
-		}
 
-		/**
-		 * @return int
-		 */
-		protected function getInstallationDays() {
-			$nTimeInstalled = $this->getFeatureOptions()->getOpt( 'installation_time' );
-			if ( empty( $nTimeInstalled ) ) {
-				return 0;
-			}
-			return round( ( $this->loadDataProcessor()->time() - $nTimeInstalled ) / DAY_IN_SECONDS );
-		}
+			$sServiceName = $oCon->getHumanName();
+			$sAuthKey = $oFO->getPluginAuthKey();
 
+			$aRenderData = array(
+				'notice_attributes' => $aNoticeAttributes,
+				'strings' => array(
+					'add_site' => sprintf( "Now that you've installed the %s plugin, you need to connect this site to your %s account.", $sServiceName, $sServiceName ),
+					'use_key' => sprintf( 'Use the following Authentication Key when prompted %s.', '<span class="the-key">'.$sAuthKey.'</span>' ),
+				)
+			);
+			$this->insertAdminNotice( $aRenderData );
+		}
 	}
 
 endif;

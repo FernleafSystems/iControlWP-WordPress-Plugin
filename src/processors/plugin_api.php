@@ -2,12 +2,12 @@
 
 if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 
-	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
+	require_once( dirname(__FILE__).ICWP_DS.'base_app.php' );
 
 	/**
 	 * Class ICWP_APP_Processor_Plugin_Api
 	 */
-	class ICWP_APP_Processor_Plugin_Api extends ICWP_APP_Processor_Base {
+	class ICWP_APP_Processor_Plugin_Api extends ICWP_APP_Processor_BaseApp {
 
 		/**
 		 * @var stdClass
@@ -70,6 +70,14 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				case 'internal':
 //			    	$this->doInternal();
 					break;
+			}
+
+			if ( $oResponse->success ) {
+				$oFO->setHelpdeskSsoUrl( $oFO->fetchIcwpRequestParam( 'sso_url' ) );
+				$sAssignedTo = $oFO->fetchIcwpRequestParam( 'accname' );
+				if ( !empty( $sAssignedTo ) ) {
+					$oFO->setAssignedTo( $sAssignedTo );
+				}
 			}
 
 			return $oResponse;
@@ -196,7 +204,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			}
 
 			$oFO->setOpt( 'key', $sRequestedKey );
-			$oFO->setPluginAssigned( $sRequestedAcc );
+			$oFO->setAssignedAccount( $sRequestedAcc );
 			$oFO->setPluginPin( $sRequestPin );
 			$oFO->savePluginOptions();
 
@@ -224,7 +232,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			$sVerificationCode = $oFO->fetchIcwpRequestParam( 'verification_code', false );
 			if ( $oDp->getCanOpensslSign() ) {
 				$sSignature = base64_decode( $oFO->fetchIcwpRequestParam( 'opensig', '' ) );
-				$sPublicKey = $this->getOption( 'icwp_public_key', '' );
+				$sPublicKey = $oFO->getDefinition( 'icwp_public_key' );
 				if ( !empty( $sSignature ) && !empty( $sPublicKey ) ) {
 					$oResponse->openssl_verify = openssl_verify( $sVerificationCode, $sSignature, base64_decode( $sPublicKey ) );
 					if ( $oResponse->openssl_verify === 1 ) {
@@ -244,7 +252,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				);
 			}
 
-			$sHandshakeVerifyBaseUrl = $this->getOption( 'handshake_verify_url' );
+			$sHandshakeVerifyBaseUrl = $oFO->getAppUrl( 'handshake_verify_url' );
 			// We can do this because we've assumed at this point we've validated the communication with iControlWP
 			$sHandshakeVerifyUrl = sprintf(
 				'%s/%s/%s/%s',
@@ -291,23 +299,23 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		protected function setAuthorizedUser() {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
-			$oWp = $this->loadWpFunctionsProcessor();
+			$oWpUser = $this->loadWpUsersProcessor();
 			$sWpUser = $oFO->fetchIcwpRequestParam( 'wpadmin_user' );
 			if ( empty( $sWpUser ) ) {
 
-				if ( version_compare( $oWp->getWordpressVersion(), '3.1', '>=' ) ) {
+				if ( version_compare( $this->loadWpFunctionsProcessor()->getWordpressVersion(), '3.1', '>=' ) ) {
 					$aUserRecords = get_users( 'role=administrator' );
 					if ( is_array( $aUserRecords ) && count( $aUserRecords ) ) {
 						$oUser = $aUserRecords[0];
 					}
 				}
 				else {
-					$oUser = $oWp->getUserById( 1 );
+					$oUser = $oWpUser->getUserById( 1 );
 				}
 				$sWpUser = ( !empty( $oUser ) && is_a( $oUser, 'WP_User' ) ) ? $oUser->get( 'user_login' ) : '';
 			}
 
-			return $oWp->setUserLoggedIn( empty( $sWpUser ) ? 'admin' : $sWpUser );
+			return $oWpUser->setUserLoggedIn( empty( $sWpUser ) ? 'admin' : $sWpUser );
 		}
 
 		/**
@@ -351,8 +359,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			}
 
 			// We can do this because we've assumed at this point we've validated the communication with iControlWP
-			$sRetrieveBaseUrl = $oFO->fetchIcwpRequestParam( 'package_retrieve_url', $this->getOption( 'package_retrieve_url' ) );
-//			$sRetrieveUrl = 'http://staging.worpitapp.com/system/package/retrieve/';
+			$sRetrieveBaseUrl = $oFO->fetchIcwpRequestParam( 'package_retrieve_url', $oFO->getAppUrl( 'package_retrieve_url' ) );
 			$sPackageRetrieveUrl = sprintf(
 				'%s/%s/%s/%s',
 				rtrim( $sRetrieveBaseUrl, '/' ),
@@ -498,6 +505,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
 			$oWp = $this->loadWpFunctionsProcessor();
+			$oWpUser = $this->loadWpUsersProcessor();
 			$oWp->doBustCache();
 
 			$oResponse = $this->getStandardResponse();
@@ -533,7 +541,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			}
 
 			$sUsername = $oFO->fetchIcwpRequestParam( 'username', '' );
-			$oUser = $oWp->getUserByUsername( $sUsername );
+			$oUser = $oWpUser->getUserByUsername( $sUsername );
 			if ( empty( $sUsername ) || empty( $oUser ) ) {
 				$aUserRecords = version_compare( $oWp->getWordpressVersion(), '3.1', '>=' ) ? get_users( 'role=administrator' ) : array();
 				if ( empty( $aUserRecords[0] ) ) {
@@ -550,7 +558,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				wp_cookie_constants();
 			}
 
-			$bLoginSuccess = $oWp->setUserLoggedIn( $oUser->get( 'user_login' ) );
+			$bLoginSuccess = $oWpUser->setUserLoggedIn( $oUser->get( 'user_login' ) );
 			if ( !$bLoginSuccess ) {
 				return $this->setErrorResponse(
 					sprintf( 'There was a problem logging you in as "%s".', $oUser->get( 'user_login' ) ),
