@@ -382,7 +382,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Statistics', false ) ):
 		}
 
 		protected function getTableColumnsByDefinition() {
-			return $this->getOption( 'statistics_table_columns' );
+			return $this->getFeatureOptions()->getDefinition( 'statistics_table_columns' );
 		}
 
 		/**

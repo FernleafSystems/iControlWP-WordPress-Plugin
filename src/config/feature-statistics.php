@@ -37,22 +37,18 @@ options:
     key: 'ignore_from_user_level'
     section: 'section_non_ui'
     default: 11
-  -
-    key: 'statistics_table_name'
-    section: 'section_non_ui'
-    value: 'site_statistics'
-  -
-    key: 'statistics_table_columns'
-    section: 'section_non_ui'
-    immutable: true
-    value:
-      - 'id'
-      - 'page_id'
-      - 'uri'
-      - 'day_id'
-      - 'month_id'
-      - 'year_id'
-      - 'count_total'
-      - 'deleted_at'
-      - 'created_at'
+
+# Definitions for constant data that doesn't need stored in the options
+definitions:
+  statistics_table_name: 'site_statistics'
+  statistics_table_columns:
+    - 'id'
+    - 'page_id'
+    - 'uri'
+    - 'day_id'
+    - 'month_id'
+    - 'year_id'
+    - 'count_total'
+    - 'created_at'
+    - 'deleted_at'
 ";
