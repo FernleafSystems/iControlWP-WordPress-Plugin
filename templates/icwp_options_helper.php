@@ -201,21 +201,6 @@ function getPluginOptionSpan( $aOption, $nSpanSize, $insVarPrefix = '' ) {
 			$sFragment .= '</select>';
 			$sHtml .= $sFragment;
 		}
-		else if ( $sOptionType === 'ip_addresses' ) {
-			$sTextInput = esc_attr( $sOptionSaved );
-			$nRows = substr_count( $sTextInput, "\n" ) + 1;
-			$sHtml .= '
-				<p>'.$sOptionTitle.'</p>
-				<textarea type="text"
-						name="'.$insVarPrefix.$sOptionKey.'"
-						placeholder="'.$sTextInput.'"
-						id="'.$insVarPrefix.$sOptionKey.'"
-						rows="'.$nRows.'"
-						class="span5">'.$sTextInput.'</textarea>';
-
-			$sOptionHelpText = '<p class="help-block">'.$sOptionHelpText.'</p>';
-
-		}
 		else if ( $sOptionType === 'array' ) {
 			$sTextInput = esc_attr( $sOptionSaved );
 			$nRows = substr_count( $sTextInput, "\n" ) + 1;
