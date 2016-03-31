@@ -689,6 +689,20 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 		}
 
 		/**
+		 * @param string $sStringContent
+		 * @param string $sFilename
+		 * @return bool
+		 */
+		public function downloadStringAsFile( $sStringContent, $sFilename ) {
+			header( "Content-type: application/octet-stream" );
+			header( "Content-disposition: attachment; filename=".$sFilename );
+			header( "Content-Transfer-Encoding: binary");
+			header( "Content-Length: ".filesize( $sStringContent ) );
+			echo $sStringContent;
+			die();
+		}
+
+		/**
 		 * @param $sKey
 		 * @param $mValue
 		 * @param int $nExpireLength
@@ -705,7 +719,7 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 			return setcookie(
 				$sKey,
 				$mValue,
-				$this->time() + $nExpireLength,
+				(int)( $this->time() + $nExpireLength ),
 				( is_null( $sPath ) && defined( 'COOKIEPATH' ) ) ? COOKIEPATH : $sPath,
 				( is_null( $sDomain ) && defined( 'COOKIE_DOMAIN' ) ) ? COOKIE_DOMAIN : $sDomain,
 				$bSsl
@@ -765,10 +779,18 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 		}
 
 		/**
-		 * @return string
+		 * @param string $sAtLeastVersion
+		 * @return bool
 		 */
 		public function getPhpVersionIsAtLeast( $sAtLeastVersion ) {
-			return ( version_compare( $this->getPhpVersion(), $sAtLeastVersion, '>=' ) );
+			return version_compare( $this->getPhpVersion(), $sAtLeastVersion, '>=' );
+		}
+
+		/**
+		 * @return bool
+		 */
+		public function getPhpSupportsNamespaces() {
+			return $this->getPhpVersionIsAtLeast( '5.3' );
 		}
 
 		/**

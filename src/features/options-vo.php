@@ -89,6 +89,23 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 	}
 
 	/**
+	 * Returns an array of all the transferable options and their values
+	 * @return array
+	 */
+	public function getTransferableOptions() {
+
+		$aOptions = $this->getAllOptionsValues();
+		$aRawOptions = $this->getRawData_AllOptions();
+		$aTransferable = array();
+		foreach( $aRawOptions as $nKey => $aOptionData ) {
+			if ( isset( $aOptionData['transferable'] ) && $aOptionData['transferable'] === true ) {
+				$aTransferable[ $aOptionData['key'] ] = $aOptions[ $aOptionData['key'] ];
+			}
+		}
+		return $aTransferable;
+	}
+
+	/**
 	 * @param $sProperty
 	 * @return null|mixed
 	 */
@@ -128,14 +145,6 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 	 */
 	public function getFeatureTagline() {
 		return $this->getFeatureProperty( 'tagline' );
-	}
-
-	/**
-	 * @param string $sKey
-	 * @return boolean
-	 */
-	public function getIsOptionKey( $sKey ) {
-		return in_array( $sKey, $this->getOptionsKeys() );
 	}
 
 	/**
@@ -433,6 +442,17 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 	}
 
 	/**
+	 * @param array $aOptions
+	 */
+	public function setMultipleOptions( $aOptions ) {
+		if ( is_array( $aOptions ) ) {
+			foreach( $aOptions as $sKey => $mValue ) {
+				$this->setOpt( $sKey, $mValue );
+			}
+		}
+	}
+
+	/**
 	 * @param string $sOptionKey
 	 * @param mixed $mValue
 	 * @param boolean $bForce
@@ -517,11 +537,10 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 				}
 				$this->aOptionsValues = $this->loadWpFunctionsProcessor()->getOption( $sStorageKey, array() );
 			}
-
-			if ( empty( $this->aOptionsValues ) ) {
-				$this->aOptionsValues = array();
-				$this->setNeedSave( true );
-			}
+		}
+		if ( !is_array( $this->aOptionsValues ) ) {
+			$this->aOptionsValues = array();
+			$this->setNeedSave( true );
 		}
 		return $this->aOptionsValues;
 	}
