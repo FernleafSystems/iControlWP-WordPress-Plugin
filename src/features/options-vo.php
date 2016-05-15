@@ -12,6 +12,11 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 	/**
 	 * @var array
 	 */
+	protected $aChangedOptionsTracker;
+
+	/**
+	 * @var array
+	 */
 	protected $aRawOptionsConfigData;
 
 	/**
@@ -442,6 +447,7 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 
 	/**
 	 * @param array $aOptions
+	 * @return $this
 	 */
 	public function setMultipleOptions( $aOptions ) {
 		if ( is_array( $aOptions ) ) {
@@ -449,6 +455,7 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 				$this->setOpt( $sKey, $mValue );
 			}
 		}
+		return $this;
 	}
 
 	/**
@@ -469,9 +476,36 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 					return $this->resetOptToDefault( $sOptionKey );
 				}
 			}
+			$this->trackOption( $sOptionKey );
 			$this->aOptionsValues[ $sOptionKey ] = $mValue;
 		}
 		return true;
+	}
+
+	/**
+	 * Will return an option value to the original value if it was changed in this page load.
+	 *
+	 * @param string $sKey
+	 * @return bool
+	 */
+	public function revertChangedOption( $sKey ) {
+		if ( !empty( $this->aChangedOptionsTracker ) && is_array( $this->aChangedOptionsTracker ) && isset( $this->aChangedOptionsTracker[ $sKey ] ) ) {
+			return $this->setOpt( $sKey, $this->aChangedOptionsTracker[ $sKey ] );
+		}
+		return false;
+	}
+
+	/**
+	 * @param string $sKey
+	 */
+	private function trackOption( $sKey ) {
+		if ( !isset( $this->aChangedOptionsTracker ) ) {
+			$this->aChangedOptionsTracker = array();
+		}
+		// Meaning we only track once, and we don't overwrite if an option is set multiple times.
+		if ( !isset( $this->aChangedOptionsTracker[ $sKey ] ) && isset( $this->aOptionsValues[ $sKey ] ) ) {
+			$this->aChangedOptionsTracker[ $sKey ] = $this->aOptionsValues[ $sKey ];
+		}
 	}
 
 	/**

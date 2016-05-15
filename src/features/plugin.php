@@ -69,13 +69,6 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		}
 
 		/**
-		 * @return bool
-		 */
-		public function getIsHandshakeEnabled() {
-			return $this->getCanHandshake();
-		}
-
-		/**
 		 * @param bool $bDoVerify
 		 * @return bool
 		 */

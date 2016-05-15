@@ -101,8 +101,10 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 				add_action( $this->doPluginPrefix( 'delete_plugin' ), array( $this, 'deletePluginOptions' )  );
 				add_filter( $this->doPluginPrefix( 'aggregate_all_plugin_options' ), array( $this, 'aggregateOptionsValues' ) );
 
-				add_filter($this->doPluginPrefix( 'register_admin_notices' ), array( $this, 'fRegisterAdminNotices' ) );
-				add_filter($this->doPluginPrefix( 'gather_options_for_export' ), array( $this, 'exportTransferableOptions' ) );
+				add_filter( $this->doPluginPrefix( 'register_admin_notices' ), array( $this, 'fRegisterAdminNotices' ) );
+				add_filter( $this->doPluginPrefix( 'gather_options_for_export' ), array( $this, 'exportTransferableOptions' ) );
+
+				add_action( $this->doPluginPrefix( 'set_options_'.$this->getFeatureSlug() ), array( $this, 'actionSetOptions' ) );
 
 				$this->doPostConstruction();
 			}
@@ -171,6 +173,13 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 					$this->doExecuteProcessor();
 				}
 			}
+		}
+
+		/**
+		 * @param array $aOptions
+		 */
+		public function actionSetOptions( $aOptions ) {
+			$this->getOptionsVo()->setMultipleOptions( $aOptions )->doOptionsSave();
 		}
 
 		/**
@@ -612,8 +621,8 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 		 */
 		public function savePluginOptions() {
 			$this->initialiseKeyVars();
-			$this->doPrePluginOptionsSave();
 			$this->updateOptionsVersion();
+			$this->doPrePluginOptionsSave();
 			return $this->getOptionsVo()->doOptionsSave();
 		}
 
@@ -798,6 +807,16 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 
 			// Now verify this is really a valid submission.
 			return check_admin_referer( $this->getController()->getPluginPrefix() );
+		}
+
+		/**
+		 * @param string $sKey
+		 * @param bool $bTrim
+		 * @return mixed|null|string
+		 */
+		protected function getFormInput( $sKey, $bTrim = true ) {
+			$sData = $this->loadDataProcessor()->FetchPost( $this->prefixOptionKey( $sKey ) );
+			return ( $bTrim && !empty( $sData ) && is_string( $sData ) ) ? trim( $sData ) : $sData;
 		}
 
 		/**
