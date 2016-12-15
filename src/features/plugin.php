@@ -102,6 +102,28 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 			return ( $this->getAssigned() && is_email( $this->getAssignedTo() ) );
 		}
 
+		/**
+		 * @return bool
+		 */
+		public function getIsApiCall() {
+			return ( ( $this->fetchIcwpRequestParam( 'worpit_link', 0 ) == 1 )
+				|| ( $this->fetchIcwpRequestParam( 'worpit_api', 0 ) == 1 ) );
+		}
+
+		/**
+		 * @return bool
+		 */
+		public function getIsApiCall_LinkSite() {
+			return $this->getIsApiCall() && ( $this->fetchIcwpRequestParam( 'worpit_link', 0 ) == 1 );
+		}
+
+		/**
+		 * @return bool
+		 */
+		public function getIsApiCall_Action() {
+			return $this->getIsApiCall() && ( $this->fetchIcwpRequestParam( 'worpit_api', 0 ) == 1 );
+		}
+
 		public function doExtraSubmitProcessing() {
 			$oDp = $this->loadDataProcessor();
 
