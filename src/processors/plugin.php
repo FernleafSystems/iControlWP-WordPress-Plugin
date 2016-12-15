@@ -7,16 +7,27 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 	class ICWP_APP_Processor_Plugin extends ICWP_APP_Processor_BasePlugin {
 
 		/**
+		 * @var ICWP_APP_Processor_Plugin_Api
+		 */
+		protected $oApiActionProcessor;
+
+		/**
 		 */
 		public function run() {
-			if ( $this->getIsApiCall() ) {
-				$this->maybeSetIsAdmin();
-				add_action( $this->getApiHook(), array( $this, 'doAPI' ), $this->getApiHookPriority() );
-			}
-
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
 			$oCon = $this->getController();
+
+			if ( $oFO->getIsApiCall() ) {
+				$this->maybeSetIsAdmin();
+
+				if ( $oFO->getIsApiCall_Action() ) {
+					add_action( $this->getApiHook(), array( $this, 'doApiAction' ), $this->getApiHookPriority() );
+				}
+				else if ( $oFO->getIsApiCall_LinkSite() ) {
+					add_action( $this->getApiHook(), array( $this, 'doApiLinkSite' ), $this->getApiHookPriority() );
+				}
+			}
 
 			add_filter( $oCon->doPluginPrefix( 'get_service_ips_v4' ), array( $this, 'getServiceIpAddressesV4' ) );
 			add_filter( $oCon->doPluginPrefix( 'get_service_ips_v6' ), array( $this, 'getServiceIpAddressesV6' ) );
@@ -31,6 +42,16 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 			}
 
 			add_action( 'wp_footer', array( $this, 'printPluginUri') );
+		}
+
+		public function kill() {
+//
+//			var_dump( is_admin() );
+//			var_dump( $_SERVER );
+//			sleep( 1 );
+//			die( 'pluginhere1235' );
+
+//			die( 'here123' );
 		}
 
 		/**
@@ -52,9 +73,10 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 		protected function getApiHook() {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
+
 			$sApiHook = $oFO->fetchIcwpRequestParam( 'api_hook', '' );
 			if ( empty( $sApiHook ) ) {
-				$sApiHook = 'wp_loaded';
+				$sApiHook = is_admin() ? 'admin_init' : 'wp_loaded';
 				if ( class_exists( 'WooDojo_Maintenance_Mode', false ) || class_exists( 'ITSEC_Core', false ) ) {
 					$sApiHook = 'init';
 				}
@@ -70,7 +92,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 			$oFO = $this->getFeatureOptions();
 			$nHookPriority = $oFO->fetchIcwpRequestParam( 'api_priority', '' );
 			if ( empty( $nHookPriority ) || !is_numeric( $nHookPriority )) {
-				$nHookPriority = 1;
+				$nHookPriority = is_admin() ? 101 : 1;
 				if ( class_exists( 'ITSEC_Core', false ) ) {
 					$nHookPriority = 100;
 				}
@@ -138,40 +160,36 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 		}
 
 		/**
-		 * If any of the conditions are met and our plugin executes either the transport or link
-		 * handlers, then all execution will end
-		 * @uses die
-		 * @return void
+		 * @uses die()
 		 */
-		public function doAPI() {
-			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
-
-			if ( $oFO->fetchIcwpRequestParam( 'worpit_link', 0 ) == 1 ) {
-				require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-				require_once( dirname(__FILE__).ICWP_DS.'plugin_sitelink.php' );
-				$oLinkProcessor = new ICWP_APP_Processor_Plugin_SiteLink( $this->getFeatureOptions() );
-				$oLinkResponse = $oLinkProcessor->run();
-				$this->sendApiResponse( $oLinkResponse );
-				die();
-			}
-			else if ( $oFO->fetchIcwpRequestParam( 'worpit_api', 0 ) == 1 ) {
-				require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-				require_once( dirname(__FILE__).ICWP_DS.'plugin_api.php' );
-				$oApiProcessor = new ICWP_APP_Processor_Plugin_Api( $this->getFeatureOptions() );
-				$oApiResponse = $oApiProcessor->run();
-				$this->sendApiResponse( $oApiResponse );
-				die();
-			}
+		public function doApiLinkSite() {
+			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+			require_once( dirname(__FILE__).ICWP_DS.'plugin_sitelink.php' );
+			$oLinkProcessor = new ICWP_APP_Processor_Plugin_SiteLink( $this->getFeatureOptions() );
+			$oLinkResponse = $oLinkProcessor->run();
+			$this->sendApiResponse( $oLinkResponse );
+			die();
 		}
 
 		/**
-		 * @return bool
+		 * @uses die()
 		 */
-		protected function getIsApiCall() {
-			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
-			return ( ( $oFO->fetchIcwpRequestParam( 'worpit_link', 0 ) == 1 ) || ( $oFO->fetchIcwpRequestParam( 'worpit_api', 0 ) == 1 ) );
+		public function doApiAction() {
+			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+			$oApiResponse = $this->getApiActionProcessor()->run();
+			$this->sendApiResponse( $oApiResponse );
+			die();
+		}
+
+		/**
+		 * @return ICWP_APP_Processor_Plugin_Api
+		 */
+		protected function getApiActionProcessor() {
+			if ( !isset( $this->oApiActionProcessor ) ) {
+				require_once( dirname(__FILE__).ICWP_DS.'plugin_api.php' );
+				$this->oApiActionProcessor = new ICWP_APP_Processor_Plugin_Api( $this->getFeatureOptions() );
+			}
+			return $this->oApiActionProcessor;
 		}
 
 		/**
