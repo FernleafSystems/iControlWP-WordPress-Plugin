@@ -73,6 +73,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 		protected function getApiHook() {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
+
 			$sApiHook = $oFO->fetchIcwpRequestParam( 'api_hook', '' );
 			if ( empty( $sApiHook ) ) {
 				$sApiHook = is_admin() ? 'admin_init' : 'wp_loaded';

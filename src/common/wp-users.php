@@ -196,9 +196,10 @@ if ( !class_exists( 'ICWP_APP_WpUsers', false ) ):
 
 		/**
 		 * @param string $sUsername
+		 * @param bool $bFireAction
 		 * @return bool
 		 */
-		public function setUserLoggedIn( $sUsername ) {
+		public function setUserLoggedIn( $sUsername, $bFireAction = true ) {
 
 			$oUser = $this->getUserByUsername( $sUsername );
 			if ( !is_a( $oUser, 'WP_User' ) ) {
@@ -208,8 +209,9 @@ if ( !class_exists( 'ICWP_APP_WpUsers', false ) ):
 			wp_clear_auth_cookie();
 			wp_set_current_user( $oUser->ID, $oUser->get( 'user_login' ) );
 			wp_set_auth_cookie( $oUser->ID, true );
-			do_action( 'wp_login', $oUser->get( 'user_login' ), $oUser );
-
+			if ( $bFireAction ) {
+				do_action( 'wp_login', $oUser->get( 'user_login' ), $oUser );
+			}
 			return true;
 		}
 	}

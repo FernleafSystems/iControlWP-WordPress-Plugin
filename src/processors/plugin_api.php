@@ -57,7 +57,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 					return $oResponse;
 				}
 			}
-			$this->doWpEngine();
+
 			@set_time_limit( $oFO->fetchIcwpRequestParam( 'timeout', 60 ) );
 
 			switch( $sApiMethod ) {
@@ -95,6 +95,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		 */
 		protected function doAuth() {
 			$this->setAuthorizedUser();
+			$this->doWpEngine();
 			return $this->setSuccessResponse( 'Auth' ); //just to be sure we proceed thereafter
 		}
 
@@ -322,7 +323,11 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				if ( empty( $sWpUser ) ) {
 
 					if ( version_compare( $this->loadWpFunctionsProcessor()->getWordpressVersion(), '3.1', '>=' ) ) {
-						$aUserRecords = get_users( 'role=administrator' );
+						$aUserRecords = get_users( array(
+							'role' => 'administrator',
+							'number' => 1,
+							'orderby' => 'ID'
+						) );
 						if ( is_array( $aUserRecords ) && count( $aUserRecords ) ) {
 							$oUser = $aUserRecords[0];
 						}
