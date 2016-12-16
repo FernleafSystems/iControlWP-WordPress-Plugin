@@ -28,7 +28,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Statistics', false ) ):
 		 * @return string
 		 */
 		public function getStatisticsTableName() {
-			return $this->doPluginPrefix( $this->getOpt( 'statistics_table_name' ), '_' );
+			return $this->doPluginPrefix( $this->getDefinition( 'statistics_table_name' ), '_' );
 		}
 	}
 

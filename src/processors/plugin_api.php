@@ -20,6 +20,11 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		protected $oFeatureOptions;
 
 		/**
+		 * @var string
+		 */
+		protected $sLoggedInUser;
+
+		/**
 		 * @return stdClass
 		 */
 		public function run() {
@@ -30,7 +35,6 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			if ( !preg_match( '/[A-Z0-9_]+/i', $sApiMethod ) ) {
 				$sApiMethod = 'index';
 			}
-
 			$oResponse = $this->getStandardResponse();
 			$oResponse->method = $sApiMethod;
 
@@ -53,13 +57,16 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 					return $oResponse;
 				}
 			}
-			$this->doWpEngine();
+
 			@set_time_limit( $oFO->fetchIcwpRequestParam( 'timeout', 60 ) );
 
 			switch( $sApiMethod ) {
 
 				case 'index':
 					$this->doIndex();
+					break;
+				case 'auth':
+					$this->doAuth();
 					break;
 				case 'retrieve':
 					$this->doRetrieve();
@@ -81,6 +88,15 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			}
 
 			return $oResponse;
+		}
+
+		/**
+		 * @return stdClass
+		 */
+		protected function doAuth() {
+			$this->setAuthorizedUser();
+			$this->doWpEngine();
+			return $this->setSuccessResponse( 'Auth' ); //just to be sure we proceed thereafter
 		}
 
 		/**
@@ -297,25 +313,36 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		 * @return bool
 		 */
 		protected function setAuthorizedUser() {
-			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
-			$oWpUser = $this->loadWpUsersProcessor();
-			$sWpUser = $oFO->fetchIcwpRequestParam( 'wpadmin_user' );
-			if ( empty( $sWpUser ) ) {
 
-				if ( version_compare( $this->loadWpFunctionsProcessor()->getWordpressVersion(), '3.1', '>=' ) ) {
-					$aUserRecords = get_users( 'role=administrator' );
-					if ( is_array( $aUserRecords ) && count( $aUserRecords ) ) {
-						$oUser = $aUserRecords[0];
+			if ( !$this->isLoggedInUser() ) {
+
+				/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
+				$oFO = $this->getFeatureOptions();
+				$oWpUser = $this->loadWpUsersProcessor();
+				$sWpUser = $oFO->fetchIcwpRequestParam( 'wpadmin_user' );
+				if ( empty( $sWpUser ) ) {
+
+					if ( version_compare( $this->loadWpFunctionsProcessor()->getWordpressVersion(), '3.1', '>=' ) ) {
+						$aUserRecords = get_users( array(
+							'role' => 'administrator',
+							'number' => 1,
+							'orderby' => 'ID'
+						) );
+						if ( is_array( $aUserRecords ) && count( $aUserRecords ) ) {
+							$oUser = $aUserRecords[0];
+						}
 					}
+					else {
+						$oUser = $oWpUser->getUserById( 1 );
+					}
+					$sWpUser = ( !empty( $oUser ) && is_a( $oUser, 'WP_User' ) ) ? $oUser->get( 'user_login' ) : 'admin';
 				}
-				else {
-					$oUser = $oWpUser->getUserById( 1 );
-				}
-				$sWpUser = ( !empty( $oUser ) && is_a( $oUser, 'WP_User' ) ) ? $oUser->get( 'user_login' ) : '';
-			}
 
-			return $oWpUser->setUserLoggedIn( empty( $sWpUser ) ? 'admin' : $sWpUser );
+				if ( $oWpUser->setUserLoggedIn( $sWpUser ) ) {
+					$this->setLoggedInUser( $sWpUser );
+				}
+			}
+			return $this->isLoggedInUser();
 		}
 
 		/**
@@ -626,6 +653,29 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				self::$oActionResponse = $oResponse;
 			}
 			return self::$oActionResponse;
+		}
+
+		/**
+		 * @param string $sUser
+		 * @return $this
+		 */
+		protected function setLoggedInUser( $sUser ) {
+			$this->sLoggedInUser = $sUser;
+			return $this;
+		}
+
+		/**
+		 * @return string
+		 */
+		protected function getLoggedInUser() {
+			return $this->sLoggedInUser;
+		}
+
+		/**
+		 * @return bool
+		 */
+		protected function isLoggedInUser() {
+			return !empty( $this->sLoggedInUser );
 		}
 	}
 

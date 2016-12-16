@@ -69,6 +69,11 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	private $aRequirementsMessages;
 
 	/**
+	 * @var array
+	 */
+	private $aImportedOptions;
+
+	/**
 	 * @var string
 	 */
 	protected static $sSessionId;
@@ -107,6 +112,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 		self::$sRootFile = $sRootFile;
 		$this->checkMinimumRequirements();
 		add_action( 'plugins_loaded', array( $this, 'onWpPluginsLoaded' ), 0 ); // this hook then registers everything
+		$this->loadWpTrack();
 	}
 
 	/**
@@ -140,7 +146,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 		$sMinimumPhp = $this->getPluginSpec_Requirement( 'php' );
 		if ( !empty( $sMinimumPhp ) ) {
 			if ( version_compare( phpversion(), $sMinimumPhp, '<' ) ) {
-				$aRequirementsMessages[] = sprintf( 'PHP does not meet the minimum required version. Your version: %s.  Required Version: %s.', PHP_VERSION, $sMinimumPhp );
+				$aRequirementsMessages[] = sprintf( 'PHP does not meet minimum version. Your version: %s.  Required Version: %s.', PHP_VERSION, $sMinimumPhp );
 				$bMeetsRequirements = false;
 			}
 		}
@@ -149,7 +155,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 		if ( !empty( $sMinimumWp ) ) {
 			$sWpVersion = $this->loadWpFunctionsProcessor()->getWordpressVersion();
 			if ( version_compare( $sWpVersion, $sMinimumWp, '<' ) ) {
-				$aRequirementsMessages[] = sprintf( 'WordPress does not meet the minimum required version. Your version: %s.  Required Version: %s.', $sWpVersion, $sMinimumWp );
+				$aRequirementsMessages[] = sprintf( 'WordPress does not meet minimum version. Your version: %s.  Required Version: %s.', $sWpVersion, $sMinimumWp );
 				$bMeetsRequirements = false;
 			}
 		}
@@ -237,7 +243,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 		add_action( 'wp_loaded',			    		array( $this, 'onWpLoaded' ) );
 
 		add_action( 'admin_menu',						array( $this, 'onWpAdminMenu' ) );
-		add_action( 'network_admin_menu',				array( $this, 'onWpAdminMenu' ) );
+		add_action(	'network_admin_menu',				array( $this, 'onWpAdminMenu' ) );
 
 		add_filter( 'all_plugins', 						array( $this, 'filter_hidePluginFromTableList' ) );
 		add_filter( 'all_plugins',						array( $this, 'doPluginLabels' ) );
@@ -269,6 +275,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	public function onWpLoaded() {
 		if ( $this->getIsValidAdminArea() ) {
 			$this->doPluginFormSubmit();
+			$this->downloadOptionsExport();
 		}
 	}
 
@@ -283,6 +290,48 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 */
 	public function onWpAdminMenu() {
 		return ( $this->getIsValidAdminArea() ? $this->createPluginMenu() : true );
+	}
+
+	/**
+	 * @uses die()
+	 */
+	private function downloadOptionsExport() {
+		$oDp = $this->loadDataProcessor();
+		if ( $oDp->FetchGet( 'icwp_shield_export' ) == 1 ) {
+			$aExportOptions = apply_filters( $this->doPluginPrefix( 'gather_options_for_export' ), array() );
+			if ( !empty( $aExportOptions ) && is_array( $aExportOptions ) ) {
+				$oDp->downloadStringAsFile(
+					$this->loadYamlProcessor()->dumpArrayToYaml( $aExportOptions ),
+					'shield_options_export-'
+					. $this->loadWpFunctionsProcessor()->getHomeUrl( true )
+					.'-'.date('ymdHis').'.txt'
+				);
+			}
+		}
+	}
+
+	/**
+	 * @uses die()
+	 */
+	public function getOptionsImportFromFile() {
+
+		if ( !isset( $this->aImportedOptions ) ) {
+			$this->aImportedOptions = array();
+
+			$sFile = path_join( $this->getRootDir(), 'shield_options_export.txt' );
+			$oFS = $this->loadFileSystemProcessor();
+			if ( $oFS->isFile( $sFile ) ) {
+				$sOptionsString = $oFS->getFileContent( $sFile );
+				if ( !empty( $sOptionsString ) && is_string( $sOptionsString ) ) {
+					$aOptions = $this->loadYamlProcessor()->parseYamlString( $sOptionsString );
+					if ( !empty( $aOptions ) && is_array( $aOptions ) ) {
+						$this->aImportedOptions = $aOptions;
+					}
+				}
+				$oFS->deleteFile( $sFile );
+			}
+		}
+		return $this->aImportedOptions;
 	}
 
 	/**
@@ -852,7 +901,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return bool
 	 */
 	public function getIsValidAdminArea( $bCheckUserPermissions = true ) {
-		if ( $bCheckUserPermissions && !current_user_can( $this->getBasePermissions() ) ) {
+		if ( $bCheckUserPermissions && $this->loadWpTrack()->getWpActionHasFired( 'init' ) && !current_user_can( $this->getBasePermissions() ) ) {
 			return false;
 		}
 

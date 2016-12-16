@@ -101,11 +101,13 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 				add_action( $this->doPluginPrefix( 'delete_plugin' ), array( $this, 'deletePluginOptions' )  );
 				add_filter( $this->doPluginPrefix( 'aggregate_all_plugin_options' ), array( $this, 'aggregateOptionsValues' ) );
 
-				add_filter($this->doPluginPrefix( 'register_admin_notices' ), array( $this, 'fRegisterAdminNotices' ) );
+				add_filter( $this->doPluginPrefix( 'register_admin_notices' ), array( $this, 'fRegisterAdminNotices' ) );
+				add_filter( $this->doPluginPrefix( 'gather_options_for_export' ), array( $this, 'exportTransferableOptions' ) );
+
+				add_action( $this->doPluginPrefix( 'set_options_'.$this->getFeatureSlug() ), array( $this, 'actionSetOptions' ) );
 
 				$this->doPostConstruction();
 			}
-
 		}
 
 		/**
@@ -160,12 +162,36 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 		protected function doPostConstruction() { }
 
 		/**
-		 * A action added to WordPress 'plugins_loaded' hook
+		 * Added to WordPress 'plugins_loaded' hook
 		 */
 		public function onWpPluginsLoaded() {
+
+			$this->importOptions();
+
 			if ( $this->getIsMainFeatureEnabled() ) {
 				if ( $this->doExecutePreProcessor() && !$this->getController()->getIfOverrideOff() ) {
 					$this->doExecuteProcessor();
+				}
+			}
+		}
+
+		/**
+		 * @param array $aOptions
+		 */
+		public function actionSetOptions( $aOptions ) {
+			$this->getOptionsVo()->setMultipleOptions( $aOptions )->doOptionsSave();
+		}
+
+		/**
+		 * for now only import by file is supported
+		 */
+		protected function importOptions() {
+			// So we don't poll for the file every page load.
+			if ( $this->loadDataProcessor()->FetchGet( 'icwp_shield_import' ) == 1 ) {
+				$aOptions = $this->getController()->getOptionsImportFromFile();
+				if ( !empty( $aOptions ) && is_array( $aOptions ) && array_key_exists( $this->getOptionsStorageKey(), $aOptions ) ) {
+					$this->getOptionsVo()->setMultipleOptions( $aOptions[ $this->getOptionsStorageKey() ] );
+					$this->doSaveByPassAdminProtection();
 				}
 			}
 		}
@@ -376,7 +402,11 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 
 				$sHumanName = $this->getController()->getHumanName();
 
-				$sMenuPageTitle = $sHumanName.' - '.$sMenuTitleName;
+				$bMenuHighlighted = $this->getOptionsVo()->getFeatureProperty( 'highlight_menu_item' );
+				if ( $bMenuHighlighted ) {
+					$sMenuTitleName = sprintf( '<span class="icwp_highlighted">%s</span>', $sMenuTitleName );
+				}
+				$sMenuPageTitle = $sMenuTitleName.' - '.$sHumanName;
 				$aItems[ $sMenuPageTitle ] = array(
 					$sMenuTitleName,
 					$this->doPluginPrefix( $this->getFeatureSlug() ),
@@ -591,8 +621,8 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 		 */
 		public function savePluginOptions() {
 			$this->initialiseKeyVars();
-			$this->doPrePluginOptionsSave();
 			$this->updateOptionsVersion();
+			$this->doPrePluginOptionsSave();
 			return $this->getOptionsVo()->doOptionsSave();
 		}
 
@@ -642,16 +672,6 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 						}
 						else {
 							$mCurrentOptionVal = implode( "\n", $mCurrentOptionVal );
-						}
-						$aOptionParams[ 'rows' ] = substr_count( $mCurrentOptionVal, "\n" ) + 1;
-					}
-					else if ( $sOptionType == 'ip_addresses' ) {
-
-						if ( empty( $mCurrentOptionVal ) ) {
-							$mCurrentOptionVal = '';
-						}
-						else {
-							$mCurrentOptionVal = implode( "\n", $this->convertIpListForDisplay( $mCurrentOptionVal ) );
 						}
 						$aOptionParams[ 'rows' ] = substr_count( $mCurrentOptionVal, "\n" ) + 1;
 					}
@@ -746,38 +766,6 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 		}
 
 		/**
-		 * @param array $aIpList
-		 *
-		 * @return array
-		 */
-		protected function convertIpListForDisplay( $aIpList = array() ) {
-
-			$aDisplay = array();
-			if ( empty( $aIpList ) || empty( $aIpList['ips'] ) ) {
-				return $aDisplay;
-			}
-
-			foreach( $aIpList['ips'] as $sAddress ) {
-				// offset=1 in the case that it's a range and the first number is negative on 32-bit systems
-				$mPos = strpos( $sAddress, '-', 1 );
-
-				if ( $mPos === false ) { //plain IP address
-					$sDisplayText = is_long( $sAddress ) ? long2ip( $sAddress ) : $sAddress;
-				}
-				else {
-					//we remove the first character in case this is '-'
-					$aParts = array( substr( $sAddress, 0, 1 ), substr( $sAddress, 1 ) );
-					list( $nStart, $nEnd ) = explode( '-', $aParts[1], 2 );
-					$sDisplayText = long2ip( $aParts[0].$nStart ) .'-'. long2ip( $nEnd );
-				}
-				$sLabel = $aIpList['meta'][ md5($sAddress) ];
-				$sLabel = trim( $sLabel, '()' );
-				$aDisplay[] = $sDisplayText . ' ('.$sLabel.')';
-			}
-			return $aDisplay;
-		}
-
-		/**
 		 * @return string
 		 */
 		protected function collateAllFormInputsForAllOptions() {
@@ -819,6 +807,16 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 
 			// Now verify this is really a valid submission.
 			return check_admin_referer( $this->getController()->getPluginPrefix() );
+		}
+
+		/**
+		 * @param string $sKey
+		 * @param bool $bTrim
+		 * @return mixed|null|string
+		 */
+		protected function getFormInput( $sKey, $bTrim = true ) {
+			$sData = $this->loadDataProcessor()->FetchPost( $this->prefixOptionKey( $sKey ) );
+			return ( $bTrim && !empty( $sData ) && is_string( $sData ) ) ? trim( $sData ) : $sData;
 		}
 
 		/**
@@ -892,9 +890,6 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 					else if ( $sOptionType == 'array' ) { //arrays are textareas, where each is separated by newline
 						$sOptionValue = array_filter( explode( "\n", $sOptionValue ), 'trim' );
 					}
-					else if ( $sOptionType == 'ip_addresses' ) { //ip addresses are textareas, where each is separated by newline
-						$sOptionValue = $oDp->extractIpAddresses( $sOptionValue );
-					}
 					else if ( $sOptionType == 'yubikey_unique_keys' ) { //ip addresses are textareas, where each is separated by newline and are 12 chars long
 						$sOptionValue = $oDp->CleanYubikeyUniqueKeys( $sOptionValue );
 					}
@@ -914,6 +909,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 
 		/**
 		 * Should be over-ridden by each new class to handle upgrades.
+		 *
 		 * Called upon construction and after plugin options are initialized.
 		 */
 		protected function updateHandler() { }
@@ -953,45 +949,6 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 		 */
 		public function getOptionStoragePrefix() {
 			return $this->getController()->getOptionStoragePrefix();
-		}
-
-		/**
-		 * @param string $sExistingListKey
-		 * @param string $sFilterName
-		 * @return array|false
-		 */
-		protected function processIpFilter( $sExistingListKey, $sFilterName ) {
-			$aFilterIps = apply_filters( $sFilterName, array() );
-			if ( empty( $aFilterIps ) ) {
-				return false;
-			}
-
-			$aNewIps = array();
-			foreach( $aFilterIps as $mKey => $sValue ) {
-				if ( is_string( $mKey ) ) { //it's the IP
-					$sIP = $mKey;
-					$sLabel = $sValue;
-				}
-				else { //it's not an associative array, so the value is the IP
-					$sIP = $sValue;
-					$sLabel = '';
-				}
-				$aNewIps[ $sIP ] = $sLabel;
-			}
-
-			// now add and store the new IPs
-			$aExistingIpList = $this->getOpt( $sExistingListKey );
-			if ( !is_array( $aExistingIpList ) ) {
-				$aExistingIpList = array();
-			}
-
-			$oDp = $this->loadDataProcessor();
-			$nNewAddedCount = 0;
-			$aNewList = $oDp->addNewRawIps( $aExistingIpList, $aNewIps, $nNewAddedCount );
-			if ( $nNewAddedCount > 0 ) {
-				$this->setOpt( $sExistingListKey, $aNewList );
-			}
-			return true;
 		}
 
 		/**
@@ -1201,6 +1158,18 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 		 */
 		public function getController() {
 			return $this->oPluginController;
+		}
+
+		/**
+		 * @param array $aTransferableOptions
+		 * @return array
+		 */
+		public function exportTransferableOptions( $aTransferableOptions ) {
+			if ( !is_array( $aTransferableOptions ) ) {
+				$aTransferableOptions = array();
+			}
+			$aTransferableOptions[ $this->getOptionsStorageKey() ] = $this->getOptionsVo()->getTransferableOptions();
+			return $aTransferableOptions;
 		}
 	}
 
