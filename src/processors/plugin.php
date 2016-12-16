@@ -44,16 +44,6 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 			add_action( 'wp_footer', array( $this, 'printPluginUri') );
 		}
 
-		public function kill() {
-//
-//			var_dump( is_admin() );
-//			var_dump( $_SERVER );
-//			sleep( 1 );
-//			die( 'pluginhere1235' );
-
-//			die( 'here123' );
-		}
-
 		/**
 		 * @return bool
 		 */
