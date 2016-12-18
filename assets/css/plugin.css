@@ -197,3 +197,35 @@ table#tbl_tbs_options_javascript td {
 label input[type=checkbox] {
 	height: 16px !important;
 }
+
+.assigned-state {
+}
+.assigned-state .the-key {
+	background-color: #FFFFFF;
+	border: 1px solid #AAAAAA;
+	border-radius: 4px 4px 4px 4px;
+	font-family: "courier new",sans-serif;
+	letter-spacing: 1px;
+	margin: 10px 10px 3px 10px;
+	padding: 5px 8px;
+	display: inline-block;
+}
+.assigned-state #isNotAssigned {
+	margin: 15px;
+}
+a#signupLinkIcwp {
+	font-size: smaller;
+	font-weight: normal;
+	text-decoration: underline;
+}
+.assigned-state #isAssigned {
+	color: #00A500;
+	padding-left: 25px;
+	margin-bottom: 15px;
+}
+.reset-authentication input,
+.enable-handshake-authentication input {
+	float: left;
+	margin-right: 4px !important;
+}
+.cant-handshake { opacity: 0.5; }

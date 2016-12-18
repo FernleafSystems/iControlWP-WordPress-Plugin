@@ -2,12 +2,12 @@
 
 if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 
-	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
+	require_once( dirname(__FILE__).ICWP_DS.'base_app.php' );
 
 	/**
 	 * Class ICWP_APP_Processor_Plugin_Api
 	 */
-	abstract class ICWP_APP_Processor_Plugin_Api extends ICWP_APP_Processor_Base {
+	abstract class ICWP_APP_Processor_Plugin_Api extends ICWP_APP_Processor_BaseApp {
 
 		/**
 		 * @var stdClass
@@ -18,6 +18,11 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		 * @var ICWP_APP_FeatureHandler_Plugin
 		 */
 		protected $oFeatureOptions;
+
+		/**
+		 * @var string
+		 */
+		protected $sLoggedInUser;
 
 		/**
 		 * @return stdClass
@@ -68,6 +73,15 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			if ( is_array( $oResponse->data ) ) {
 				$oResponse->data[ 'verification_code' ] = $oFO->fetchIcwpRequestParam( 'verification_code', 'no code' ); //effectively a nonce
 			}
+		}
+
+		/**
+		 * @return stdClass
+		 */
+		protected function doAuth() {
+			$this->setAuthorizedUser();
+			$this->setWpEngineAuth();
+			return $this->setSuccessResponse( 'Auth' ); //just to be sure we proceed thereafter
 		}
 
 		/**
@@ -204,7 +218,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			}
 
 			$oFO->setOpt( 'key', $sRequestedKey );
-			$oFO->setPluginAssigned( $sRequestedAcc );
+			$oFO->setAssignedAccount( $sRequestedAcc );
 			$oFO->setPluginPin( $sRequestPin );
 			$oFO->savePluginOptions();
 
@@ -254,7 +268,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				);
 			}
 
-			$sHandshakeVerifyBaseUrl = $this->getOption( 'handshake_verify_url' );
+			$sHandshakeVerifyBaseUrl = $oFO->getAppUrl( 'handshake_verify_url' );
 			// We can do this because we've assumed at this point we've validated the communication with iControlWP
 			$sHandshakeVerifyUrl = sprintf(
 				'%s/%s/%s/%s',
@@ -308,25 +322,36 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		 * @return bool
 		 */
 		protected function setAuthorizedUser() {
-			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
-			$oWpUser = $this->loadWpUsersProcessor();
-			$sWpUser = $oFO->fetchIcwpRequestParam( 'wpadmin_user' );
-			if ( empty( $sWpUser ) ) {
 
-				if ( version_compare( $this->loadWpFunctionsProcessor()->getWordpressVersion(), '3.1', '>=' ) ) {
-					$aUserRecords = get_users( 'role=administrator' );
-					if ( is_array( $aUserRecords ) && count( $aUserRecords ) ) {
-						$oUser = $aUserRecords[0];
+			if ( !$this->isLoggedInUser() ) {
+
+				/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
+				$oFO = $this->getFeatureOptions();
+				$oWpUser = $this->loadWpUsersProcessor();
+				$sWpUser = $oFO->fetchIcwpRequestParam( 'wpadmin_user' );
+				if ( empty( $sWpUser ) ) {
+
+					if ( version_compare( $this->loadWpFunctionsProcessor()->getWordpressVersion(), '3.1', '>=' ) ) {
+						$aUserRecords = get_users( array(
+							'role' => 'administrator',
+							'number' => 1,
+							'orderby' => 'ID'
+						) );
+						if ( is_array( $aUserRecords ) && count( $aUserRecords ) ) {
+							$oUser = $aUserRecords[0];
+						}
 					}
+					else {
+						$oUser = $oWpUser->getUserById( 1 );
+					}
+					$sWpUser = ( !empty( $oUser ) && is_a( $oUser, 'WP_User' ) ) ? $oUser->get( 'user_login' ) : 'admin';
 				}
-				else {
-					$oUser = $oWpUser->getUserById( 1 );
-				}
-				$sWpUser = ( !empty( $oUser ) && is_a( $oUser, 'WP_User' ) ) ? $oUser->get( 'user_login' ) : '';
-			}
 
-			return $oWpUser->setUserLoggedIn( empty( $sWpUser ) ? 'admin' : $sWpUser );
+				if ( $oWpUser->setUserLoggedIn( $sWpUser ) ) {
+					$this->setLoggedInUser( $sWpUser );
+				}
+			}
+			return $this->isLoggedInUser();
 		}
 
 		/**
@@ -423,6 +448,29 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				self::$oActionResponse = $oResponse;
 			}
 			return self::$oActionResponse;
+		}
+
+		/**
+		 * @param string $sUser
+		 * @return $this
+		 */
+		protected function setLoggedInUser( $sUser ) {
+			$this->sLoggedInUser = $sUser;
+			return $this;
+		}
+
+		/**
+		 * @return string
+		 */
+		protected function getLoggedInUser() {
+			return $this->sLoggedInUser;
+		}
+
+		/**
+		 * @return bool
+		 */
+		protected function isLoggedInUser() {
+			return !empty( $this->sLoggedInUser );
 		}
 	}
 

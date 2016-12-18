@@ -12,6 +12,11 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 	/**
 	 * @var array
 	 */
+	protected $aChangedOptionsTracker;
+
+	/**
+	 * @var array
+	 */
 	protected $aRawOptionsConfigData;
 
 	/**
@@ -33,6 +38,12 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 	 * @var string
 	 */
 	protected $sOptionsStorageKey;
+
+	/**
+	 *  by default we load from saved
+	 * @var string
+	 */
+	protected $bLoadFromSaved = true;
 
 	/**
 	 * @var string
@@ -61,7 +72,6 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 			return true;
 		}
 		$this->cleanOptions();
-		$this->verifyImmutableOptions();
 		$this->setNeedSave( false );
 		return $this->loadWpFunctionsProcessor()->updateOption( $this->getOptionsStorageKey(), $this->getAllOptionsValues() );
 	}
@@ -70,7 +80,9 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 	 * @return bool
 	 */
 	public function doOptionsDelete() {
-		return $this->loadWpFunctionsProcessor()->deleteOption( $this->getOptionsStorageKey() );
+		$oWp = $this->loadWpFunctionsProcessor();
+		$oWp->deleteTransient( $this->getSpecTransientStorageKey() );
+		return $oWp->deleteOption( $this->getOptionsStorageKey() );
 	}
 
 	/**
@@ -78,6 +90,23 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 	 */
 	public function getAllOptionsValues() {
 		return $this->loadOptionsValuesFromStorage();
+	}
+
+	/**
+	 * Returns an array of all the transferable options and their values
+	 * @return array
+	 */
+	public function getTransferableOptions() {
+
+		$aOptions = $this->getAllOptionsValues();
+		$aRawOptions = $this->getRawData_AllOptions();
+		$aTransferable = array();
+		foreach( $aRawOptions as $nKey => $aOptionData ) {
+			if ( isset( $aOptionData['transferable'] ) && $aOptionData['transferable'] === true ) {
+				$aTransferable[ $aOptionData['key'] ] = $aOptions[ $aOptionData['key'] ];
+			}
+		}
+		return $aTransferable;
 	}
 
 	/**
@@ -90,11 +119,36 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 	}
 
 	/**
-	 * @param string $sKey
-	 * @return boolean
+	 * @param string
+	 * @return null|array
 	 */
-	public function getIsOptionKey( $sKey ) {
-		return in_array( $sKey, $this->getOptionsKeys() );
+	public function getFeatureDefinition( $sDefinition ) {
+		$aRawConfig = $this->getRawData_FullFeatureConfig();
+		return ( isset( $aRawConfig['definitions'] ) && isset( $aRawConfig['definitions'][$sDefinition] ) ) ? $aRawConfig['definitions'][$sDefinition] : null;
+	}
+
+	/**
+	 * @param string $sReq
+	 * @return null|mixed
+	 */
+	public function getFeatureRequirement( $sReq ) {
+		$aReqs = $this->getRawData_Requirements();
+		return ( is_array( $aReqs ) && isset( $aReqs[ $sReq ] ) ) ? $aReqs[ $sReq ] : null;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getAdminNotices(){
+		$aRawConfig = $this->getRawData_FullFeatureConfig();
+		return ( isset( $aRawConfig[ 'admin_notices' ] ) && is_array( $aRawConfig[ 'admin_notices' ] ) ) ? $aRawConfig[ 'admin_notices' ] : array();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getFeatureTagline() {
+		return $this->getFeatureProperty( 'tagline' );
 	}
 
 	/**
@@ -308,6 +362,16 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 	 *
 	 * @return array
 	 */
+	protected function getRawData_Requirements() {
+		$aAllRawOptions = $this->getRawData_FullFeatureConfig();
+		return isset( $aAllRawOptions['requirements'] ) ? $aAllRawOptions['requirements'] : array();
+	}
+
+	/**
+	 * Return the section of the Raw config that is the "options" key only.
+	 *
+	 * @return array
+	 */
 	protected function getRawData_MenuItems() {
 		$aAllRawOptions = $this->getRawData_FullFeatureConfig();
 		return isset( $aAllRawOptions['menu_items'] ) ? $aAllRawOptions['menu_items'] : array();
@@ -354,6 +418,20 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 	}
 
 	/**
+	 * @return boolean
+	 */
+	public function getIfLoadOptionsFromStorage() {
+		return $this->bLoadFromSaved;
+	}
+
+	/**
+	 * @param boolean $bLoadFromSaved
+	 */
+	public function setIfLoadOptionsFromStorage( $bLoadFromSaved ) {
+		$this->bLoadFromSaved = $bLoadFromSaved;
+	}
+
+	/**
 	 * @param boolean $bNeed
 	 */
 	public function setNeedSave( $bNeed ) {
@@ -365,6 +443,19 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 	 */
 	public function setRebuildFromFile( $bRebuild ) {
 		$this->bRebuildFromFile = $bRebuild;
+	}
+
+	/**
+	 * @param array $aOptions
+	 * @return $this
+	 */
+	public function setMultipleOptions( $aOptions ) {
+		if ( is_array( $aOptions ) ) {
+			foreach( $aOptions as $sKey => $mValue ) {
+				$this->setOpt( $sKey, $mValue );
+			}
+		}
+		return $this;
 	}
 
 	/**
@@ -385,16 +476,36 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 					return $this->resetOptToDefault( $sOptionKey );
 				}
 			}
-
-			// Prevent overwriting of immutable options
-			if ( isset( $aOption['immutable'] ) && $aOption['immutable'] === true ) {
-				$this->aOptionsValues[ $sOptionKey ] = $this->getOptDefault( $sOptionKey );
-			}
-			else {
-				$this->aOptionsValues[ $sOptionKey ] = $mValue;
-			}
+			$this->trackOption( $sOptionKey );
+			$this->aOptionsValues[ $sOptionKey ] = $mValue;
 		}
 		return true;
+	}
+
+	/**
+	 * Will return an option value to the original value if it was changed in this page load.
+	 *
+	 * @param string $sKey
+	 * @return bool
+	 */
+	public function revertChangedOption( $sKey ) {
+		if ( !empty( $this->aChangedOptionsTracker ) && is_array( $this->aChangedOptionsTracker ) && isset( $this->aChangedOptionsTracker[ $sKey ] ) ) {
+			return $this->setOpt( $sKey, $this->aChangedOptionsTracker[ $sKey ] );
+		}
+		return false;
+	}
+
+	/**
+	 * @param string $sKey
+	 */
+	private function trackOption( $sKey ) {
+		if ( !isset( $this->aChangedOptionsTracker ) ) {
+			$this->aChangedOptionsTracker = array();
+		}
+		// Meaning we only track once, and we don't overwrite if an option is set multiple times.
+		if ( !isset( $this->aChangedOptionsTracker[ $sKey ] ) && isset( $this->aOptionsValues[ $sKey ] ) ) {
+			$this->aChangedOptionsTracker[ $sKey ] = $this->aOptionsValues[ $sKey ];
+		}
 	}
 
 	/**
@@ -424,20 +535,8 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 		}
 	}
 
-	private function verifyImmutableOptions() {
-		$aRawOptions = $this->getRawData_AllOptions();
-		foreach( $aRawOptions as $aRawOption ) {
-			if ( isset( $aRawOption['immutable'] ) && $aRawOption['immutable'] === true ) {
-				if ( ! $this->getOptIs( $aRawOption['key'], $aRawOption['value'] ) ) {
-					$this->setOpt( $aRawOption[ 'key' ], $aRawOption[ 'value' ] );
-				}
-			}
-		}
-	}
-
 	/**
 	 * @param bool $bReload
-	 *
 	 * @return array|mixed
 	 * @throws Exception
 	 */
@@ -445,16 +544,18 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 
 		if ( $bReload || empty( $this->aOptionsValues ) ) {
 
-			$sStorageKey = $this->getOptionsStorageKey();
-			if ( empty( $sStorageKey ) ) {
-				throw new Exception( 'Options Storage Key Is Empty' );
-			}
+			if ( $this->getIfLoadOptionsFromStorage() ) {
 
-			$this->aOptionsValues = $this->loadWpFunctionsProcessor()->getOption( $sStorageKey, array() );
-			if ( empty( $this->aOptionsValues ) ) {
-				$this->aOptionsValues = array();
-				$this->setNeedSave( true );
+				$sStorageKey = $this->getOptionsStorageKey();
+				if ( empty( $sStorageKey ) ) {
+					throw new Exception( 'Options Storage Key Is Empty' );
+				}
+				$this->aOptionsValues = $this->loadWpFunctionsProcessor()->getOption( $sStorageKey, array() );
 			}
+		}
+		if ( !is_array( $this->aOptionsValues ) ) {
+			$this->aOptionsValues = array();
+			$this->setNeedSave( true );
 		}
 		return $this->aOptionsValues;
 	}
@@ -473,8 +574,7 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 			$sConfigFile = $this->getConfigFilePath();
 			$sContents = include( $sConfigFile );
 			if ( !empty( $sContents ) ) {
-				$oYaml = $this->loadYamlProcessor();
-				$aConfig = $oYaml->parseYamlString( $sContents );
+				$aConfig = $this->loadYamlProcessor()->parseYamlString( $sContents );
 				if ( is_null( $aConfig ) ) {
 					throw new Exception( 'YAML parser could not load to process the options configuration.' );
 				}

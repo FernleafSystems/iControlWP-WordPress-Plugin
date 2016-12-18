@@ -335,6 +335,18 @@ if ( !class_exists( 'ICWP_APP_WpFilesystem', false ) ):
 		}
 
 		/**
+		 * @param $sFilePath
+		 * @return bool
+		 */
+		public function getFileSize( $sFilePath ) {
+			$oFs = $this->getWpfs();
+			if ( $oFs && ( $oFs->size( $sFilePath ) > 0 ) ) {
+				return $oFs->size( $sFilePath );
+			}
+			return @filesize( $sFilePath );
+		}
+
+		/**
 		 * @param string|null $sBaseDir
 		 * @param string $sPrefix
 		 * @param string $outsRandomDir
@@ -364,18 +376,18 @@ if ( !class_exists( 'ICWP_APP_WpFilesystem', false ) ):
 		/**
 		 * @param string $sFilePath
 		 * @param string $sContents
-		 * @return boolean|null
+		 * @return boolean
 		 */
 		public function putFileContent( $sFilePath, $sContents ) {
 			$oFs = $this->getWpfs();
-			if ( $oFs ) {
-				return $oFs->put_contents( $sFilePath, $sContents, FS_CHMOD_FILE );
+			if ( $oFs && $oFs->put_contents( $sFilePath, $sContents, FS_CHMOD_FILE ) ) {
+				return true;
 			}
 
 			if ( function_exists( 'file_put_contents' ) ) {
 				return file_put_contents( $sFilePath, $sContents ) !== false;
 			}
-			return null;
+			return false;
 		}
 
 		/**
@@ -464,14 +476,13 @@ if ( !class_exists( 'ICWP_APP_WpFilesystem', false ) ):
 		 */
 		private function initFileSystem() {
 			if ( is_null( $this->oWpfs ) ) {
+				$this->oWpfs = false;
 				require_once( ABSPATH . 'wp-admin'.ICWP_DS.'includes'.ICWP_DS.'file.php' );
-				WP_Filesystem();
-				global $wp_filesystem;
-				if ( isset( $wp_filesystem ) && is_object( $wp_filesystem ) ) {
-					$this->oWpfs = $wp_filesystem;
-				}
-				else {
-					$this->oWpfs = false;
+				if ( WP_Filesystem() ) {
+					global $wp_filesystem;
+					if ( isset( $wp_filesystem ) && is_object( $wp_filesystem ) ) {
+						$this->oWpfs = $wp_filesystem;
+					}
 				}
 			}
 		}

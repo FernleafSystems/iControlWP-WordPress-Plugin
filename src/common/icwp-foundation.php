@@ -49,6 +49,10 @@ if ( !class_exists( 'ICWP_APP_Foundation', false ) ) :
 		 */
 		private static $oIp;
 		/**
+		 * @var ICWP_APP_GoogleAuthenticator
+		 */
+		private static $oGA;
+		/**
 		 * @var ICWP_APP_WpAdminNotices
 		 */
 		private static $oAdminNotices;
@@ -60,6 +64,14 @@ if ( !class_exists( 'ICWP_APP_Foundation', false ) ) :
 		 * @var ICWP_APP_WpComments
 		 */
 		private static $oWpComments;
+		/**
+		 * @var ICWP_APP_GoogleRecaptcha
+		 */
+		private static $oGR;
+		/**
+		 * @var ICWP_APP_WpTrack
+		 */
+		private static $oTrack;
 
 		/**
 		 * @return ICWP_APP_DataProcessor
@@ -168,6 +180,39 @@ if ( !class_exists( 'ICWP_APP_Foundation', false ) ) :
 		}
 
 		/**
+		 * @return ICWP_APP_GoogleAuthenticator
+		 */
+		static public function loadGoogleAuthenticatorProcessor() {
+			if ( !isset( self::$oGA ) ) {
+				require_once( dirname(__FILE__).ICWP_DS.'icwp-googleauthenticator.php' );
+				self::$oGA = ICWP_APP_GoogleAuthenticator::GetInstance();
+			}
+			return self::$oGA;
+		}
+
+		/**
+		 * @return ICWP_APP_GoogleRecaptcha
+		 */
+		static public function loadGoogleRecaptcha() {
+			if ( !isset( self::$oGR ) ) {
+				require_once( dirname(__FILE__).ICWP_DS.'icwp-googlearecaptcha.php' );
+				self::$oGR = ICWP_APP_GoogleRecaptcha::GetInstance();
+			}
+			return self::$oGR;
+		}
+
+		/**
+		 * @return ICWP_APP_WpTrack
+		 */
+		static public function loadWpTrack() {
+			if ( !isset( self::$oTrack ) ) {
+				require_once( dirname(__FILE__).ICWP_DS.'wp-track.php' );
+				self::$oTrack = ICWP_APP_WpTrack::GetInstance();
+			}
+			return self::$oTrack;
+		}
+
+		/**
 		 * @param string $sTemplatePath
 		 * @return ICWP_APP_Render
 		 */
@@ -178,7 +223,7 @@ if ( !class_exists( 'ICWP_APP_Foundation', false ) ) :
 					->setAutoloaderPath( dirname( __FILE__ ) . ICWP_DS . 'Twig' . ICWP_DS . 'Autoloader.php' );
 			}
 			if ( !empty( $sTemplatePath ) ) {
-				self::$oRender->setTemplatePath( $sTemplatePath );
+				self::$oRender->setTemplateRoot( $sTemplatePath );
 			}
 			return self::$oRender;
 		}

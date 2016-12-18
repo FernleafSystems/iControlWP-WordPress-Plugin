@@ -95,9 +95,9 @@ function getPluginOptionSpan( $aOption, $nSpanSize, $insVarPrefix = '' ) {
 		$sLink = '';
 		$sLinkTemplate = '<br /><span>[%s]</span>';
 		if ( !empty($sHelpLink) ) {
-			$sLink = sprintf( $sLinkTemplate, '<a href="'.$sHelpLink.'" target="_blank">'._wpsf__('More Info').'</a>%s' );
+			$sLink = sprintf( $sLinkTemplate, '<a href="'.$sHelpLink.'" target="_blank">'.__('More Info').'</a>%s' );
 			if ( !empty( $sBlogLink ) ) {
-				$sLink = sprintf( $sLink, ' | <a href="'.$sBlogLink.'" target="_blank">'._wpsf__('Blog').'</a>' );
+				$sLink = sprintf( $sLink, ' | <a href="'.$sBlogLink.'" target="_blank">'.__('Blog').'</a>' );
 			}
 			else {
 				$sLink = sprintf( $sLink, '' );
@@ -200,21 +200,6 @@ function getPluginOptionSpan( $aOption, $nSpanSize, $insVarPrefix = '' ) {
 			}
 			$sFragment .= '</select>';
 			$sHtml .= $sFragment;
-		}
-		else if ( $sOptionType === 'ip_addresses' ) {
-			$sTextInput = esc_attr( $sOptionSaved );
-			$nRows = substr_count( $sTextInput, "\n" ) + 1;
-			$sHtml .= '
-				<p>'.$sOptionTitle.'</p>
-				<textarea type="text"
-						name="'.$insVarPrefix.$sOptionKey.'"
-						placeholder="'.$sTextInput.'"
-						id="'.$insVarPrefix.$sOptionKey.'"
-						rows="'.$nRows.'"
-						class="span5">'.$sTextInput.'</textarea>';
-
-			$sOptionHelpText = '<p class="help-block">'.$sOptionHelpText.'</p>';
-
 		}
 		else if ( $sOptionType === 'array' ) {
 			$sTextInput = esc_attr( $sOptionSaved );
