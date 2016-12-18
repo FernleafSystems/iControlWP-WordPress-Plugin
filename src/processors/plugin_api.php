@@ -15,11 +15,6 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		protected static $oActionResponse;
 
 		/**
-		 * @var ICWP_APP_FeatureHandler_Plugin
-		 */
-		protected $oFeatureOptions;
-
-		/**
 		 * @var string
 		 */
 		protected $sLoggedInUser;
