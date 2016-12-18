@@ -297,7 +297,10 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		protected function isActionSupported( $sAction = null ) {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
-			return in_array( empty( $sAction ) ? $this->getCurrentApiActionName() : $sAction, $oFO->getOpt( 'internal_api_supported_actions' ) );
+			if ( empty( $sAction ) ) {
+				$sAction = $this->getCurrentApiActionName();
+			}
+			return in_array( $sAction, $oFO->getPermittedInternalApiAction() );
 		}
 
 		/**

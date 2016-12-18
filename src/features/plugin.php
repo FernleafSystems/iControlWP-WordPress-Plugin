@@ -356,7 +356,14 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		 * @return array
 		 */
 		public function getPermittedApiChannels() {
-			return $this->getOpt( 'permitted_api_channels', array() );
+			return $this->getDefinition( 'permitted_api_channels' );
+		}
+
+		/**
+		 * @return array
+		 */
+		public function getPermittedInternalApiAction() {
+			return $this->getDefinition( 'internal_api_supported_actions' );
 		}
 
 		/**

@@ -88,29 +88,6 @@ options:
       -
         slug: 'whitelabel'
         storage_key: 'whitelabel'
-  -
-    key: 'permitted_api_channels'
-    section: 'section_non_ui'
-    immutable: true
-    value:
-      - 'index'
-      - 'auth'
-      - 'retrieve'
-      - 'execute'
-      - 'login'
-  -
-    key: 'internal_api_supported_actions'
-    section: 'section_non_ui'
-    immutable: true
-    value:
-      - 'wplogin'
-      - 'plugin_activate'
-      - 'plugin_deactivate'
-      - 'plugin_delete'
-      - 'plugin_install_url'
-      - 'theme_activate'
-      - 'theme_delete'
-      - 'theme_install_url'
 
 # Definitions for constant data that doesn't need store in the options
 definitions:
@@ -122,6 +99,22 @@ definitions:
     reset_site_url: 'https://app.icontrolwp.com/system/verification/reset/'
     package_retrieve_url: 'https://app.icontrolwp.com/system/package/retrieve/'
 
+  permitted_api_channels:
+    - 'index'
+    - 'auth'
+    - 'retrieve'
+    - 'execute'
+    - 'login'
+  internal_api_supported_actions:
+    - 'wplogin'
+    - 'plugin_activate'
+    - 'plugin_deactivate'
+    - 'plugin_delete'
+    - 'plugin_install_url'
+    - 'theme_activate'
+    - 'theme_delete'
+    - 'theme_install_url'
+    
   service_ip_addresses:
     ipv6:
       valid:
