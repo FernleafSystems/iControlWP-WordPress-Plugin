@@ -37,6 +37,27 @@ class RequestParameters {
 	}
 
 	/**
+	 * @return string email
+	 */
+	public function getAccountId() {
+		return urldecode( $this->getStringParam( 'accname' ) );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getAuthKey() {
+		return $this->getStringParam( 'key' );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getPin() {
+		return $this->getStringParam( 'pin' );
+	}
+
+	/**
 	 * @return int
 	 */
 	public function getApiHookPriority() {
@@ -69,6 +90,15 @@ class RequestParameters {
 	 */
 	public function getIsApiCall_LinkSite() {
 		return $this->getIsApiCall() && ( $this->getParam( 'worpit_link', 0 ) == 1 );
+	}
+
+	/**
+	 * @param string $sKey
+	 * @return string
+	 */
+	public function getStringParam( $sKey ) {
+		$sVal = $this->getParam( $sKey, '' );
+		return ( !empty( $sVal ) && is_string( $sVal ) ) ? trim( $sVal ) : '';
 	}
 
 	/**
