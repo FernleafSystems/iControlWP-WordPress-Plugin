@@ -13,13 +13,14 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 			$oFO = $this->getFeatureOptions();
 			$oCon = $this->getController();
 
-			if ( $oFO->getIsApiCall() ) {
+			$oReqParams = $oFO->getRequestParams();
+			if ( $oReqParams->getIsApiCall() ) {
 				$this->maybeSetIsAdmin();
 
-				if ( $oFO->getIsApiCall_Action() ) {
+				if ( $oReqParams->getIsApiCall_Action() ) {
 					add_action( $this->getApiHook(), array( $this, 'doApiAction' ), $this->getApiHookPriority() );
 				}
-				else if ( $oFO->getIsApiCall_LinkSite() ) {
+				else if ( $oReqParams->getIsApiCall_LinkSite() ) {
 					add_action( $this->getApiHook(), array( $this, 'doApiLinkSite' ), $this->getApiHookPriority() );
 				}
 			}
@@ -59,7 +60,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
 
-			$sApiHook = $oFO->fetchIcwpRequestParam( 'api_hook', '' );
+			$sApiHook = $oFO->getRequestParams()->getApiHook();
 			if ( empty( $sApiHook ) ) {
 				$sApiHook = is_admin() ? 'admin_init' : 'wp_loaded';
 				if ( class_exists( 'WooDojo_Maintenance_Mode', false ) || class_exists( 'ITSEC_Core', false ) ) {
