@@ -23,10 +23,10 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 				$this->maybeSetIsAdmin();
 
 				if ( $oReqParams->getIsApiCall_Action() ) {
-					add_action( $this->getApiHook(), array( $this, 'doApiAction' ), $this->getApiHookPriority() );
+					add_action( $oReqParams->getApiHook(), array( $this, 'doApiAction' ), $oReqParams->getApiHookPriority() );
 				}
 				else if ( $oReqParams->getIsApiCall_LinkSite() ) {
-					add_action( $this->getApiHook(), array( $this, 'doApiLinkSite' ), $this->getApiHookPriority() );
+					add_action( $oReqParams->getApiHook(), array( $this, 'doApiLinkSite' ), $oReqParams->getApiHookPriority() );
 				}
 			}
 
@@ -56,39 +56,6 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 				define( 'WP_ADMIN', true );
 			}
 			return ( defined( 'WP_ADMIN' ) && WP_ADMIN );
-		}
-
-		/**
-		 * @return string
-		 */
-		protected function getApiHook() {
-			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
-
-			$sApiHook = $oFO->getRequestParams()->getApiHook();
-			if ( empty( $sApiHook ) ) {
-				$sApiHook = is_admin() ? 'admin_init' : 'wp_loaded';
-				if ( class_exists( 'WooDojo_Maintenance_Mode', false ) || class_exists( 'ITSEC_Core', false ) ) {
-					$sApiHook = 'init';
-				}
-			}
-			return $sApiHook;
-		}
-
-		/**
-		 * @return int
-		 */
-		protected function getApiHookPriority() {
-			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
-			$nHookPriority = $oFO->fetchIcwpRequestParam( 'api_priority', '' );
-			if ( empty( $nHookPriority ) || !is_numeric( $nHookPriority )) {
-				$nHookPriority = is_admin() ? 101 : 1;
-				if ( class_exists( 'ITSEC_Core', false ) ) {
-					$nHookPriority = 100;
-				}
-			}
-			return $nHookPriority;
 		}
 
 		/**
