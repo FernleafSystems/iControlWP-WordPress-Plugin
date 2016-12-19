@@ -26,7 +26,28 @@ class RequestParameters {
 	 * @return string
 	 */
 	public function getApiHook() {
-		return $this->getParam( 'api_hook' );
+		$sApiHook = $this->getParam( 'api_priority' );
+		if ( empty( $sApiHook ) || !is_string( $sApiHook ) ) {
+			$sApiHook = is_admin() ? 'admin_init' : 'wp_loaded';
+			if ( class_exists( 'WooDojo_Maintenance_Mode', false ) || class_exists( 'ITSEC_Core', false ) ) {
+				$sApiHook = 'init';
+			}
+		}
+		return $sApiHook;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getApiHookPriority() {
+		$nHookPriority = $this->getParam( 'api_priority' );
+		if ( empty( $nHookPriority ) || !is_numeric( $nHookPriority )) {
+			$nHookPriority = is_admin() ? 101 : 1;
+			if ( class_exists( 'ITSEC_Core', false ) ) {
+				$nHookPriority = 100;
+			}
+		}
+		return (int)$nHookPriority;
 	}
 
 	/**
