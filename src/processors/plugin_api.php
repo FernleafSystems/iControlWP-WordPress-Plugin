@@ -278,8 +278,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				$sPin
 			);
 
-			$oFs = $this->loadFileSystemProcessor();
-			$sResponse = $oFs->getUrlContent( $sHandshakeVerifyUrl );
+			$sResponse = $this->loadFileSystemProcessor()->getUrlContent( $sHandshakeVerifyUrl );
 			if ( empty( $sResponse ) ) {
 				return $this->setErrorResponse(
 					sprintf( 'Package Handshaking Failed against URL "%s" with an empty response.', $sHandshakeVerifyUrl ),
