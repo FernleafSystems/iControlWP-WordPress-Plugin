@@ -217,24 +217,29 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		 * @return bool
 		 */
 		public function getAssigned() {
-			$sOptionKey = 'assigned';
-			return $this->getOptIs( $sOptionKey, 'Y' );
+			return $this->getOptIs( 'assigned', 'Y' );
 		}
 
 		/**
 		 * @return string (email)
 		 */
 		public function getAssignedTo() {
-			$sOptionKey = 'assigned_to';
-			return $this->getOpt( $sOptionKey, '' );
+			return $this->getOpt( 'assigned_to', '' );
 		}
 
 		/**
 		 * @return string (URL)
 		 */
 		public function getHelpdeskSsoUrl() {
-			$sOptionKey = 'helpdesk_sso_url';
-			return $this->getOpt( $sOptionKey, '' );
+			return $this->getOpt( 'helpdesk_sso_url', '' );
+		}
+
+		/**
+		 * @return string
+		 */
+		public function getIcwpPublicKey() {
+			$sKey = $this->getDefinition( 'icwp_public_key' );
+			return empty( $sKey ) ? '' : base64_decode( $sKey );
 		}
 
 		/**
@@ -254,8 +259,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		 * @return string
 		 */
 		public function getPluginPin() {
-			$sOptionKey = 'pin';
-			return $this->getOpt( $sOptionKey );
+			return $this->getOpt( 'pin' );
 		}
 
 		/**
@@ -296,14 +300,6 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		}
 
 		/**
-		 * @return string
-		 */
-		public function getIcwpPublicKey() {
-			$sKey = $this->getOpt( 'icwp_public_key', '' );
-			return empty( $sKey ) ? '' : base64_decode( $sKey );
-		}
-
-		/**
 		 * @param string $sEmail
 		 * @return $this
 		 */
@@ -332,15 +328,6 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 			$sPin = empty( $sTrimmed ) ? '' : md5( $sTrimmed );
 			$this->setOpt( 'pin', $sPin );
 			return $this;
-		}
-
-		/**
-		 * @param string $sKey
-		 * @param string $mDefault
-		 * @return mixed
-		 */
-		public function fetchIcwpRequestParam( $sKey, $mDefault = '' ) {
-			return $this->getRequestParams()->getParam( $sKey, $mDefault );
 		}
 
 		/**

@@ -38,10 +38,9 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		 * @return stdClass
 		 */
 		protected function icwpapi_plugin_activate() {
-			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
-			$sPluginFile = $oFO->fetchIcwpRequestParam( 'plugin_file', '', true );
-			$bIsWpms = $oFO->fetchIcwpRequestParam( 'site_is_wpms', '', true );
+			$oReqParams = $this->getRequestParams();
+			$sPluginFile = $oReqParams->getStringParam( 'plugin_file' );
+			$bIsWpms = $oReqParams->getStringParam( 'site_is_wpms' );
 
 			$bResult = $this->loadWpFunctionsPlugins()->activate( $sPluginFile, $bIsWpms );
 			$aPlugin = $this->getWpCollector()->collectWordpressPlugins( $sPluginFile );
@@ -56,10 +55,9 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		 * @return stdClass
 		 */
 		protected function icwpapi_plugin_deactivate() {
-			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
-			$sPluginFile = $oFO->fetchIcwpRequestParam( 'plugin_file', '', true );
-			$bIsWpms = $oFO->fetchIcwpRequestParam( 'site_is_wpms', '', true );
+			$oReqParams = $this->getRequestParams();
+			$sPluginFile = $oReqParams->getStringParam( 'plugin_file' );
+			$bIsWpms = $oReqParams->getStringParam( 'site_is_wpms' );
 
 			$this->loadWpFunctionsPlugins()->deactivate( $sPluginFile, $bIsWpms );
 			$aPlugin = $this->getWpCollector()->collectWordpressPlugins( $sPluginFile );
@@ -74,10 +72,9 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		 * @return stdClass
 		 */
 		protected function icwpapi_plugin_delete() {
-			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
-			$sPluginFile = $oFO->fetchIcwpRequestParam( 'plugin_file', '', true );
-			$bIsWpms = $oFO->fetchIcwpRequestParam( 'site_is_wpms', '', true );
+			$oReqParams = $this->getRequestParams();
+			$sPluginFile = $oReqParams->getStringParam( 'plugin_file' );
+			$bIsWpms = $oReqParams->getStringParam( 'site_is_wpms', '' );
 
 			$bResult = $this->loadWpFunctionsPlugins()->delete( $sPluginFile, $bIsWpms );
 			wp_cache_flush(); // since we've deleted a plugin, we need to ensure our collection is up-to-date rebuild.
@@ -94,11 +91,9 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		 * @return stdClass
 		 */
 		protected function icwpapi_plugin_install_url() {
-			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
-
-			$aPlugin = $oFO->fetchIcwpRequestParam( 'plugin', '', true );
-			$bIsNetworkWide = $oFO->fetchIcwpRequestParam( 'network_wide', false );
+			$oReqParams = $this->getRequestParams();
+			$aPlugin = $oReqParams->getStringParam( 'plugin' );
+			$bIsNetworkWide = $oReqParams->getStringParam( 'network_wide' );
 
 			if ( empty( $aPlugin['url'] ) ) {
 				return $this->fail(
@@ -141,10 +136,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		 * @return stdClass
 		 */
 		protected function icwpapi_theme_activate() {
-			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
-
-			$sThemeFile = $oFO->fetchIcwpRequestParam( 'theme_file', '', true );
+			$sThemeFile = $this->getRequestParams()->getStringParam( 'theme_file' );
 			$bResult = $this->loadWpFunctionsThemes()->activate( $sThemeFile );
 
 			$aData = array(
@@ -158,11 +150,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		 * @return stdClass
 		 */
 		protected function icwpapi_theme_delete() {
-			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
-			$oWpThemes = $this->loadWpFunctionsThemes();
-
-			$sStylesheet = $oFO->fetchIcwpRequestParam( 'theme_file', '', true );
+			$sStylesheet = $this->getRequestParams()->getStringParam( 'theme_file' );
 			if ( empty( $sStylesheet ) ) {
 				return $this->fail(
 					array(),
@@ -170,6 +158,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 				);
 			}
 
+			$oWpThemes = $this->loadWpFunctionsThemes();
 			if ( !$oWpThemes->getExists( $sStylesheet ) ) {
 				return $this->fail(
 					array( 'stylesheet' => $sStylesheet ),
@@ -198,10 +187,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		 * @return stdClass
 		 */
 		protected function icwpapi_theme_install_url() {
-			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
-
-			$aTheme = $oFO->fetchIcwpRequestParam( 'theme', '', true );
+			$aTheme = $this->getRequestParams()->getStringParam( 'theme' );
 
 			if ( empty( $aTheme['url'] ) ) {
 				return $this->fail(
@@ -318,9 +304,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		 * @return string
 		 */
 		protected function getCurrentApiActionName() {
-			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
-			return $oFO->fetchIcwpRequestParam( 'action', '' );
+			return $this->getRequestParams()->getApiAction();
 		}
 
 		/**

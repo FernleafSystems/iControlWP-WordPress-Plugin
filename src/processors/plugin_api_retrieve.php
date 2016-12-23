@@ -15,6 +15,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Retrieve', false ) ):
 		protected function processAction() {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
+			$oReqParams = $this->getRequestParams();
 			$oFs = $this->loadFileSystemProcessor();
 
 			if ( !function_exists( 'download_url' ) ) {
@@ -31,7 +32,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Retrieve', false ) ):
 				);
 			}
 
-			$sPackageId = $oFO->fetchIcwpRequestParam( 'package_id' );
+			$sPackageId = $oReqParams->getStringParam( 'package_id' );
 			if ( empty( $sPackageId ) ) {
 				return $this->setErrorResponse(
 					'Package ID to retrieve is empty.',
@@ -40,7 +41,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Retrieve', false ) ):
 			}
 
 			// We can do this because we've assumed at this point we've validated the communication with iControlWP
-			$sRetrieveBaseUrl = $oFO->fetchIcwpRequestParam( 'package_retrieve_url', $this->getOption( 'package_retrieve_url' ) );
+			$sRetrieveBaseUrl = $oReqParams->getStringParam( 'package_retrieve_url', $this->getOption( 'package_retrieve_url' ) );
 			$sPackageRetrieveUrl = sprintf(
 				'%s/%s/%s/%s',
 				rtrim( $sRetrieveBaseUrl, '/' ),

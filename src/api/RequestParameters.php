@@ -46,6 +46,20 @@ class RequestParameters {
 	/**
 	 * @return string
 	 */
+	public function getApiAction() {
+		return $this->getStringParam( 'action' );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getApiChannel() {
+		return $this->getStringParam( 'm', 'index' );
+	}
+
+	/**
+	 * @return string
+	 */
 	public function getAuthKey() {
 		return $this->getStringParam( 'key' );
 	}
@@ -122,11 +136,12 @@ class RequestParameters {
 
 	/**
 	 * @param string $sKey
+	 * @param string $mDefault
 	 * @return string
 	 */
-	public function getStringParam( $sKey ) {
-		$sVal = $this->getParam( $sKey, '' );
-		return ( !empty( $sVal ) && is_string( $sVal ) ) ? trim( $sVal ) : '';
+	public function getStringParam( $sKey, $mDefault = '' ) {
+		$sVal = $this->getParam( $sKey, $mDefault );
+		return ( !empty( $sVal ) && is_string( $sVal ) ) ? trim( $sVal ) : $mDefault;
 	}
 
 	/**

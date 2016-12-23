@@ -62,11 +62,9 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		/**
 		 */
 		protected function postProcessAction() {
-			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
 			$oResponse = $this->getStandardResponse();
 			if ( is_array( $oResponse->data ) ) {
-				$oResponse->data[ 'verification_code' ] = $oFO->fetchIcwpRequestParam( 'verification_code', 'no code' ); //effectively a nonce
+				$oResponse->data[ 'verification_code' ] = $this->getRequestParams()->getStringParam( 'verification_code', 'no code' ); //effectively a nonce
 			}
 		}
 
@@ -90,8 +88,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		protected function getApiChannel() {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
-
-			$sApiChannel = $oFO->fetchIcwpRequestParam( 'm', 'index' );
+			$sApiChannel = $this->getRequestParams()->getApiChannel();
 			if ( !in_array( $sApiChannel, $oFO->getPermittedApiChannels() ) ) {
 				$sApiChannel = 'index';
 			}
@@ -104,7 +101,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		protected function preApiCheck() {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
-			$oReqParams = $oFO->getRequestParams();
+			$oReqParams = $this->getRequestParams();
 			$oResponse = $this->getStandardResponse();
 
 			if ( !$oFO->getIsSiteLinked() ) {
@@ -164,8 +161,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		protected function attemptSiteReassign() {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
-			$oReqParams = $oFO->getRequestParams();
-
+			$oReqParams = $this->getRequestParams();
 			$oResponse = $this->getStandardResponse();
 
 			if ( !isset( $oResponse->channel ) || !in_array( $oResponse->channel, array( 'internal', 'retrieve' ) ) ) {
@@ -199,7 +195,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				);
 			}
 
-			$sRequestedKey = $oFO->fetchIcwpRequestParam( 'key', '' );
+			$sRequestedKey = $oReqParams->getAuthKey();
 			if ( empty( $sRequestedKey ) || strlen( $sRequestedKey ) != 24 ) {
 				return $this->setErrorResponse(
 					sprintf( 'Attempting Site Reassign Failed: %s.', 'Auth Key not of the correct format' ),
@@ -207,7 +203,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				);
 			}
 
-			$sRequestPin = $oFO->fetchIcwpRequestParam( 'pin', '' );
+			$sRequestPin = $oReqParams->getPin();
 			if ( empty( $sRequestPin ) ) {
 				return $this->setErrorResponse(
 					sprintf( 'Attempting Site Reassign Failed: %s.', 'PIN empty' ),
@@ -232,7 +228,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		protected function handshake() {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
-			$oReqParams = $oFO->getRequestParams();
+			$oReqParams = $this->getRequestParams();
 			$oResponse = $this->getStandardResponse();
 
 			if( !$oFO->getCanHandshake() ) {
@@ -297,12 +293,8 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		/**
 		 */
 		protected function preActionEnvironmentSetup() {
-			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
-			$oReqParams = $oFO->getRequestParams();
-
 			$this->loadWpFunctionsProcessor()->doBustCache();
-			@set_time_limit( $oReqParams->getTimeout() );
+			@set_time_limit( $this->getRequestParams()->getTimeout() );
 			$this->setWpEngineAuth();
 		}
 
@@ -321,11 +313,8 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		protected function setAuthorizedUser() {
 
 			if ( !$this->isLoggedInUser() ) {
-
-				/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-				$oFO = $this->getFeatureOptions();
 				$oWpUser = $this->loadWpUsersProcessor();
-				$sWpUser = $oFO->fetchIcwpRequestParam( 'wpadmin_user' );
+				$sWpUser = $this->getRequestParams()->getStringParam( 'wpadmin_user' );
 				if ( empty( $sWpUser ) ) {
 
 					if ( version_compare( $this->loadWpFunctionsProcessor()->getWordpressVersion(), '3.1', '>=' ) ) {

@@ -25,15 +25,13 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Login', false ) ):
 		 * @return stdClass
 		 */
 		protected function processAction() {
-			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oReqParams = $this->getRequestParams();
 			$oWp = $this->loadWpFunctionsProcessor();
 
 			$oResponse = $this->getStandardResponse();
-			// If there's an error with login, we die.
-			$oResponse->die = true;
+			$oResponse->die = true; // If there's an error with login, we die.
 
-			$sRequestToken = $oFO->fetchIcwpRequestParam( 'token', '' );
+			$sRequestToken = $oReqParams->getStringParam( 'token' );
 			if ( empty( $sRequestToken ) ) {
 				$sErrorMessage = 'No valid Login Token was sent.';
 				return $this->setErrorResponse(
@@ -62,7 +60,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Login', false ) ):
 
 			$oWpUsers = $this->loadWpUsersProcessor();
 
-			$sUsername = $oFO->fetchIcwpRequestParam( 'username', '' );
+			$sUsername = $oReqParams->getStringParam( 'username' );
 			$oUser = $oWpUsers->getUserByUsername( $sUsername );
 			if ( empty( $sUsername ) || empty( $oUser ) ) {
 				$aUserRecords = version_compare( $oWp->getWordpressVersion(), '3.1', '>=' ) ? get_users( 'role=administrator' ) : array();
@@ -88,7 +86,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Login', false ) ):
 				);
 			}
 
-			$sRedirectPath = $oFO->fetchIcwpRequestParam( 'redirect', '' );
+			$sRedirectPath = $oReqParams->getStringParam( 'redirect' );
 			if ( strlen( $sRedirectPath ) == 0 ) {
 				$oWp->redirectToAdmin();
 			}
