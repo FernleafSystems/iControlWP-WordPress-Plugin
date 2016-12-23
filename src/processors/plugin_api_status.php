@@ -13,11 +13,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Status', false ) ):
 		 * @return stdClass
 		 */
 		protected function processAction() {
-			return $this->setSuccessResponse(
-				'Status',
-				0,
-				$this->getStatusData()
-			);
+			return $this->setSuccessResponse( 'Status', 0, $this->getStatusData() );
 		}
 
 		/**
@@ -28,7 +24,9 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Status', false ) ):
 			$oFO = $this->getFeatureOptions();
 			return array(
 				'plugin_version' => $this->getController()->getVersion(),
-				'support_internal' => $oFO->getSupportedInternalActions()
+				'support_internal' => $oFO->getSupportedInternalActions(),
+				'support_modules' => $oFO->getSupportedModules(),
+				'support_openssl' => $this->loadEncryptProcessor()->getSupportsOpenSslSign() ? 1 : 0
 			);
 		}
 	}
