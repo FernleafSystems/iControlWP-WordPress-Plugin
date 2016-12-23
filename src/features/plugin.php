@@ -261,8 +261,15 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		/**
 		 * @return array
 		 */
-		public function getSupportedInternalActions() {
-			return $this->getDefinition( 'supported_internal_actions' );
+		public function getPermittedApiChannels() {
+			return $this->getDefinition( 'permitted_api_channels' );
+		}
+
+		/**
+		 * @return array
+		 */
+		public function getSupportedInternalApiAction() {
+			return $this->getDefinition( 'internal_api_supported_actions' );
 		}
 
 		/**
@@ -346,20 +353,6 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 				$this->oRequestParams = new RequestParameters( $oDp->FetchGet( 'reqpars', '' ), $oDp->FetchPost( 'reqpars', '' ) );
 			}
 			return $this->oRequestParams;
-		}
-
-		/**
-		 * @return array
-		 */
-		public function getPermittedApiChannels() {
-			return $this->getDefinition( 'permitted_api_channels' );
-		}
-
-		/**
-		 * @return array
-		 */
-		public function getPermittedInternalApiAction() {
-			return $this->getDefinition( 'internal_api_supported_actions' );
 		}
 
 		/**

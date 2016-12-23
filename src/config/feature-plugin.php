@@ -91,14 +91,6 @@ options:
 
 # Definitions for constant data that doesn't need store in the options
 definitions:
-  supported_internal_actions:
-    -
-  supported_modules:
-    - 'security'
-    - 'statistics'
-    - 'google_analytics'
-    - 'whitelabel'
-    - 'autoupdates'
 
   icwp_public_key:  'LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0NCk1JSUJJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBdWxOM2lKRHZEdURGM2JIcnYrSEYNCjZ3T0RVai9GbGtFY1QvYzB5QWllYXNYTXNUQWRxN3AwWVBPQmtMSy92RFAyTE04b054dHA4MzlVUkI2aGFDa2sNCmRPUUZCdHpwY0UvU0NJZjVDSUJEeWhDVUlhRENtK1JnZDlpWmxISldBbzVGZkRlODlxb3FJTGRodkp2UHlzbTYNCkQ0b3hmcXYzMlF1TTV2VjUyT3ZaU1Q5WG1ydytPcHRCc0Rjbjk5THlOdGhYZ3RweHJEVnlTZGljVzBqelpYUHANCm1xbUE0SEZqMzQ3Z3hMNVB1Q0hXcEgyN3RqMCtYSjE3TFoyWHNSQWtaaE1TdEJtTUtBaW02R25yMkVQTTJBc20NCklCWGtzcEs5M2lHVGZiYUlMZE4vQ0NGTmVaUlh5WGNyV1hNV1Bvd0VFQVN0ZXJHNXN1QWlRSkhjVDBwaW0za2oNCjZ3SURBUUFCDQotLS0tLUVORCBQVUJMSUMgS0VZLS0tLS0='
   urls:
@@ -110,6 +102,7 @@ definitions:
 
   permitted_api_channels:
     - 'index'
+    - 'status'
     - 'auth'
     - 'retrieve'
     - 'execute'
@@ -123,6 +116,12 @@ definitions:
     - 'theme_activate'
     - 'theme_delete'
     - 'theme_install_url'
+  supported_modules:
+    - 'security'
+    - 'statistics'
+    - 'google_analytics'
+    - 'whitelabel'
+    - 'autoupdates'
     
   service_ip_addresses:
     ipv6:

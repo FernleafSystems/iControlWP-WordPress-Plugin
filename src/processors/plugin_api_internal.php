@@ -300,7 +300,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 			if ( empty( $sAction ) ) {
 				$sAction = $this->getCurrentApiActionName();
 			}
-			return in_array( $sAction, $oFO->getPermittedInternalApiAction() );
+			return in_array( $sAction, $oFO->getSupportedInternalApiAction() );
 		}
 
 		/**

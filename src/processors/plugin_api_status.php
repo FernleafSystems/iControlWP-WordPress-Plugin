@@ -24,9 +24,10 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Status', false ) ):
 			$oFO = $this->getFeatureOptions();
 			return array(
 				'plugin_version' => $this->getController()->getVersion(),
-				'support_internal' => $oFO->getSupportedInternalActions(),
+				'support_internal' => $oFO->getSupportedInternalApiAction(),
 				'support_modules' => $oFO->getSupportedModules(),
-				'support_openssl' => $this->loadEncryptProcessor()->getSupportsOpenSslSign() ? 1 : 0
+				'support_channels' => $oFO->getPermittedApiChannels(),
+				'support_openssl' => $this->loadEncryptProcessor()->getSupportsOpenSslSign() ? 1 : 0,
 			);
 		}
 	}
