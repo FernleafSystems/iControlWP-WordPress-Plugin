@@ -53,8 +53,36 @@ class RequestParameters {
 	/**
 	 * @return string
 	 */
+	public function getOpenSslSignature() {
+		return base64_decode( $this->getStringParam( 'opensig' ) );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getPackageName() {
+		return $this->getStringParam( 'package_name' );
+	}
+
+	/**
+	 * @return string
+	 */
 	public function getPin() {
 		return $this->getStringParam( 'pin' );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getTimeout() {
+		return (int)$this->getParam( 'timeout', 60 );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getVerificationCode() {
+		return $this->getStringParam( 'verification_code' );
 	}
 
 	/**

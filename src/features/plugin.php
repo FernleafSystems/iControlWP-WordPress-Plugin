@@ -259,6 +259,13 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		}
 
 		/**
+		 * @return array
+		 */
+		public function getSupportedInternalActions() {
+			return $this->getDefinition( 'supported_internal_actions' );
+		}
+
+		/**
 		 * No checking or validation done for email.  If it's empty, the site is unassigned.
 		 *
 		 * @param $sAccountEmail

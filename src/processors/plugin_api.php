@@ -232,7 +232,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		protected function handshake() {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
-			$oDp = $this->loadDataProcessor();
+			$oReqParams = $oFO->getRequestParams();
 			$oResponse = $this->getStandardResponse();
 
 			if( !$oFO->getCanHandshake() ) {
@@ -241,11 +241,19 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			}
 			$oResponse->handshake = 'failed';
 
-			$oEncryptProcessor = $this->loadEncryptProcessor();
+			$sPin = $oReqParams->getPin();
+			$sPackageName = $oReqParams->getPackageName();
+			$sVerificationCode = $oReqParams->getVerificationCode();
+			if ( empty( $sVerificationCode ) || empty( $sPackageName ) || empty( $sPin ) ) {
+				return $this->setErrorResponse(
+					'Either the Verification Code, Package Name, or PIN were empty. Could not Handshake.',
+					9990
+				);
+			}
 
-			$sVerificationCode = $oFO->fetchIcwpRequestParam( 'verification_code', false );
+			$oEncryptProcessor = $this->loadEncryptProcessor();
 			if ( $oEncryptProcessor->getSupportsOpenSslSign() ) {
-				$sSignature = base64_decode( $oFO->fetchIcwpRequestParam( 'opensig', '' ) );
+				$sSignature = $oReqParams->getOpenSslSignature();
 				$sPublicKey = $oFO->getIcwpPublicKey();
 				if ( !empty( $sSignature ) && !empty( $sPublicKey ) ) {
 					$oResponse->openssl_verify = $oEncryptProcessor->verifySslSignature( $sVerificationCode, $sSignature, $sPublicKey );
@@ -254,16 +262,6 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 						return $this->setSuccessResponse(); // just to be sure we proceed thereafter
 					}
 				}
-			}
-
-			$sPackageName = $oFO->fetchIcwpRequestParam( 'package_name', false );
-			$sPin = $oFO->fetchIcwpRequestParam( 'pin', false );
-
-			if ( empty( $sVerificationCode ) || empty( $sPackageName ) || empty( $sPin ) ) {
-				return $this->setErrorResponse(
-					'Either the Verification Code, Package Name, or PIN were empty. Could not Handshake.',
-					9990
-				);
 			}
 
 			$sHandshakeVerifyBaseUrl = $oFO->getAppUrl( 'handshake_verify_url' );
@@ -284,7 +282,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				);
 			}
 
-			$oJsonResponse = $oDp->doJsonDecode( trim( $sResponse ) );
+			$oJsonResponse = $this->loadDataProcessor()->doJsonDecode( trim( $sResponse ) );
 			if ( !is_object( $oJsonResponse ) || !isset( $oJsonResponse->success ) || $oJsonResponse->success !== true ) {
 				return $this->setErrorResponse(
 					sprintf( 'Package Handshaking Failed against URL "%s" with response: "%s".', $sHandshakeVerifyUrl, print_r( $oJsonResponse,true ) ),
@@ -301,8 +299,10 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		protected function preActionEnvironmentSetup() {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
+			$oReqParams = $oFO->getRequestParams();
+
 			$this->loadWpFunctionsProcessor()->doBustCache();
-			@set_time_limit( $oFO->fetchIcwpRequestParam( 'timeout', 60 ) );
+			@set_time_limit( $oReqParams->getTimeout() );
 			$this->setWpEngineAuth();
 		}
 
