@@ -15,8 +15,6 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 
 			$oReqParams = $oFO->getRequestParams();
 			if ( $oReqParams->getIsApiCall() ) {
-				$this->maybeSetIsAdmin();
-
 				if ( $oReqParams->getIsApiCall_Action() ) {
 					add_action( $oReqParams->getApiHook(), array( $this, 'doApiAction' ), $oReqParams->getApiHookPriority() );
 				}
@@ -38,19 +36,6 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 			}
 
 			add_action( 'wp_footer', array( $this, 'printPluginUri') );
-		}
-
-		/**
-		 * @return bool
-		 */
-		protected function maybeSetIsAdmin() {
-			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
-			$sSetWpAdmin = $oFO->fetchIcwpRequestParam( 'set_is_admin', 0 );
-			if ( $sSetWpAdmin == 1 && !defined( 'WP_ADMIN' ) ) {
-				define( 'WP_ADMIN', true );
-			}
-			return ( defined( 'WP_ADMIN' ) && WP_ADMIN );
 		}
 
 		/**

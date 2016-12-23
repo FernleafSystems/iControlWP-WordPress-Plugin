@@ -104,6 +104,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		protected function preApiCheck() {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
+			$oReqParams = $oFO->getRequestParams();
 			$oResponse = $this->getStandardResponse();
 
 			if ( !$oFO->getIsSiteLinked() ) {
@@ -114,8 +115,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				);
 			}
 
-			$sKey = $oFO->getPluginAuthKey();
-			$sRequestKey = trim( $oFO->fetchIcwpRequestParam( 'key', false ) );
+			$sRequestKey = $oReqParams->getAuthKey();
 			if ( empty( $sRequestKey ) ) {
 				$sErrorMessage = 'EmptyRequestKey';
 				return $this->setErrorResponse(
@@ -123,6 +123,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 					9995
 				);
 			}
+			$sKey = $oFO->getPluginAuthKey();
 			if ( $sRequestKey != $sKey ) {
 				$sErrorMessage = 'InvalidKey';
 				return $this->setErrorResponse(
@@ -131,8 +132,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				);
 			}
 
-			$sPin = $oFO->getPluginPin();
-			$sRequestPin = trim( $oFO->fetchIcwpRequestParam( 'pin', '' ) );
+			$sRequestPin = $oReqParams->getPin();
 			if ( empty( $sRequestPin ) ) {
 				$sErrorMessage = 'EmptyRequestPin';
 				return $this->setErrorResponse(
@@ -140,6 +140,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 					9994
 				);
 			}
+			$sPin = $oFO->getPluginPin();
 			if ( md5( $sRequestPin ) != $sPin ) {
 				$sErrorMessage = 'InvalidPin';
 				return $this->setErrorResponse(
@@ -163,6 +164,8 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		protected function attemptSiteReassign() {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
+			$oReqParams = $oFO->getRequestParams();
+
 			$oResponse = $this->getStandardResponse();
 
 			if ( !isset( $oResponse->channel ) || !in_array( $oResponse->channel, array( 'internal', 'retrieve' ) ) ) {
@@ -188,7 +191,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				);
 			}
 
-			$sRequestedAcc = urldecode( $oFO->fetchIcwpRequestParam( 'accname' ) );
+			$sRequestedAcc = $oReqParams->getAccountId();
 			if ( empty( $sRequestedAcc ) || !is_email( $sRequestedAcc ) ) {
 				return $this->setErrorResponse(
 					sprintf( 'Attempting Site Reassign Failed: %s.', 'Request account empty or invalid' ),
