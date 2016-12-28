@@ -168,7 +168,7 @@ $bWhitelabelled = ($aPluginLabels['Name'] != 'iControlWP');
 					<div class="span11">
 						<h2>About <?php echo $aPluginLabels['Name']; ?></h2>
 						<div>
-							<p><?php echo $aPluginLabels['Name']; ?> is <strong>completely free</strong> to get started with an unlimited sites 30 day trial -
+							<p><?php echo $aPluginLabels['Name']; ?> is <strong>completely free</strong> to get started with an unlimited sites 15 day trial -
 								<a href="<?php echo $aPluginLabels['PluginURI']; ?>" id="signupLinkIcwp" target="_blank">Sign Up for a <?php echo $aPluginLabels['Name']; ?> account here</a>.</p>
 						</div>
 						<h3><?php echo $aPluginLabels['Name']; ?> Features [<a href="<?php echo $sUrlServiceHomeFeatures; ?>" target="_blank">full details</a>]</h3>
@@ -177,7 +177,7 @@ $bWhitelabelled = ($aPluginLabels['Name'] != 'iControlWP');
 				<div class="row">
 					<div class="span5">
 						<ul>
-							<li>Free to get started with with unlimited 30 day trial</li>
+							<li>Free to get started with with unlimited sites, 15 day trial</li>
 							<li>Manage all your WordPress sites in 1 place</li>
 							<li>One-click Updates for WordPress.org Plugins, Themes and WordPress Core</li>
 							<li>One-Click login to admin each WordPress website</li>

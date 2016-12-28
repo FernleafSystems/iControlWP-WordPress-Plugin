@@ -324,7 +324,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		 * @return $this
 		 */
 		public function setPluginPin( $sRawPin ) {
-			$sTrimmed = trim( $sRawPin );
+			$sTrimmed = trim( (string)$sRawPin );
 			$sPin = empty( $sTrimmed ) ? '' : md5( $sTrimmed );
 			$this->setOpt( 'pin', $sPin );
 			return $this;

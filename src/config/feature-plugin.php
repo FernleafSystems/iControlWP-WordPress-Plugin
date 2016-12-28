@@ -104,6 +104,7 @@ definitions:
     - 'index'
     - 'status'
     - 'auth'
+    - 'internal'
     - 'retrieve'
     - 'execute'
     - 'login'

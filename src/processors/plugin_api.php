@@ -71,15 +71,6 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		/**
 		 * @return stdClass
 		 */
-		protected function doAuth() {
-			$this->setAuthorizedUser();
-			$this->setWpEngineAuth();
-			return $this->setSuccessResponse( 'Auth' ); //just to be sure we proceed thereafter
-		}
-
-		/**
-		 * @return stdClass
-		 */
 		abstract protected function processAction();
 
 		/**

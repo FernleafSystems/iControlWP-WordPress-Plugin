@@ -123,6 +123,10 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 
 			switch( $sApiChannel ) {
 
+				case 'auth':
+					$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Auth( $oFO );
+					break;
+
 				case 'retrieve':
 					$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Retrieve( $oFO );
 					break;
@@ -144,12 +148,14 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 					break;
 
 				default: // case 'index':
+					echo $sApiChannel;
+					require_once( dirname(__FILE__).ICWP_DS. sprintf( 'plugin_api_index.php', $sApiChannel ) );
 					$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Index( $oFO );
 					break;
 			}
 
 			$oApiResponse = $oApiProcessor->run();
-			$this->sendApiResponse( $oApiResponse, true, $this->getRequestParams()->getParam( 'icwpenc', 0 ) == 1 );
+			$this->sendApiResponse( $oApiResponse, true, $this->getRequestParams()->getParam( 'icwpenc', 0 ) );
 			die();
 		}
 
@@ -162,6 +168,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 
 			$sApiChannel = $this->getRequestParams()->getApiChannel();
 			if ( !in_array( $sApiChannel, $oFO->getPermittedApiChannels() ) ) {
+				var_dump( $sApiChannel );
 				$sApiChannel = 'index';
 			}
 			return $sApiChannel;

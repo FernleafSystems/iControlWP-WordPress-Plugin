@@ -22,12 +22,15 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Status', false ) ):
 		protected function getStatusData() {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
+			$oCon = $this->getController();
 			return array(
-				'plugin_version' => $this->getController()->getVersion(),
-				'support_internal' => $oFO->getSupportedInternalApiAction(),
-				'support_modules' => $oFO->getSupportedModules(),
-				'support_channels' => $oFO->getPermittedApiChannels(),
-				'support_openssl' => $this->loadEncryptProcessor()->getSupportsOpenSslSign() ? 1 : 0,
+				'plugin_status' => 1,
+				'plugin_version' => $oCon->getVersion(),
+				'plugin_url' => $oCon->getPluginUrl(),
+				'supported_internal' => $oFO->getSupportedInternalApiAction(),
+				'supported_modules' => $oFO->getSupportedModules(),
+				'supported_channels' => $oFO->getPermittedApiChannels(),
+				'supported_openssl' => $this->loadEncryptProcessor()->getSupportsOpenSslSign() ? 1 : 0,
 			);
 		}
 	}
