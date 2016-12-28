@@ -130,7 +130,7 @@ if ( !class_exists( 'ICWP_APP_Foundation', false ) ) :
 		public function loadWpFunctionsPlugins() {
 			if ( !isset( self::$oWpPlugins ) ) {
 				require_once( dirname(__FILE__).ICWP_DS.'icwp-wpfunctions-plugins.php' );
-				self::$oWpPlugins = ICWP_APP_WpFunctions_Plugins::GetInstance( self::loadWpFunctionsProcessor() );
+				self::$oWpPlugins = ICWP_APP_WpFunctions_Plugins::GetInstance();
 			}
 			return self::$oWpPlugins;
 		}
@@ -141,7 +141,7 @@ if ( !class_exists( 'ICWP_APP_Foundation', false ) ) :
 		public function loadWpFunctionsThemes() {
 			if ( !isset( self::$oWpThemes ) ) {
 				require_once( dirname(__FILE__).ICWP_DS.'icwp-wpfunctions-themes.php' );
-				self::$oWpThemes = ICWP_APP_WpFunctions_Themes::GetInstance( self::loadWpFunctionsProcessor() );
+				self::$oWpThemes = ICWP_APP_WpFunctions_Themes::GetInstance();
 			}
 			return self::$oWpThemes;
 		}

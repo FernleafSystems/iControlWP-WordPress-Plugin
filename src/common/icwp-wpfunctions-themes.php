@@ -2,12 +2,7 @@
 
 if ( !class_exists( 'ICWP_APP_WpFunctions_Themes', false ) ):
 
-	class ICWP_APP_WpFunctions_Themes {
-		/**
-		 * @var ICWP_APP_WpFunctions
-		 */
-		private $oWpFunctions;
-
+	class ICWP_APP_WpFunctions_Themes extends ICWP_APP_Foundation {
 		/**
 		 * @var ICWP_APP_WpFunctions_Themes
 		 */
@@ -16,13 +11,11 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_Themes', false ) ):
 		private function __construct() {}
 
 		/**
-		 * @param ICWP_APP_WpFunctions $oWpFunctions
 		 * @return ICWP_APP_WpFunctions_Themes
 		 */
-		public static function GetInstance( $oWpFunctions ) {
+		public static function GetInstance() {
 			if ( is_null( self::$oInstance ) ) {
 				self::$oInstance = new self();
-				self::$oInstance->oWpFunctions = $oWpFunctions;
 			}
 			return self::$oInstance;
 		}
@@ -51,7 +44,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_Themes', false ) ):
 
 		/**
 		 * @param string $sStylesheet
-		 * @return bool|void|WP_Error
+		 * @return bool|WP_Error
 		 */
 		public function delete( $sStylesheet ) {
 			if ( empty( $sStylesheet ) ) {
@@ -97,7 +90,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_Themes', false ) ):
 		 * @return string|WP_Theme
 		 */
 		public function getActiveThemeName() {
-			return $this->oWpFunctions->getWordpressIsAtLeastVersion( '3.4.0' )? $this->getActiveTheme()->get( 'Name' ) : get_current_theme();
+			return $this->loadWpFunctionsProcessor()->getWordpressIsAtLeastVersion( '3.4.0' )? $this->getActiveTheme()->get( 'Name' ) : get_current_theme();
 		}
 
 		/**
@@ -108,8 +101,8 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_Themes', false ) ):
 		}
 
 		/**
-		 * @param $sStylesheet
-		 * @return null|WP_Theme
+		 * @param string $sStylesheet
+		 * @return bool
 		 */
 		public function getExists( $sStylesheet ) {
 			$oTheme = $this->getTheme( $sStylesheet );
@@ -121,7 +114,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_Themes', false ) ):
 		 * @return null|WP_Theme
 		 */
 		public function getTheme( $sStylesheet ) {
-			if ( $this->oWpFunctions->getWordpressIsAtLeastVersion( '3.4.0' ) ) {
+			if ( $this->loadWpFunctionsProcessor()->getWordpressIsAtLeastVersion( '3.4.0' ) ) {
 				if ( !function_exists( 'wp_get_theme' ) ) {
 					require_once( ABSPATH . 'wp-admin/includes/theme.php' );
 				}
@@ -151,7 +144,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_Themes', false ) ):
 				$this->clearUpdates();
 				$this->checkForUpdates();
 			}
-			return $this->oWpFunctions->getTransient( 'update_themes' );
+			return $this->loadWpFunctionsProcessor()->getTransient( 'update_themes' );
 		}
 
 		/**
@@ -174,12 +167,12 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_Themes', false ) ):
 		 */
 		protected function clearUpdates() {
 			$sKey = 'update_themes';
-			$oResponse = $this->oWpFunctions->getTransient( $sKey );
+			$oResponse = $this->loadWpFunctionsProcessor()->getTransient( $sKey );
 			if ( !is_object( $oResponse ) ) {
 				$oResponse = new stdClass();
 			}
 			$oResponse->last_checked = 0;
-			$this->oWpFunctions->setTransient( $sKey, $oResponse );
+			$this->loadWpFunctionsProcessor()->setTransient( $sKey, $oResponse );
 		}
 
 		/**

@@ -2,11 +2,7 @@
 
 if ( !class_exists( 'ICWP_APP_WpFunctions_Plugins', false ) ):
 
-	class ICWP_APP_WpFunctions_Plugins {
-		/**
-		 * @var ICWP_APP_WpFunctions
-		 */
-		private $oWpFunctions;
+	class ICWP_APP_WpFunctions_Plugins extends ICWP_APP_Foundation {
 
 		/**
 		 * @var ICWP_APP_WpFunctions_Plugins
@@ -16,13 +12,11 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_Plugins', false ) ):
 		private function __construct() {}
 
 		/**
-		 * @param ICWP_APP_WpFunctions $oWpFunctions
 		 * @return ICWP_APP_WpFunctions_Plugins
 		 */
-		public static function GetInstance( $oWpFunctions ) {
+		public static function GetInstance() {
 			if ( is_null( self::$oInstance ) ) {
 				self::$oInstance = new self();
-				self::$oInstance->oWpFunctions = $oWpFunctions;
 			}
 			return self::$oInstance;
 		}
@@ -61,7 +55,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_Plugins', false ) ):
 				$sPluginDir = $sPluginFile;
 			}
 			$sPath = path_join( WP_PLUGIN_DIR, $sPluginDir );
-			return $this->oWpFunctions->loadWpFilesystem()->deleteDir( $sPath, true );
+			return $this->loadFileSystemProcessor()->deleteDir( $sPath );
 		}
 
 		/**
@@ -122,12 +116,12 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_Plugins', false ) ):
 		 */
 		protected function clearUpdates() {
 			$sKey = 'update_plugins';
-			$oResponse = $this->oWpFunctions->getTransient( $sKey );
+			$oResponse = $this->loadWpFunctionsProcessor()->getTransient( $sKey );
 			if ( !is_object( $oResponse ) ) {
 				$oResponse = new stdClass();
 			}
 			$oResponse->last_checked = 0;
-			$this->oWpFunctions->setTransient( $sKey, $oResponse );
+			$this->loadWpFunctionsProcessor()->setTransient( $sKey, $oResponse );
 		}
 
 		/**
@@ -178,7 +172,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_Plugins', false ) ):
 				$this->clearUpdates();
 				$this->checkForUpdates();
 			}
-			return $this->oWpFunctions->getTransient( 'update_plugins' );
+			return $this->loadWpFunctionsProcessor()->getTransient( 'update_plugins' );
 		}
 	}
 endif;
