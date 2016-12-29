@@ -12,6 +12,13 @@ if ( !class_exists( 'ICWP_APP_Processor_BaseApp', false ) ):
 		protected function getRequestParams() {
 			return $this->getFeatureOptions()->getRequestParams();
 		}
+
+		/**
+		 * @return array
+		 */
+		protected function getActionParams() {
+			return $this->getRequestParams()->getActionParams();
+		}
 	}
 
 endif;

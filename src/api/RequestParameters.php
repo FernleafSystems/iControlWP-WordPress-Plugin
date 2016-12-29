@@ -23,6 +23,14 @@ class RequestParameters {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getActionParams() {
+		$sSerialized = $this->getParam( 'action_params' );
+		return empty( $sSerialized ) ? array() : unserialize( $sSerialized );
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getApiHook() {

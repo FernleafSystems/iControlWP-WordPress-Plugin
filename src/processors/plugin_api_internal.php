@@ -38,9 +38,9 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		 * @return stdClass
 		 */
 		protected function icwpapi_plugin_activate() {
-			$oReqParams = $this->getRequestParams();
-			$sPluginFile = $oReqParams->getStringParam( 'plugin_file' );
-			$bIsWpms = $oReqParams->getStringParam( 'site_is_wpms' );
+			$aActionParams = $this->getActionParams();
+			$sPluginFile = $aActionParams[ 'plugin_file' ];
+			$bIsWpms = $aActionParams[ 'site_is_wpms' ];
 
 			$bResult = $this->loadWpFunctionsPlugins()->activate( $sPluginFile, $bIsWpms );
 			$aPlugin = $this->getWpCollector()->collectWordpressPlugins( $sPluginFile );
@@ -55,9 +55,9 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		 * @return stdClass
 		 */
 		protected function icwpapi_plugin_deactivate() {
-			$oReqParams = $this->getRequestParams();
-			$sPluginFile = $oReqParams->getStringParam( 'plugin_file' );
-			$bIsWpms = $oReqParams->getStringParam( 'site_is_wpms' );
+			$aActionParams = $this->getActionParams();
+			$sPluginFile = $aActionParams[ 'plugin_file' ];
+			$bIsWpms = $aActionParams[ 'site_is_wpms' ];
 
 			$this->loadWpFunctionsPlugins()->deactivate( $sPluginFile, $bIsWpms );
 			$aPlugin = $this->getWpCollector()->collectWordpressPlugins( $sPluginFile );
@@ -72,9 +72,9 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		 * @return stdClass
 		 */
 		protected function icwpapi_plugin_delete() {
-			$oReqParams = $this->getRequestParams();
-			$sPluginFile = $oReqParams->getStringParam( 'plugin_file' );
-			$bIsWpms = $oReqParams->getStringParam( 'site_is_wpms', '' );
+			$aActionParams = $this->getActionParams();
+			$sPluginFile = $aActionParams[ 'plugin_file' ];
+			$bIsWpms = $aActionParams[ 'site_is_wpms' ];
 
 			$bResult = $this->loadWpFunctionsPlugins()->delete( $sPluginFile, $bIsWpms );
 			wp_cache_flush(); // since we've deleted a plugin, we need to ensure our collection is up-to-date rebuild.
@@ -84,16 +84,14 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 				'result'			=> $bResult,
 				'wordpress-plugins'	=> $aPlugins
 			);
-			return $this->success( $aData );
+			return $bResult ? $this->success( $aData ) : $this->fail( $aData );
 		}
 
 		/**
 		 * @return stdClass
 		 */
 		protected function icwpapi_plugin_install_url() {
-			$oReqParams = $this->getRequestParams();
-			$aPlugin = $oReqParams->getStringParam( 'plugin' );
-			$bIsNetworkWide = $oReqParams->getStringParam( 'network_wide' );
+			$aPlugin = $this->getActionParams();
 
 			if ( empty( $aPlugin['url'] ) ) {
 				return $this->fail(
@@ -120,7 +118,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 			//activate as required
 			$sPluginFile = $aResult['plugin_info'];
 			if ( !empty( $sPluginFile ) && isset( $aPlugin['activate'] ) && $aPlugin['activate'] == 1 ) {
-				$oWpPlugins->activate( $sPluginFile, $bIsNetworkWide );
+				$oWpPlugins->activate( $sPluginFile, $aPlugin[ 'network_wide' ] );
 			}
 
 			wp_cache_flush(); // since we've added a plugin
@@ -136,8 +134,9 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		 * @return stdClass
 		 */
 		protected function icwpapi_theme_activate() {
-			$sThemeFile = $this->getRequestParams()->getStringParam( 'theme_file' );
-			$bResult = $this->loadWpFunctionsThemes()->activate( $sThemeFile );
+			$aActionParams = $this->getActionParams();
+			$sFile = $aActionParams[ 'theme_file' ];
+			$bResult = $this->loadWpFunctionsThemes()->activate( $sFile );
 
 			$aData = array(
 				'result'			=> $bResult,
@@ -150,7 +149,9 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		 * @return stdClass
 		 */
 		protected function icwpapi_theme_delete() {
-			$sStylesheet = $this->getRequestParams()->getStringParam( 'theme_file' );
+			$aActionParams = $this->getActionParams();
+			$sStylesheet = $aActionParams[ 'theme_file' ];
+
 			if ( empty( $sStylesheet ) ) {
 				return $this->fail(
 					array(),
@@ -187,7 +188,8 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		 * @return stdClass
 		 */
 		protected function icwpapi_theme_install_url() {
-			$aTheme = $this->getRequestParams()->getStringParam( 'theme' );
+			$aActionParams = $this->getActionParams();
+			$aTheme = $aActionParams[ 'theme' ];
 
 			if ( empty( $aTheme['url'] ) ) {
 				return $this->fail(

@@ -44,6 +44,10 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_Plugins', false ) ):
 		 * @return bool
 		 */
 		public function delete( $sPluginFile, $bNetworkWide = false ) {
+			if ( empty( $sPluginFile ) || !$this->getIsInstalled( $sPluginFile ) ) {
+				return false;
+			}
+
 			if ( $this->getIsActive( $sPluginFile ) ) {
 				$this->deactivate( $sPluginFile, $bNetworkWide );
 			}
