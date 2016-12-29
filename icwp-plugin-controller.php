@@ -1041,14 +1041,13 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 
 	/**
 	 * @param string $sPath
-	 *
 	 * @return string
 	 */
 	public function getPluginUrl( $sPath = '' ) {
 		if ( empty( $this->sPluginUrl ) ) {
 			$this->sPluginUrl = plugins_url( '/', $this->getRootFile() );
 		}
-		return $this->sPluginUrl.$sPath;
+		return rtrim( $this->sPluginUrl.$sPath, '/' ).'/';
 	}
 
 	/**

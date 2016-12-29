@@ -2,23 +2,17 @@
 
 if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 
-	require_once( dirname(__FILE__).ICWP_DS.'base_plugin.php' );
+	require_once( dirname(__FILE__).ICWP_DS.'base_app.php' );
 
-	class ICWP_APP_Processor_Plugin extends ICWP_APP_Processor_BasePlugin {
-
-		/**
-		 * @var ICWP_APP_Processor_Plugin_Api
-		 */
-		protected $oApiActionProcessor;
+	class ICWP_APP_Processor_Plugin extends ICWP_APP_Processor_BaseApp {
 
 		/**
 		 */
 		public function run() {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
-			$oCon = $this->getController();
+			$oReqParams = $this->getRequestParams();
 
-			$oReqParams = $oFO->getRequestParams();
 			if ( $oReqParams->getIsApiCall() ) {
 				if ( $oReqParams->getIsApiCall_Action() ) {
 					add_action( $oReqParams->getApiHook(), array( $this, 'doApiAction' ), $oReqParams->getApiHookPriority() );
@@ -28,12 +22,12 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 				}
 			}
 
-			add_filter( $oCon->doPluginPrefix( 'get_service_ips_v4' ), array( $this, 'getServiceIpAddressesV4' ) );
-			add_filter( $oCon->doPluginPrefix( 'get_service_ips_v6' ), array( $this, 'getServiceIpAddressesV6' ) );
+			add_filter( $oFO->doPluginPrefix( 'get_service_ips_v4' ), array( $this, 'getServiceIpAddressesV4' ) );
+			add_filter( $oFO->doPluginPrefix( 'get_service_ips_v6' ), array( $this, 'getServiceIpAddressesV6' ) );
 
-			add_filter( $oCon->doPluginPrefix( 'verify_site_can_handshake' ), array( $this, 'doVerifyCanHandshake' ) );
-			add_filter( $oCon->doPluginPrefix( 'hide_plugin' ), array( $oFO, 'getIfHidePlugin' ) );
-			add_filter( $oCon->doPluginPrefix( 'filter_hidePluginMenu' ), array( $oFO, 'getIfHidePlugin' ) );
+			add_filter( $oFO->doPluginPrefix( 'verify_site_can_handshake' ), array( $this, 'doVerifyCanHandshake' ) );
+			add_filter( $oFO->doPluginPrefix( 'hide_plugin' ), array( $oFO, 'getIfHidePlugin' ) );
+			add_filter( $oFO->doPluginPrefix( 'filter_hidePluginMenu' ), array( $oFO, 'getIfHidePlugin' ) );
 
 			$oDp = $this->loadDataProcessor();
 			if ( ( $oDp->FetchRequest( 'getworpitpluginurl', false ) == 1 ) || $oDp->FetchRequest( 'geticwppluginurl', false ) == 1 ) {
@@ -80,8 +74,8 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 
 			$oFO->setOpt( 'time_last_check_can_handshake', $oDp->time() );
 
-			// First simply check SSL usage
-			if ( $oDp->getCanOpensslSign() ) {
+			// First simply check SSL support
+			if ( $this->loadEncryptProcessor()->getSupportsOpenSslSign() ) {
 				return true;
 			}
 
@@ -92,8 +86,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 				'redirection'	=> $nTimeout,
 				'sslverify'		=> true //this is default, but just to make sure.
 			);
-			$oFs = $this->loadFileSystemProcessor();
-			$sResponse = $oFs->getUrlContent( $sHandshakeVerifyTestUrl, $aArgs );
+			$sResponse = $this->loadFileSystemProcessor()->getUrlContent( $sHandshakeVerifyTestUrl, $aArgs );
 
 			if ( !$sResponse ) {
 				return false;
@@ -115,40 +108,107 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 		}
 
 		/**
-		 * @uses die()
+		 * If any of the conditions are met and our plugin executes either the transport or link
+		 * handlers, then all execution will end
+		 * @uses die
+		 * @return void
 		 */
 		public function doApiAction() {
+			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
+			$oFO = $this->getFeatureOptions();
 			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-			$oApiResponse = $this->getApiActionProcessor()->run();
-			$this->sendApiResponse( $oApiResponse );
+
+			$sApiChannel = $this->getApiChannel(); // also verifies it's a valid channel
+			require_once( dirname(__FILE__).ICWP_DS. sprintf( 'plugin_api_%s.php', $sApiChannel ) );
+
+			switch( $sApiChannel ) {
+
+				case 'auth':
+					$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Auth( $oFO );
+					break;
+
+				case 'retrieve':
+					$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Retrieve( $oFO );
+					break;
+
+				case 'execute':
+					$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Execute( $oFO );
+					break;
+
+				case 'internal':
+					$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Internal( $oFO );
+					break;
+
+				case 'status':
+					$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Status( $oFO );
+					break;
+
+				case 'login':
+					$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Login( $oFO );
+					break;
+
+				default: // case 'index':
+					echo $sApiChannel;
+					require_once( dirname(__FILE__).ICWP_DS. sprintf( 'plugin_api_index.php', $sApiChannel ) );
+					$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Index( $oFO );
+					break;
+			}
+
+			$oApiResponse = $oApiProcessor->run();
+			$this->sendApiResponse( $oApiResponse, true, $this->getRequestParams()->getParam( 'icwpenc', 0 ) );
 			die();
 		}
 
 		/**
-		 * @return ICWP_APP_Processor_Plugin_Api
+		 * @return string
 		 */
-		protected function getApiActionProcessor() {
-			if ( !isset( $this->oApiActionProcessor ) ) {
-				require_once( dirname(__FILE__).ICWP_DS.'plugin_api.php' );
-				$this->oApiActionProcessor = new ICWP_APP_Processor_Plugin_Api( $this->getFeatureOptions() );
+		protected function getApiChannel() {
+			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
+			$oFO = $this->getFeatureOptions();
+
+			$sApiChannel = $this->getRequestParams()->getApiChannel();
+			if ( !in_array( $sApiChannel, $oFO->getPermittedApiChannels() ) ) {
+				var_dump( $sApiChannel );
+				$sApiChannel = 'index';
 			}
-			return $this->oApiActionProcessor;
+			return $sApiChannel;
 		}
 
 		/**
 		 * @uses die() / wp_die()
 		 *
-		 * @param stdClass|string $mResponse
+		 * @param stdClass|string $oResponse
 		 * @param boolean $bDoBinaryEncode
+		 * @param bool $bEncrypt
 		 */
-		protected function sendApiResponse( $mResponse, $bDoBinaryEncode = true ) {
+		protected function sendApiResponse( $oResponse, $bDoBinaryEncode = true, $bEncrypt = false ) {
 
-			if ( is_object( $mResponse ) && isset( $mResponse->die ) && $mResponse->die ) {
-				wp_die( $mResponse->error_message );
+			if ( is_object( $oResponse ) && isset( $oResponse->die ) && $oResponse->die ) {
+				wp_die( $oResponse->error_message );
 				return;
 			}
 
-			$oResponse = $bDoBinaryEncode ? base64_encode( serialize( $mResponse ) ) : $mResponse;
+			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
+			$oFO = $this->getFeatureOptions();
+
+			if ( $bEncrypt && !empty( $oResponse->data ) ) {
+				$oEncryptedResult = $this->loadEncryptProcessor()->encryptDataPublicKey(
+					$oResponse->data,
+					$oFO->getIcwpPublicKey()
+				);
+
+				if ( $oEncryptedResult->success ) {
+					$oResponse->data = array(
+						'is_encrypted' => 1,
+						'password' => $oEncryptedResult->encrypted_password,
+						'sealed_data' => $oEncryptedResult->encrypted_data
+					);
+				}
+			}
+
+			if ( $bDoBinaryEncode ) {
+				$oResponse = base64_encode( serialize( $oResponse ) );
+			}
 
 			$this->sendHeaders( $bDoBinaryEncode );
 			echo "<icwp>".$oResponse."</icwp>";
@@ -192,6 +252,26 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 		 */
 		public function addNotice_add_site( $aNoticeAttributes ) {
 
+			if ( $this->getController()->getIsValidAdminArea() && !empty( $aAdminFeedbackNotice ) && is_array( $aAdminFeedbackNotice ) ) {
+
+				foreach ( $aAdminFeedbackNotice as $sNotice ) {
+					if ( empty( $sNotice ) || !is_string( $sNotice ) ) {
+						continue;
+					}
+					$aAdminNotices[] = $this->getAdminNoticeHtml( '<p>'.$sNotice.'</p>', 'updated', false );
+				}
+				/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
+				$oFO = $this->getFeatureOptions();
+				$oFO->doClearAdminFeedback();
+			}
+			return $aAdminNotices;
+		}
+
+		/**
+		 * @param array $aAdminNotices
+		 * @return array
+		 */
+		public function adminNoticeAddSite( $aAdminNotices ) {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
 			$oCon = $this->getController();

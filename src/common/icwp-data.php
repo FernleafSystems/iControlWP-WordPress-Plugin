@@ -583,7 +583,7 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 
 		/**
 		 * @param string $sAtLeastVersion
-		 * @return bool
+		 * @return boolean
 		 */
 		public function getPhpVersionIsAtLeast( $sAtLeastVersion ) {
 			return version_compare( $this->getPhpVersion(), $sAtLeastVersion, '>=' );
@@ -608,7 +608,6 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 
 		/**
 		 * @param array $aArray
-		 *
 		 * @return stdClass
 		 */
 		public function convertArrayToStdClass( $aArray ) {

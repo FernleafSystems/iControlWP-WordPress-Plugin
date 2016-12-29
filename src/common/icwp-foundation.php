@@ -1,7 +1,9 @@
 <?php
+
 if ( !class_exists( 'ICWP_APP_Foundation', false ) ) :
 
 	class ICWP_APP_Foundation {
+
 		/**
 		 * @var ICWP_APP_DataProcessor
 		 */
@@ -19,6 +21,14 @@ if ( !class_exists( 'ICWP_APP_Foundation', false ) ) :
 		 */
 		private static $oWp;
 		/**
+		 * @var ICWP_APP_WpFunctions_Plugins
+		 */
+		private static $oWpPlugins;
+		/**
+		 * @var ICWP_APP_WpFunctions_Themes
+		 */
+		private static $oWpThemes;
+		/**
 		 * @var ICWP_APP_WpDb
 		 */
 		private static $oWpDb;
@@ -30,6 +40,10 @@ if ( !class_exists( 'ICWP_APP_Foundation', false ) ) :
 		 * @var ICWP_APP_YamlProcessor
 		 */
 		private static $oYaml;
+		/**
+		 * @var ICWP_APP_Encrypt
+		 */
+		private static $oEncrypt;
 		/**
 		 * @var ICWP_APP_Ip
 		 */
@@ -108,6 +122,39 @@ if ( !class_exists( 'ICWP_APP_Foundation', false ) ) :
 		 */
 		static public function loadWpWidgets() {
 			require_once( dirname( __FILE__ ).ICWP_DS.'wp-widget.php' );
+		}
+
+		/**
+		 * @return ICWP_APP_WpFunctions_Plugins
+		 */
+		public function loadWpFunctionsPlugins() {
+			if ( !isset( self::$oWpPlugins ) ) {
+				require_once( dirname(__FILE__).ICWP_DS.'icwp-wpfunctions-plugins.php' );
+				self::$oWpPlugins = ICWP_APP_WpFunctions_Plugins::GetInstance();
+			}
+			return self::$oWpPlugins;
+		}
+
+		/**
+		 * @return ICWP_APP_WpFunctions_Themes
+		 */
+		public function loadWpFunctionsThemes() {
+			if ( !isset( self::$oWpThemes ) ) {
+				require_once( dirname(__FILE__).ICWP_DS.'icwp-wpfunctions-themes.php' );
+				self::$oWpThemes = ICWP_APP_WpFunctions_Themes::GetInstance();
+			}
+			return self::$oWpThemes;
+		}
+
+		/**
+		 * @return ICWP_APP_Encrypt
+		 */
+		public function loadEncryptProcessor() {
+			if ( !isset( self::$oEncrypt ) ) {
+				require_once( dirname(__FILE__).ICWP_DS.'icwp-encrypt.php' );
+				self::$oEncrypt = ICWP_APP_Encrypt::GetInstance();
+			}
+			return self::$oEncrypt;
 		}
 
 		/**

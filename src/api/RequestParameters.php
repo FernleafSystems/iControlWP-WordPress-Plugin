@@ -23,6 +23,14 @@ class RequestParameters {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getActionParams() {
+		$sSerialized = $this->getParam( 'action_params' );
+		return empty( $sSerialized ) ? array() : unserialize( $sSerialized );
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getApiHook() {
@@ -46,6 +54,20 @@ class RequestParameters {
 	/**
 	 * @return string
 	 */
+	public function getApiAction() {
+		return $this->getStringParam( 'action' );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getApiChannel() {
+		return $this->getStringParam( 'm', 'index' );
+	}
+
+	/**
+	 * @return string
+	 */
 	public function getAuthKey() {
 		return $this->getStringParam( 'key' );
 	}
@@ -53,8 +75,36 @@ class RequestParameters {
 	/**
 	 * @return string
 	 */
+	public function getOpenSslSignature() {
+		return base64_decode( $this->getStringParam( 'opensig' ) );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getPackageName() {
+		return $this->getStringParam( 'package_name' );
+	}
+
+	/**
+	 * @return string
+	 */
 	public function getPin() {
 		return $this->getStringParam( 'pin' );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getTimeout() {
+		return (int)$this->getParam( 'timeout', 60 );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getVerificationCode() {
+		return $this->getStringParam( 'verification_code' );
 	}
 
 	/**
@@ -94,11 +144,12 @@ class RequestParameters {
 
 	/**
 	 * @param string $sKey
+	 * @param string $mDefault
 	 * @return string
 	 */
-	public function getStringParam( $sKey ) {
-		$sVal = $this->getParam( $sKey, '' );
-		return ( !empty( $sVal ) && is_string( $sVal ) ) ? trim( $sVal ) : '';
+	public function getStringParam( $sKey, $mDefault = '' ) {
+		$sVal = $this->getParam( $sKey, $mDefault );
+		return ( !empty( $sVal ) && is_string( $sVal ) ) ? trim( $sVal ) : $mDefault;
 	}
 
 	/**
