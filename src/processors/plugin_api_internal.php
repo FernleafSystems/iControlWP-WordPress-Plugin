@@ -188,8 +188,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		 * @return stdClass
 		 */
 		protected function icwpapi_theme_install_url() {
-			$aActionParams = $this->getActionParams();
-			$aTheme = $aActionParams[ 'theme' ];
+			$aTheme = $this->getActionParams();
 
 			if ( empty( $aTheme['url'] ) ) {
 				return $this->fail(
