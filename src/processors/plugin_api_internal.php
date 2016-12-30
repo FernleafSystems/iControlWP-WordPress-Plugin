@@ -12,7 +12,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		const ApiMethodPrefix = 'icwpapi_';
 
 		/**
-		 * @return stdClass
+		 * @return ApiResponse|mixed
 		 */
 		protected function processAction() {
 			$sActionName = $this->getCurrentApiActionName();
@@ -35,7 +35,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		}
 
 		/**
-		 * @return stdClass
+		 * @return ApiResponse
 		 */
 		protected function icwpapi_plugin_activate() {
 			$aActionParams = $this->getActionParams();
@@ -52,7 +52,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		}
 
 		/**
-		 * @return stdClass
+		 * @return ApiResponse
 		 */
 		protected function icwpapi_plugin_deactivate() {
 			$aActionParams = $this->getActionParams();
@@ -69,7 +69,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		}
 
 		/**
-		 * @return stdClass
+		 * @return ApiResponse
 		 */
 		protected function icwpapi_plugin_delete() {
 			$aActionParams = $this->getActionParams();
@@ -88,7 +88,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		}
 
 		/**
-		 * @return stdClass
+		 * @return ApiResponse
 		 */
 		protected function icwpapi_plugin_install_url() {
 			$aPlugin = $this->getActionParams();
@@ -131,7 +131,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		}
 
 		/**
-		 * @return stdClass
+		 * @return ApiResponse
 		 */
 		protected function icwpapi_theme_activate() {
 			$aActionParams = $this->getActionParams();
@@ -146,7 +146,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		}
 
 		/**
-		 * @return stdClass
+		 * @return ApiResponse
 		 */
 		protected function icwpapi_theme_delete() {
 			$aActionParams = $this->getActionParams();
@@ -185,7 +185,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		}
 
 		/**
-		 * @return stdClass
+		 * @return ApiResponse
 		 */
 		protected function icwpapi_theme_install_url() {
 			$aTheme = $this->getActionParams();
@@ -236,7 +236,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		}
 
 		/**
-		 * @return stdClass
+		 * @return ApiResponse
 		 */
 		protected function icwpapi_wplogin() {
 
@@ -252,9 +252,9 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		}
 
 		/**
-		 * @param array $aExecutionData
+		 * @param array  $aExecutionData
 		 * @param string $sMessage
-		 * @return stdClass
+		 * @return ApiResponse
 		 */
 		protected function fail( $aExecutionData = array(), $sMessage = '' ) {
 			return $this->setErrorResponse(
@@ -265,9 +265,9 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		}
 
 		/**
-		 * @param array $aExecutionData
+		 * @param array  $aExecutionData
 		 * @param string $sMessage
-		 * @return stdClass
+		 * @return ApiResponse
 		 */
 		protected function success( $aExecutionData = array(), $sMessage = '' ) {
 			return $this->setSuccessResponse(

@@ -10,7 +10,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Index', false ) ):
 	class ICWP_APP_Processor_Plugin_Api_Index extends ICWP_APP_Processor_Plugin_Api {
 
 		/**
-		 * @return stdClass
+		 * @return ApiResponse
 		 */
 		protected function processAction() {
 			return $this->setSuccessResponse( 'Plugin Index' );

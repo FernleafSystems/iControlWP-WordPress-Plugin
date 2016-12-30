@@ -10,7 +10,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Execute', false ) ):
 	class ICWP_APP_Processor_Plugin_Api_Execute extends ICWP_APP_Processor_Plugin_Api {
 
 		/**
-		 * @return stdClass
+		 * @return ApiResponse
 		 */
 		protected function processAction() {
 			$oFs = $this->loadFileSystemProcessor();

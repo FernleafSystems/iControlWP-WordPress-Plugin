@@ -10,7 +10,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Status', false ) ):
 	class ICWP_APP_Processor_Plugin_Api_Status extends ICWP_APP_Processor_Plugin_Api {
 
 		/**
-		 * @return stdClass
+		 * @return ApiResponse
 		 */
 		protected function processAction() {
 			return $this->setSuccessResponse( 'Status', 0, $this->getStatusData() );

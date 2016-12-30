@@ -10,14 +10,14 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Auth', false ) ):
 	class ICWP_APP_Processor_Plugin_Api_Auth extends ICWP_APP_Processor_Plugin_Api {
 
 		/**
-		 * @return stdClass
+		 * @return ApiResponse
 		 */
 		protected function processAction() {
 			return $this->doAuth();
 		}
 
 		/**
-		 * @return stdClass
+		 * @return ApiResponse
 		 */
 		protected function doAuth() {
 			$this->setAuthorizedUser();

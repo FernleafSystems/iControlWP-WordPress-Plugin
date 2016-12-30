@@ -2,7 +2,7 @@
 
 if ( !class_exists( 'ICWP_APP_Encrypt', false ) ):
 
-	class ICWP_APP_Encrypt {
+	class ICWP_APP_Encrypt extends ICWP_APP_Foundation {
 
 		/**
 		 * @var ICWP_APP_Encrypt
@@ -63,7 +63,7 @@ if ( !class_exists( 'ICWP_APP_Encrypt', false ) ):
 			}
 
 			if ( !is_string( $mDataToEncrypt ) ) {
-				$mDataToEncrypt = serialize( $mDataToEncrypt );
+				$mDataToEncrypt = $this->loadDataProcessor()->jsonEncode( $mDataToEncrypt );
 				$oEncryptResponse->serialized = true;
 			}
 			else {
@@ -75,8 +75,8 @@ if ( !class_exists( 'ICWP_APP_Encrypt', false ) ):
 
 			$oEncryptResponse->success = true;
 			$oEncryptResponse->result = $nResult;
-			$oEncryptResponse->encrypted_data = $sEncryptedData;
-			$oEncryptResponse->encrypted_password = $aPasswordKeys[0];
+			$oEncryptResponse->encrypted_data = base64_encode( $sEncryptedData );
+			$oEncryptResponse->encrypted_password = base64_encode( $aPasswordKeys[0] );
 
 			return $oEncryptResponse;
 		}

@@ -486,6 +486,14 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 		}
 
 		/**
+		 * @param $mData
+		 * @return false|string
+		 */
+		public function jsonEncode( $mData ) {
+			return function_exists( 'wp_json_encode' ) ? wp_json_encode( $mData ) : json_encode( $mData );
+		}
+
+		/**
 		 * @param $sData
 		 *
 		 * @return array|mixed

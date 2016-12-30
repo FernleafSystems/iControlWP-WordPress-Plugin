@@ -10,7 +10,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 	abstract class ICWP_APP_Processor_Plugin_Api extends ICWP_APP_Processor_BaseApp {
 
 		/**
-		 * @var stdClass
+		 * @var ApiResponse
 		 */
 		protected static $oActionResponse;
 
@@ -20,11 +20,11 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		protected $sLoggedInUser;
 
 		/**
-		 * @return stdClass
+		 * @return ApiResponse
 		 */
 		public function run() {
 			$oActionExecutionResponse = $this->preActionVerify();
-			if ( $oActionExecutionResponse->success ) {
+			if ( $oActionExecutionResponse->isSuccessful() ) {
 				$this->preActionEnvironmentSetup();
 				$oActionExecutionResponse = $this->processAction();
 			}
@@ -33,43 +33,45 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		}
 
 		/**
-		 * @return stdClass
+		 * @return ApiResponse
 		 */
 		protected function preActionVerify() {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
 			$oResponse = $this->getStandardResponse();
-			$oResponse->channel = $this->getApiChannel();
+			$oResponse->setChannel( $this->getApiChannel() );
 
 			$this->preApiCheck();
-			if ( !$oResponse->success ) {
-				if ( !$this->attemptSiteReassign()->success ) {
+
+			if ( !$oResponse->isSuccessful() ) {
+				if ( !$this->attemptSiteReassign()->isSuccessful() ) {
 					return $oResponse;
 				}
 			}
 
 			$this->handshake();
-			if ( !$oResponse->success ) {
-				if ( $oResponse->code == 9991 ) {
+
+			if ( !$oResponse->isSuccessful() ) {
+				if ( $oResponse->getCode() == 9991 ) {
 					$oFO->setCanHandshake(); //recheck ability to handshake
 				}
-				return $oResponse;
 			}
 
 			return $oResponse;
 		}
 
 		/**
+		 * @return ApiResponse
 		 */
 		protected function postProcessAction() {
-			$oResponse = $this->getStandardResponse();
-			if ( is_array( $oResponse->data ) ) {
-				$oResponse->data[ 'verification_code' ] = $this->getRequestParams()->getStringParam( 'verification_code', 'no code' ); //effectively a nonce
-			}
+			return $this->getStandardResponse()->setDataItem(
+				'verification_code',
+				$this->getRequestParams()->getStringParam( 'verification_code', 'no code' ) //effectively a nonce
+			);
 		}
 
 		/**
-		 * @return stdClass
+		 * @return ApiResponse
 		 */
 		abstract protected function processAction();
 
@@ -87,7 +89,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		}
 
 		/**
-		 * @return stdClass
+		 * @return ApiResponse
 		 */
 		protected function preApiCheck() {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
@@ -147,7 +149,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		 * 2) The site CAN Handshake (it will check this)
 		 * 3) The handshake is verified for this package
 		 *
-		 * @return stdClass
+		 * @return ApiResponse
 		 */
 		protected function attemptSiteReassign() {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
@@ -171,7 +173,8 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			}
 
 			$oResponse = $this->handshake();
-			if ( !$oResponse->success ) {
+
+			if ( !$oResponse->isSuccessful() ) {
 				return $this->setErrorResponse(
 					sprintf( 'Attempting Site Reassign Failed: %s.', 'Handshake verify failed' ),
 					9802
@@ -214,7 +217,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		}
 
 		/**
-		 * @return stdClass
+		 * @return ApiResponse
 		 */
 		protected function handshake() {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
@@ -223,10 +226,10 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			$oResponse = $this->getStandardResponse();
 
 			if( !$oFO->getCanHandshake() ) {
-				$oResponse->handshake = 'unsupported';
+				$oResponse->setHandshakeMethod( 'unsupported' );
 				return $oResponse;
 			}
-			$oResponse->handshake = 'failed';
+			$oResponse->setHandshakeMethod( 'failed' );
 
 			$sPin = $oReqParams->getPin();
 			$sPackageName = $oReqParams->getPackageName();
@@ -243,9 +246,10 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				$sSignature = $oReqParams->getOpenSslSignature();
 				$sPublicKey = $oFO->getIcwpPublicKey();
 				if ( !empty( $sSignature ) && !empty( $sPublicKey ) ) {
-					$oResponse->openssl_verify = $oEncryptProcessor->verifySslSignature( $sVerificationCode, $sSignature, $sPublicKey );
-					if ( $oResponse->openssl_verify === 1 ) {
-						$oResponse->handshake = 'openssl';
+					$nSslSuccess = $oEncryptProcessor->verifySslSignature( $sVerificationCode, $sSignature, $sPublicKey );
+					$oResponse->setOpensslVerify( $nSslSuccess );
+					if ( $nSslSuccess === 1 ) {
+						$oResponse->setHandshakeMethod( 'openssl' );
 						return $this->setSuccessResponse(); // just to be sure we proceed thereafter
 					}
 				}
@@ -277,7 +281,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				);
 			}
 
-			$oResponse->handshake = 'url';
+			$oResponse->setHandshakeMethod( 'url' );
 			return $this->setSuccessResponse(); //just to be sure we proceed thereafter
 		}
 
@@ -286,7 +290,6 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		protected function preActionEnvironmentSetup() {
 			$this->loadWpFunctionsProcessor()->doBustCache();
 			@set_time_limit( $this->getRequestParams()->getTimeout() );
-			$this->setWpEngineAuth();
 		}
 
 		/**
@@ -334,7 +337,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		/**
 		 * Used by Execute and Retrieve
 		 * @param string $sInstallerFileToInclude
-		 * @return stdClass
+		 * @return ApiResponse
 		 */
 		protected function runInstaller( $sInstallerFileToInclude ) {
 			$oFs = $this->loadFileSystemProcessor();
@@ -382,47 +385,37 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		 * @param string $sErrorMessage
 		 * @param int $nErrorCode
 		 * @param mixed $mErrorData
-		 * @return stdClass
+		 * @return ApiResponse
 		 */
 		protected function setErrorResponse( $sErrorMessage = '', $nErrorCode = -1, $mErrorData = '' ) {
-			$oResponse = $this->getStandardResponse();
-			$oResponse->success = false;
-			$oResponse->error_message .= ' '.$sErrorMessage;
-			$oResponse->code = $nErrorCode;
-			$oResponse->data = $mErrorData;
-			return $oResponse;
+			return $this->getStandardResponse()
+						->setFailed()
+						->setErrorMessage( $sErrorMessage )
+						->setCode( $nErrorCode )
+						->setData( $mErrorData );
 		}
 
 		/**
 		 * @param string $sMessage
 		 * @param int $nSuccessCode
 		 * @param mixed $mData
-		 * @return stdClass
+		 * @return ApiResponse
 		 */
 		protected function setSuccessResponse( $sMessage = '', $nSuccessCode = 0, $mData = null ) {
-			$oResponse = $this->getStandardResponse();
-			$oResponse->success = true;
-			$oResponse->message = $sMessage;
-			$oResponse->code = $nSuccessCode;
-			$oResponse->data = is_null( $mData ) ? array( 'success' => 1 ) : $mData;
-			return $oResponse;
+			return $this->getStandardResponse()
+						->setSuccess( true )
+						->setMessage( $sMessage )
+						->setCode( $nSuccessCode )
+						->setData( is_null( $mData ) ? array( 'success' => 1 ) : $mData );
 		}
 
 		/**
-		 * @return stdClass
+		 * @return ApiResponse
 		 */
 		static public function getStandardResponse() {
 			if ( is_null( self::$oActionResponse ) ) {
-				$oResponse = new stdClass();
-				$oResponse->error_message = '';
-				$oResponse->message = '';
-				$oResponse->success = true;
-				$oResponse->code = 0;
-				$oResponse->data = array();
-				$oResponse->channel = '';
-				$oResponse->die = false;
-				$oResponse->handshake = 'none';
-				self::$oActionResponse = $oResponse;
+				require_once( dirname( dirname( __FILE__ ) ) . DIRECTORY_SEPARATOR . 'api' . DIRECTORY_SEPARATOR . 'ApiResponse.php' );
+				self::$oActionResponse = new ApiResponse();
 			}
 			return self::$oActionResponse;
 		}

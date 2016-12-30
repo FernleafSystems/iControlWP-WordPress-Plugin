@@ -168,58 +168,77 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 
 			$sApiChannel = $this->getRequestParams()->getApiChannel();
 			if ( !in_array( $sApiChannel, $oFO->getPermittedApiChannels() ) ) {
-				var_dump( $sApiChannel );
 				$sApiChannel = 'index';
 			}
 			return $sApiChannel;
 		}
 
 		/**
+		 * @return void
+		 */
+		protected function returnIcwpPluginUrl() {
+			$this->flushResponse( $this->getController()->getPluginUrl(), false );
+		}
+
+		/**
 		 * @uses die() / wp_die()
 		 *
-		 * @param stdClass|string $oResponse
-		 * @param boolean $bDoBinaryEncode
+		 * @param ApiResponse|string $oResponse
+		 * @param bool $bDoBinaryEncode
 		 * @param bool $bEncrypt
 		 */
 		protected function sendApiResponse( $oResponse, $bDoBinaryEncode = true, $bEncrypt = false ) {
 
-			if ( is_object( $oResponse ) && isset( $oResponse->die ) && $oResponse->die ) {
-				wp_die( $oResponse->error_message );
+			if ( $oResponse->isDie() ) {
+				wp_die( $oResponse->getErrorMessage() );
 				return;
 			}
 
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
 
-			if ( $bEncrypt && !empty( $oResponse->data ) ) {
+			$aDataBody = $oResponse->getData();
+			if ( $bEncrypt && !empty( $aDataBody ) ) {
 				$oEncryptedResult = $this->loadEncryptProcessor()->encryptDataPublicKey(
-					$oResponse->data,
+					$aDataBody,
 					$oFO->getIcwpPublicKey()
 				);
 
 				if ( $oEncryptedResult->success ) {
-					$oResponse->data = array(
-						'is_encrypted' => 1,
-						'password' => $oEncryptedResult->encrypted_password,
-						'sealed_data' => $oEncryptedResult->encrypted_data
+					$oResponse->setData(
+						array(
+							'is_encrypted' => 1,
+							'password' => $oEncryptedResult->encrypted_password,
+							'sealed_data' => $oEncryptedResult->encrypted_data
+						)
 					);
 				}
 			}
 
+			$sResponseBody = $oResponse->getResponsePackage();
 			if ( $bDoBinaryEncode ) {
-				$oResponse = base64_encode( serialize( $oResponse ) );
+				$sResponseBody = base64_encode( $this->loadDataProcessor()->jsonEncode( $oResponse->getResponsePackage() ) );
 			}
+			$this->flushResponse( $sResponseBody, $bDoBinaryEncode ? 'json' : 'none', $bDoBinaryEncode );
+		}
 
-			$this->sendHeaders( $bDoBinaryEncode );
-			echo "<icwp>".$oResponse."</icwp>";
-			echo "<icwpversion>".$this->getFeatureOptions()->getVersion()."</icwpversion>";
+		/**
+		 * @param string $sContent
+		 * @param string $sEncoding
+		 * @param bool $bBinary
+		 */
+		private function flushResponse( $sContent, $sEncoding = 'json', $bBinary = true ) {
+			$this->sendHeaders( $bBinary );
+			echo sprintf( "<icwp>%s</icwp>", $sContent );
+			echo sprintf( "<icwpencoding>%s</icwpencoding>", $sEncoding );
+			echo sprintf( "<icwpversion>%s</icwpversion>", $this->getFeatureOptions()->getVersion() );
 			die();
 		}
 
 		/**
 		 * @param bool $bAsBinary
 		 */
-		protected function sendHeaders( $bAsBinary = true ) {
+		private function sendHeaders( $bAsBinary = true ) {
 			if ( $bAsBinary ) {
 				header( "Content-type: application/octet-stream" );
 				header( "Content-Transfer-Encoding: binary");
@@ -237,13 +256,6 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 			if ( $this->getOption( 'assigned' ) !== 'Y' ) {
 				echo '<!-- Worpit Plugin: '.$this->getController()->getPluginUrl().' -->';
 			}
-		}
-
-		/**
-		 * @return void
-		 */
-		protected function returnIcwpPluginUrl() {
-			$this->sendApiResponse( $this->getController()->getPluginUrl(), false );
 		}
 
 		/**

@@ -10,7 +10,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Retrieve', false ) ):
 	class ICWP_APP_Processor_Plugin_Api_Retrieve extends ICWP_APP_Processor_Plugin_Api {
 
 		/**
-		 * @return stdClass
+		 * @return ApiResponse
 		 */
 		protected function processAction() {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */

@@ -13,8 +13,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Login', false ) ):
 
 		/**
 		 * Override so that we don't run the handshaking etc.
-		 *
-		 * @return stdClass
+		 * @return ApiResponse
 		 */
 		public function run() {
 			$this->preActionEnvironmentSetup();
@@ -22,14 +21,13 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Login', false ) ):
 		}
 
 		/**
-		 * @return stdClass
+		 * @return ApiResponse
 		 */
 		protected function processAction() {
 			$oReqParams = $this->getRequestParams();
 			$oWp = $this->loadWpFunctionsProcessor();
 
-			$oResponse = $this->getStandardResponse();
-			$oResponse->die = true; // If there's an error with login, we die.
+			$this->getStandardResponse()->setDie( true );
 
 			$sRequestToken = $oReqParams->getStringParam( 'token' );
 			if ( empty( $sRequestToken ) ) {
