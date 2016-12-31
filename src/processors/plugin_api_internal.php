@@ -9,296 +9,50 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 	 */
 	class ICWP_APP_Processor_Plugin_Api_Internal extends ICWP_APP_Processor_Plugin_Api {
 
-		const ApiMethodPrefix = 'icwpapi_';
-
 		/**
 		 * @return ApiResponse|mixed
 		 */
 		protected function processAction() {
 			$sActionName = $this->getCurrentApiActionName();
-
 			if ( !$this->isActionSupported( $sActionName ) ) {
 				return $this->setErrorResponse(
 					sprintf( 'Action "%s" is not currently supported.', $sActionName )
 					-1 //TODO: Set a code
 				);
 			}
-
-			if ( !$this->isActionDefined( $sActionName ) ) {
-				return $this->setErrorResponse(
-					sprintf( 'Action "%s" is not currently defined.', $sActionName )
-					-1 //TODO: Set a code
-				);
-			}
-
-			return call_user_func( array( $this, self::ApiMethodPrefix.$sActionName ) );
+			return $this->process();
 		}
 
 		/**
 		 * @return ApiResponse
 		 */
-		protected function icwpapi_plugin_activate() {
-			$aActionParams = $this->getActionParams();
-			$sPluginFile = $aActionParams[ 'plugin_file' ];
-			$bIsWpms = $aActionParams[ 'site_is_wpms' ];
+		protected function process() {
+			$sActionName = $this->getCurrentApiActionName();
+			if ( $sActionName == 'wplogin' ) {
+				$sActionName = 'wordpress_login';
+			}
+			$aParts = explode( '_', $sActionName );
 
-			$bResult = $this->loadWpFunctionsPlugins()->activate( $sPluginFile, $bIsWpms );
-			$aPlugin = $this->getWpCollector()->collectWordpressPlugins( $sPluginFile );
-			$aData = array(
-				'result'			=> $bResult,
-				'single-plugin'		=> $aPlugin[ $sPluginFile ]
-			);
-			return $this->success( $aData );
+			$sBase = dirname( dirname( __FILE__ ) ).DIRECTORY_SEPARATOR.'api'.DIRECTORY_SEPARATOR.'internal'.DIRECTORY_SEPARATOR;
+			$sFullPath = $sBase.$aParts[0].DIRECTORY_SEPARATOR.$aParts[1].'.php';
+			require_once( $sFullPath );
+
+			/** @var ICWP_APP_Api_Internal_Base $oApi */
+			$sClassName = 'ICWP_APP_Api_Internal_'.ucfirst( $aParts[ 0 ] ).'_'.ucfirst( $aParts[ 1 ] );
+			$oApi = new $sClassName();
+			$oApi->setRequestParams( $this->getRequestParams() )
+				 ->setStandardResponse( $this->getStandardResponse() );
+			return call_user_func( array( $oApi, 'process' ) );
 		}
 
 		/**
-		 * @return ApiResponse
-		 */
-		protected function icwpapi_plugin_deactivate() {
-			$aActionParams = $this->getActionParams();
-			$sPluginFile = $aActionParams[ 'plugin_file' ];
-			$bIsWpms = $aActionParams[ 'site_is_wpms' ];
-
-			$this->loadWpFunctionsPlugins()->deactivate( $sPluginFile, $bIsWpms );
-			$aPlugin = $this->getWpCollector()->collectWordpressPlugins( $sPluginFile );
-			$aData = array(
-				'result'			=> true,
-				'single-plugin'		=> $aPlugin[ $sPluginFile ]
-			);
-			return $this->success( $aData );
-		}
-
-		/**
-		 * @return ApiResponse
-		 */
-		protected function icwpapi_plugin_delete() {
-			$aActionParams = $this->getActionParams();
-			$sPluginFile = $aActionParams[ 'plugin_file' ];
-			$bIsWpms = $aActionParams[ 'site_is_wpms' ];
-
-			$bResult = $this->loadWpFunctionsPlugins()->delete( $sPluginFile, $bIsWpms );
-			wp_cache_flush(); // since we've deleted a plugin, we need to ensure our collection is up-to-date rebuild.
-			$aPlugins = $this->getWpCollector()->collectWordpressPlugins();
-
-			$aData = array(
-				'result'			=> $bResult,
-				'wordpress-plugins'	=> $aPlugins
-			);
-			return $bResult ? $this->success( $aData ) : $this->fail( $aData );
-		}
-
-		/**
-		 * @return ApiResponse
-		 */
-		protected function icwpapi_plugin_install_url() {
-			$aPlugin = $this->getActionParams();
-
-			if ( empty( $aPlugin['url'] ) ) {
-				return $this->fail(
-					array(),
-					'The URL was empty.'
-				);
-			}
-
-			$sPluginUrl = wp_http_validate_url( $aPlugin['url'] );
-			if ( !$sPluginUrl ) {
-				return $this->fail(
-					array(),
-					'The URL did not pass the WordPress HTTP URL Validation.'
-				);
-			}
-
-			$oWpPlugins = $this->loadWpFunctionsPlugins();
-
-			$aResult = $oWpPlugins->install( $sPluginUrl, $aPlugin['overwrite'] );
-			if ( isset( $aResult['successful'] ) && !$aResult['successful'] ) {
-				return $this->fail( implode( ' | ', $aResult['errors'] ), $aResult );
-			}
-
-			//activate as required
-			$sPluginFile = $aResult['plugin_info'];
-			if ( !empty( $sPluginFile ) && isset( $aPlugin['activate'] ) && $aPlugin['activate'] == 1 ) {
-				$oWpPlugins->activate( $sPluginFile, $aPlugin[ 'network_wide' ] );
-			}
-
-			wp_cache_flush(); // since we've added a plugin
-
-			$aData = array(
-				'result'			=> $aResult,
-				'wordpress-plugins'	=> $this->getWpCollector()->collectWordpressPlugins()
-			);
-			return $this->success( $aData );
-		}
-
-		/**
-		 * @return ApiResponse
-		 */
-		protected function icwpapi_theme_activate() {
-			$aActionParams = $this->getActionParams();
-			$sFile = $aActionParams[ 'theme_file' ];
-			$bResult = $this->loadWpFunctionsThemes()->activate( $sFile );
-
-			$aData = array(
-				'result'			=> $bResult,
-				'wordpress-themes'	=> $this->getWpCollector()->collectWordpressThemes(), //Need to send back all themes so we can update the one that got deactivated
-			);
-			return $this->success( $aData );
-		}
-
-		/**
-		 * @return ApiResponse
-		 */
-		protected function icwpapi_theme_delete() {
-			$aActionParams = $this->getActionParams();
-			$sStylesheet = $aActionParams[ 'theme_file' ];
-
-			if ( empty( $sStylesheet ) ) {
-				return $this->fail(
-					array(),
-					'Stylesheet provided was empty.'
-				);
-			}
-
-			$oWpThemes = $this->loadWpFunctionsThemes();
-			if ( !$oWpThemes->getExists( $sStylesheet ) ) {
-				return $this->fail(
-					array( 'stylesheet' => $sStylesheet ),
-					sprintf( 'Theme does not exist with Stylesheet: %s', $sStylesheet )
-				);
-			}
-
-			$oThemeToDelete = $oWpThemes->getTheme( $sStylesheet );
-			if ( $oThemeToDelete->get_stylesheet_directory() == get_stylesheet_directory() ) {
-				return $this->fail(
-					array( 'stylesheet' => $sStylesheet ),
-					sprintf( 'Cannot uninstall the currently active WordPress theme: %s', $sStylesheet )
-				);
-			}
-
-			$mResult = $oWpThemes->delete( $sStylesheet );
-
-			$aData = array(
-				'result'			=> $mResult,
-				'wordpress-themes'	=> $this->getWpCollector()->collectWordpressThemes(), //Need to send back all themes so we can update the one that got deleted
-			);
-			return $this->success( $aData );
-		}
-
-		/**
-		 * @return ApiResponse
-		 */
-		protected function icwpapi_theme_install_url() {
-			$aTheme = $this->getActionParams();
-
-			if ( empty( $aTheme['url'] ) ) {
-				return $this->fail(
-					array(),
-					'The URL was empty.'
-				);
-			}
-
-			$sUrl = wp_http_validate_url( $aTheme['url'] );
-			if ( !$sUrl ) {
-				return $this->fail(
-					array(),
-					'The URL did not pass the WordPress HTTP URL Validation.'
-				);
-			}
-
-			$oWpThemes = $this->loadWpFunctionsThemes();
-
-			$aResult = $oWpThemes->install( $sUrl, $aTheme['overwrite'] );
-			if ( isset( $aResult['successful'] ) && !$aResult['successful'] ) {
-				return $this->fail( implode( ' | ', $aResult['errors'] ), $aResult );
-			}
-
-			$oInstalledTheme = $aResult[ 'theme_info' ];
-
-			if ( is_string( $oInstalledTheme ) ) {
-				$oInstalledTheme = wp_get_theme( $oInstalledTheme );
-			}
-			if ( !is_object( $oInstalledTheme ) || !$oInstalledTheme->exists() ) {
-				return $this->fail( array(), 'After installation, cannot load the theme.' );
-			}
-
-			if ( isset( $aTheme['activate'] ) && $aTheme['activate'] == '1' ) {
-				if ( $oInstalledTheme->get_stylesheet_directory() != get_stylesheet_directory() ) {
-					$oWpThemes->activate( $oInstalledTheme->get_stylesheet() );
-				}
-			}
-
-			$aData = array(
-				'result'			=> $aResult,
-				'wordpress-themes'	=> $this->getWpCollector()->collectWordpressThemes()
-			);
-
-			return $this->success( $aData );
-		}
-
-		/**
-		 * @return ApiResponse
-		 */
-		protected function icwpapi_wplogin() {
-
-			$sSource = home_url().'$'.uniqid().'$'.time();
-			$sToken = md5( $sSource );
-			$this->loadWpFunctionsProcessor()->setTransient( 'worpit_login_token', $sToken );
-
-			$aData = array(
-				'source'	=> $sSource,
-				'token'		=> $sToken
-			);
-			return $this->success( $aData );
-		}
-
-		/**
-		 * @param array  $aExecutionData
-		 * @param string $sMessage
-		 * @return ApiResponse
-		 */
-		protected function fail( $aExecutionData = array(), $sMessage = '' ) {
-			return $this->setErrorResponse(
-				sprintf( 'Package Execution FAILED with error message: "%s"', $sMessage ),
-				-1, //TODO: Set a code
-				$aExecutionData
-			);
-		}
-
-		/**
-		 * @param array  $aExecutionData
-		 * @param string $sMessage
-		 * @return ApiResponse
-		 */
-		protected function success( $aExecutionData = array(), $sMessage = '' ) {
-			return $this->setSuccessResponse(
-				sprintf( 'Package Execution SUCCEEDED with message: "%s".', $sMessage ),
-				0,
-				$aExecutionData
-			);
-		}
-
-		/**
-		 * @param string|null $sAction
+		 * @param string $sAction
 		 * @return bool
 		 */
-		protected function isActionSupported( $sAction = null ) {
+		protected function isActionSupported( $sAction ) {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
-			if ( empty( $sAction ) ) {
-				$sAction = $this->getCurrentApiActionName();
-			}
 			return in_array( $sAction, $oFO->getSupportedInternalApiAction() );
-		}
-
-		/**
-		 * @param string|null $sAction
-		 * @return bool
-		 */
-		protected function isActionDefined( $sAction = null ) {
-			if ( empty( $sAction ) ) {
-				$sAction = $this->getCurrentApiActionName();
-			}
-			return method_exists( $this, self::ApiMethodPrefix.$sAction );
 		}
 
 		/**
@@ -306,14 +60,6 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		 */
 		protected function getCurrentApiActionName() {
 			return $this->getRequestParams()->getApiAction();
-		}
-
-		/**
-		 * @return ICWP_APP_WpCollectInfo
-		 */
-		protected function getWpCollector() {
-			require_once( dirname( __FILE__ ) . '/../common/icwp-wpcollectinfo.php' );
-			return ICWP_APP_WpCollectInfo::GetInstance();
 		}
 	}
 
