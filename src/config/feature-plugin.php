@@ -109,14 +109,14 @@ definitions:
     - 'execute'
     - 'login'
   internal_api_supported_actions:
-    - 'wplogin'
     - 'plugin_activate'
     - 'plugin_deactivate'
     - 'plugin_delete'
-    - 'plugin_install_url'
+    - 'plugin_install'
     - 'theme_activate'
     - 'theme_delete'
-    - 'theme_install_url'
+    - 'theme_install'
+    - 'user_login'
   supported_modules:
     - 'security'
     - 'statistics'

@@ -28,9 +28,6 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 		 */
 		protected function process() {
 			$sActionName = $this->getCurrentApiActionName();
-			if ( $sActionName == 'wplogin' ) {
-				$sActionName = 'wordpress_login';
-			}
 			$aParts = explode( '_', $sActionName );
 
 			$sBase = dirname( dirname( __FILE__ ) ).DIRECTORY_SEPARATOR.'api'.DIRECTORY_SEPARATOR.'internal'.DIRECTORY_SEPARATOR;
@@ -39,6 +36,9 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 
 			/** @var ICWP_APP_Api_Internal_Base $oApi */
 			$sClassName = 'ICWP_APP_Api_Internal_'.ucfirst( $aParts[ 0 ] ).'_'.ucfirst( $aParts[ 1 ] );
+			if ( !class_exists( $sClassName, false ) ) {
+				return $this->setErrorResponse( sprintf( 'Class %s does not exist.', $sClassName ) );
+			}
 			$oApi = new $sClassName();
 			$oApi->setRequestParams( $this->getRequestParams() )
 				 ->setStandardResponse( $this->getStandardResponse() );
