@@ -1,10 +1,10 @@
 <?php
 
-if ( !class_exists( 'ICWP_APP_Api_Internal_Wordpress_Login', false ) ):
+if ( !class_exists( 'ICWP_APP_Api_Internal_User_Login', false ) ):
 
-	require_once( dirname( dirname( __FILE__ ) ).ICWP_DS.'base.php' );
+	require_once( dirname( dirname( __FILE__ ) ) . ICWP_DS . 'base.php' );
 
-	class ICWP_APP_Api_Internal_Wordpress_Login extends ICWP_APP_Api_Internal_Base {
+	class ICWP_APP_Api_Internal_User_Login extends ICWP_APP_Api_Internal_Base {
 
 		/**
 		 * @return ApiResponse
