@@ -116,6 +116,7 @@ definitions:
     - 'theme_activate'
     - 'theme_delete'
     - 'theme_install'
+    - 'user_list'
     - 'user_login'
   supported_modules:
     - 'security'
