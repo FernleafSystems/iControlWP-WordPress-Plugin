@@ -57,6 +57,13 @@ class ApiResponse {
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getStatus() {
+		return $this->getResponseItem( 'status' );
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isDie() {
@@ -158,6 +165,14 @@ class ApiResponse {
 	 */
 	public function setSuccess( $bSuccess = true ) {
 		return $this->setResponseItem( 'success', $bSuccess );
+	}
+
+	/**
+	 * @param string $sStatus
+	 * @return $this
+	 */
+	public function setStatus( $sStatus ) {
+		return $this->setResponseItem( 'status', $sStatus );
 	}
 
 	/**
