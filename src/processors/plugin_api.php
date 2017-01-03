@@ -155,9 +155,9 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
 			$oReqParams = $this->getRequestParams();
-			$oResponse = $this->getStandardResponse();
 
-			if ( !isset( $oResponse->channel ) || !in_array( $oResponse->channel, array( 'internal', 'retrieve' ) ) ) {
+			$sChannel = $oReqParams->getApiChannel();
+			if ( empty( $sChannel ) || !in_array( $sChannel, array( 'auth', 'internal', 'retrieve' ) ) ) {
 				return $this->setErrorResponse(
 					sprintf( 'Attempting Site Reassign Failed: %s.', 'Site action method is neither "retrieve" nor "internal".' ),
 					9806
