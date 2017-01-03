@@ -4,7 +4,7 @@ Donate link: http://www.icontrolwp.com/
 Tags: manage, manage wordpress, wordpress admin, backup, restore, bulk, icontrolwp, managewp, worpit, automatic updates
 Requires at least: 3.2.0
 Tested up to: 4.8
-Stable tag: 3.0.0
+Stable tag: 3.0.1
 
 == Description ==
 
@@ -114,9 +114,10 @@ No. WorpDrive is available for a small monthly fee.
 
 == Changelog ==
 
-= Lastest Point Release: 3.0.0 =
+= Lastest Point Release: 3.0.1 =
 *Released: 3rd Januay, 2017*
 
+* **(v.1)**	FIX:		Bug with adding new sites to control panel
 * **(v.0)**	UPDATED:	Large improvements to code (more to come)
 * **(v.0)**	UPDATED:	More secured transfer of data during actions.
 * **(v.0)**	UPDATED:	Much faster execution of actions.
@@ -124,6 +125,7 @@ No. WorpDrive is available for a small monthly fee.
 = 3.0 Series =
 *Released: 3rd Januay, 2017*
 
+* **(v.1)**	FIX:		Bug with adding new sites to control panel
 * **(v.0)**	UPDATED:	Large improvements to code (more to come)
 * **(v.0)**	UPDATED:	More secured transfer of data during actions.
 * **(v.0)**	UPDATED:	Much faster execution of actions.
