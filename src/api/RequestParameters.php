@@ -124,6 +124,13 @@ class RequestParameters {
 	/**
 	 * @return bool
 	 */
+	public function isSilentLogin() {
+		return ( (int)$this->getParam( 'silent_login' ) > 0 );
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function getIsApiCall() {
 		return ( ( $this->getParam( 'worpit_link', 0 ) == 1 ) || ( $this->getParam( 'worpit_api', 0 ) == 1 ) );
 	}

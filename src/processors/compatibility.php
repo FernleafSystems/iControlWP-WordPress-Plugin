@@ -253,6 +253,11 @@ if ( !class_exists( 'ICWP_APP_Processor_Compatibility', false ) ):
 			$this->removeWpSpamShield();
 			$this->removeAiowpsHooks(); //wp-security-core.php line 25
 			$this->removeBetterWpSecurityHooks();
+			$this->removeWordfence();
+		}
+
+		protected function removeWordfence() {
+			remove_action( 'wp_login', 'wordfence::loginAction' );
 		}
 
 		protected function unhookRedirection() {

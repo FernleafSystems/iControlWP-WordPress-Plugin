@@ -77,7 +77,7 @@ if ( !class_exists( 'ICWP_APP_WpUsers', false ) ):
 		 * @return null|WP_User
 		 */
 		public function getCurrentWpUser() {
-			if ( is_user_logged_in() ) {
+			if ( $this->isUserLoggedIn() ) {
 				$oUser = wp_get_current_user();
 				if ( is_object( $oUser ) && $oUser instanceof WP_User ) {
 					return $oUser;
@@ -196,10 +196,13 @@ if ( !class_exists( 'ICWP_APP_WpUsers', false ) ):
 
 		/**
 		 * @param string $sUsername
-		 * @param bool $bFireAction
+		 * @param bool $bSilentLogin
 		 * @return bool
 		 */
-		public function setUserLoggedIn( $sUsername, $bFireAction = true ) {
+		public function setUserLoggedIn( $sUsername, $bSilentLogin = false ) {
+			if ( !defined( 'COOKIEHASH' ) ) {
+				wp_cookie_constants();
+			}
 
 			$oUser = $this->getUserByUsername( $sUsername );
 			if ( !is_a( $oUser, 'WP_User' ) ) {
@@ -209,7 +212,7 @@ if ( !class_exists( 'ICWP_APP_WpUsers', false ) ):
 			wp_clear_auth_cookie();
 			wp_set_current_user( $oUser->ID, $oUser->get( 'user_login' ) );
 			wp_set_auth_cookie( $oUser->ID, true );
-			if ( $bFireAction ) {
+			if ( !$bSilentLogin ) {
 				do_action( 'wp_login', $oUser->get( 'user_login' ), $oUser );
 			}
 			return true;

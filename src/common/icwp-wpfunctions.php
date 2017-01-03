@@ -999,15 +999,6 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 
 		/**
 		 * @deprecated
-		 * @param string $sUsername
-		 * @return bool
-		 */
-		public function setUserLoggedIn( $sUsername ) {
-			return $this->loadWpUsersProcessor()->setUserLoggedIn( $sUsername );
-		}
-
-		/**
-		 * @deprecated
 		 * @return bool
 		 */
 		public function comments_getIsCommentPost() {

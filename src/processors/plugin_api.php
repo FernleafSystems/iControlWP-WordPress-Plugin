@@ -308,7 +308,8 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 
 			if ( !$this->isLoggedInUser() ) {
 				$oWpUser = $this->loadWpUsersProcessor();
-				$sWpUser = $this->getRequestParams()->getStringParam( 'wpadmin_user' );
+				$oReqParams = $this->getRequestParams();
+				$sWpUser = $oReqParams->getStringParam( 'wpadmin_user' );
 				if ( empty( $sWpUser ) ) {
 
 					if ( version_compare( $this->loadWpFunctionsProcessor()->getWordpressVersion(), '3.1', '>=' ) ) {
@@ -327,7 +328,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 					$sWpUser = ( !empty( $oUser ) && is_a( $oUser, 'WP_User' ) ) ? $oUser->get( 'user_login' ) : 'admin';
 				}
 
-				if ( $oWpUser->setUserLoggedIn( $sWpUser ) ) {
+				if ( $oWpUser->setUserLoggedIn( $sWpUser, $oReqParams->isSilentLogin() ) ) {
 					$this->setLoggedInUser( $sWpUser );
 				}
 			}
@@ -433,6 +434,14 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		 * @return string
 		 */
 		protected function getLoggedInUser() {
+			$sLoggedInUser = $this->sLoggedInUser;
+			if ( empty( $sLoggedInUser ) ) {
+				$oWpUser = $this->loadWpUsersProcessor();
+				if ( $oWpUser->isUserLoggedIn() && $oWpUser->isUserAdmin() ) {
+					$sLoggedInUser = $oWpUser->getCurrentWpUser()->user_login;
+					$this->setLoggedInUser( $sLoggedInUser );
+				}
+			}
 			return $this->sLoggedInUser;
 		}
 
@@ -440,7 +449,8 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		 * @return bool
 		 */
 		protected function isLoggedInUser() {
-			return !empty( $this->sLoggedInUser );
+			$sLoggedInUser = $this->getLoggedInUser();
+			return !empty( $sLoggedInUser );
 		}
 	}
 
