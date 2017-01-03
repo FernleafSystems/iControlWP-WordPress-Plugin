@@ -97,6 +97,7 @@ if ( !class_exists( 'ICWP_APP_WpDb', false ) ):
 		}
 
 		/**
+		 * @param string $sTable
 		 * @return bool
 		 */
 		public function getIfTableExists( $sTable ) {

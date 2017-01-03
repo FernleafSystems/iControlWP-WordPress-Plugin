@@ -1,7 +1,7 @@
 <?php
 return "---
 properties:
-  version: '2.14.0'
+  version: '3.0.0'
 #  slug_parent: 'worpit'
 #  slug_plugin: 'admin'
   slug_parent: 'icwp'

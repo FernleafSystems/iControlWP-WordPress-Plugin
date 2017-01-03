@@ -2,39 +2,32 @@
 
 if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 
-	require_once( dirname(__FILE__).ICWP_DS.'base_plugin.php' );
+	require_once( dirname(__FILE__).ICWP_DS.'base_app.php' );
 
-	class ICWP_APP_Processor_Plugin extends ICWP_APP_Processor_BasePlugin {
-
-		/**
-		 * @var ICWP_APP_Processor_Plugin_Api
-		 */
-		protected $oApiActionProcessor;
+	class ICWP_APP_Processor_Plugin extends ICWP_APP_Processor_BaseApp {
 
 		/**
 		 */
 		public function run() {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
-			$oCon = $this->getController();
+			$oReqParams = $this->getRequestParams();
 
-			if ( $oFO->getIsApiCall() ) {
-				$this->maybeSetIsAdmin();
-
-				if ( $oFO->getIsApiCall_Action() ) {
-					add_action( $this->getApiHook(), array( $this, 'doApiAction' ), $this->getApiHookPriority() );
+			if ( $oReqParams->getIsApiCall() ) {
+				if ( $oReqParams->getIsApiCall_Action() ) {
+					add_action( $oReqParams->getApiHook(), array( $this, 'doApiAction' ), $oReqParams->getApiHookPriority() );
 				}
-				else if ( $oFO->getIsApiCall_LinkSite() ) {
-					add_action( $this->getApiHook(), array( $this, 'doApiLinkSite' ), $this->getApiHookPriority() );
+				else if ( $oReqParams->getIsApiCall_LinkSite() ) {
+					add_action( $oReqParams->getApiHook(), array( $this, 'doApiLinkSite' ), $oReqParams->getApiHookPriority() );
 				}
 			}
 
-			add_filter( $oCon->doPluginPrefix( 'get_service_ips_v4' ), array( $this, 'getServiceIpAddressesV4' ) );
-			add_filter( $oCon->doPluginPrefix( 'get_service_ips_v6' ), array( $this, 'getServiceIpAddressesV6' ) );
+			add_filter( $oFO->doPluginPrefix( 'get_service_ips_v4' ), array( $this, 'getServiceIpAddressesV4' ) );
+			add_filter( $oFO->doPluginPrefix( 'get_service_ips_v6' ), array( $this, 'getServiceIpAddressesV6' ) );
 
-			add_filter( $oCon->doPluginPrefix( 'verify_site_can_handshake' ), array( $this, 'doVerifyCanHandshake' ) );
-			add_filter( $oCon->doPluginPrefix( 'hide_plugin' ), array( $oFO, 'getIfHidePlugin' ) );
-			add_filter( $oCon->doPluginPrefix( 'filter_hidePluginMenu' ), array( $oFO, 'getIfHidePlugin' ) );
+			add_filter( $oFO->doPluginPrefix( 'verify_site_can_handshake' ), array( $this, 'doVerifyCanHandshake' ) );
+			add_filter( $oFO->doPluginPrefix( 'hide_plugin' ), array( $oFO, 'getIfHidePlugin' ) );
+			add_filter( $oFO->doPluginPrefix( 'filter_hidePluginMenu' ), array( $oFO, 'getIfHidePlugin' ) );
 
 			$oDp = $this->loadDataProcessor();
 			if ( ( $oDp->FetchRequest( 'getworpitpluginurl', false ) == 1 ) || $oDp->FetchRequest( 'geticwppluginurl', false ) == 1 ) {
@@ -42,52 +35,6 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 			}
 
 			add_action( 'wp_footer', array( $this, 'printPluginUri') );
-		}
-
-		/**
-		 * @return bool
-		 */
-		protected function maybeSetIsAdmin() {
-			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
-			$sSetWpAdmin = $oFO->fetchIcwpRequestParam( 'set_is_admin', 0 );
-			if ( $sSetWpAdmin == 1 && !defined( 'WP_ADMIN' ) ) {
-				define( 'WP_ADMIN', true );
-			}
-			return ( defined( 'WP_ADMIN' ) && WP_ADMIN );
-		}
-
-		/**
-		 * @return string
-		 */
-		protected function getApiHook() {
-			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
-
-			$sApiHook = $oFO->fetchIcwpRequestParam( 'api_hook', '' );
-			if ( empty( $sApiHook ) ) {
-				$sApiHook = is_admin() ? 'admin_init' : 'wp_loaded';
-				if ( class_exists( 'WooDojo_Maintenance_Mode', false ) || class_exists( 'ITSEC_Core', false ) ) {
-					$sApiHook = 'init';
-				}
-			}
-			return $sApiHook;
-		}
-
-		/**
-		 * @return int
-		 */
-		protected function getApiHookPriority() {
-			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
-			$nHookPriority = $oFO->fetchIcwpRequestParam( 'api_priority', '' );
-			if ( empty( $nHookPriority ) || !is_numeric( $nHookPriority )) {
-				$nHookPriority = is_admin() ? 101 : 1;
-				if ( class_exists( 'ITSEC_Core', false ) ) {
-					$nHookPriority = 100;
-				}
-			}
-			return $nHookPriority;
 		}
 
 		/**
@@ -127,8 +74,8 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 
 			$oFO->setOpt( 'time_last_check_can_handshake', $oDp->time() );
 
-			// First simply check SSL usage
-			if ( $oDp->getCanOpensslSign() ) {
+			// First simply check SSL support
+			if ( $this->loadEncryptProcessor()->getSupportsOpenSslSign() ) {
 				return true;
 			}
 
@@ -139,8 +86,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 				'redirection'	=> $nTimeout,
 				'sslverify'		=> true //this is default, but just to make sure.
 			);
-			$oFs = $this->loadFileSystemProcessor();
-			$sResponse = $oFs->getUrlContent( $sHandshakeVerifyTestUrl, $aArgs );
+			$sResponse = $this->loadFileSystemProcessor()->getUrlContent( $sHandshakeVerifyTestUrl, $aArgs );
 
 			if ( !$sResponse ) {
 				return false;
@@ -162,51 +108,137 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 		}
 
 		/**
-		 * @uses die()
+		 * If any of the conditions are met and our plugin executes either the transport or link
+		 * handlers, then all execution will end
+		 * @uses die
+		 * @return void
 		 */
 		public function doApiAction() {
+			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
+			$oFO = $this->getFeatureOptions();
 			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-			$oApiResponse = $this->getApiActionProcessor()->run();
-			$this->sendApiResponse( $oApiResponse );
+
+			$sApiChannel = $this->getApiChannel(); // also verifies it's a valid channel
+			require_once( dirname(__FILE__).ICWP_DS. sprintf( 'plugin_api_%s.php', $sApiChannel ) );
+
+			switch( $sApiChannel ) {
+
+				case 'auth':
+					$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Auth( $oFO );
+					break;
+
+				case 'retrieve':
+					$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Retrieve( $oFO );
+					break;
+
+				case 'execute':
+					$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Execute( $oFO );
+					break;
+
+				case 'internal':
+					$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Internal( $oFO );
+					break;
+
+				case 'status':
+					$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Status( $oFO );
+					break;
+
+				case 'login':
+					$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Login( $oFO );
+					break;
+
+				default: // case 'index':
+					echo $sApiChannel;
+					require_once( dirname(__FILE__).ICWP_DS. sprintf( 'plugin_api_index.php', $sApiChannel ) );
+					$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Index( $oFO );
+					break;
+			}
+
+			$oApiResponse = $oApiProcessor->run();
+			$this->sendApiResponse( $oApiResponse, true, $this->getRequestParams()->getParam( 'icwpenc', 0 ) );
 			die();
 		}
 
 		/**
-		 * @return ICWP_APP_Processor_Plugin_Api
+		 * @return string
 		 */
-		protected function getApiActionProcessor() {
-			if ( !isset( $this->oApiActionProcessor ) ) {
-				require_once( dirname(__FILE__).ICWP_DS.'plugin_api.php' );
-				$this->oApiActionProcessor = new ICWP_APP_Processor_Plugin_Api( $this->getFeatureOptions() );
+		protected function getApiChannel() {
+			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
+			$oFO = $this->getFeatureOptions();
+
+			$sApiChannel = $this->getRequestParams()->getApiChannel();
+			if ( !in_array( $sApiChannel, $oFO->getPermittedApiChannels() ) ) {
+				$sApiChannel = 'index';
 			}
-			return $this->oApiActionProcessor;
+			return $sApiChannel;
+		}
+
+		/**
+		 * @return void
+		 */
+		protected function returnIcwpPluginUrl() {
+			$this->flushResponse( $this->getController()->getPluginUrl(), false );
 		}
 
 		/**
 		 * @uses die() / wp_die()
 		 *
-		 * @param stdClass|string $mResponse
-		 * @param boolean $bDoBinaryEncode
+		 * @param ApiResponse|string $oResponse
+		 * @param bool $bDoBinaryEncode
+		 * @param bool $bEncrypt
 		 */
-		protected function sendApiResponse( $mResponse, $bDoBinaryEncode = true ) {
+		protected function sendApiResponse( $oResponse, $bDoBinaryEncode = true, $bEncrypt = false ) {
 
-			if ( is_object( $mResponse ) && isset( $mResponse->die ) && $mResponse->die ) {
-				wp_die( $mResponse->error_message );
+			if ( $oResponse->isDie() ) {
+				wp_die( $oResponse->getErrorMessage() );
 				return;
 			}
 
-			$oResponse = $bDoBinaryEncode ? base64_encode( serialize( $mResponse ) ) : $mResponse;
+			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
+			$oFO = $this->getFeatureOptions();
 
-			$this->sendHeaders( $bDoBinaryEncode );
-			echo "<icwp>".$oResponse."</icwp>";
-			echo "<icwpversion>".$this->getFeatureOptions()->getVersion()."</icwpversion>";
+			$aDataBody = $oResponse->getData();
+			if ( $bEncrypt && !empty( $aDataBody ) ) {
+				$oEncryptedResult = $this->loadEncryptProcessor()->encryptDataPublicKey(
+					$aDataBody,
+					$oFO->getIcwpPublicKey()
+				);
+
+				if ( $oEncryptedResult->success ) {
+					$oResponse->setData(
+						array(
+							'is_encrypted' => 1,
+							'password' => $oEncryptedResult->encrypted_password,
+							'sealed_data' => $oEncryptedResult->encrypted_data
+						)
+					);
+				}
+			}
+
+			$sResponseBody = $oResponse->getResponsePackage();
+			if ( $bDoBinaryEncode ) {
+				$sResponseBody = base64_encode( $this->loadDataProcessor()->jsonEncode( $oResponse->getResponsePackage() ) );
+			}
+			$this->flushResponse( $sResponseBody, $bDoBinaryEncode ? 'json' : 'none', $bDoBinaryEncode );
+		}
+
+		/**
+		 * @param string $sContent
+		 * @param string $sEncoding
+		 * @param bool $bBinary
+		 */
+		private function flushResponse( $sContent, $sEncoding = 'json', $bBinary = true ) {
+			$this->sendHeaders( $bBinary );
+			echo sprintf( "<icwp>%s</icwp>", $sContent );
+			echo sprintf( "<icwpencoding>%s</icwpencoding>", $sEncoding );
+			echo sprintf( "<icwpversion>%s</icwpversion>", $this->getFeatureOptions()->getVersion() );
 			die();
 		}
 
 		/**
 		 * @param bool $bAsBinary
 		 */
-		protected function sendHeaders( $bAsBinary = true ) {
+		private function sendHeaders( $bAsBinary = true ) {
 			if ( $bAsBinary ) {
 				header( "Content-type: application/octet-stream" );
 				header( "Content-Transfer-Encoding: binary");
@@ -227,18 +259,31 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 		}
 
 		/**
-		 * @return void
-		 */
-		protected function returnIcwpPluginUrl() {
-			$this->sendApiResponse( $this->getController()->getPluginUrl(), false );
-		}
-
-		/**
 		 * @param array $aNoticeAttributes
 		 * @return array
 		 */
 		public function addNotice_add_site( $aNoticeAttributes ) {
 
+			if ( $this->getController()->getIsValidAdminArea() && !empty( $aAdminFeedbackNotice ) && is_array( $aAdminFeedbackNotice ) ) {
+
+				foreach ( $aAdminFeedbackNotice as $sNotice ) {
+					if ( empty( $sNotice ) || !is_string( $sNotice ) ) {
+						continue;
+					}
+					$aAdminNotices[] = $this->getAdminNoticeHtml( '<p>'.$sNotice.'</p>', 'updated', false );
+				}
+				/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
+				$oFO = $this->getFeatureOptions();
+				$oFO->doClearAdminFeedback();
+			}
+			return $aAdminNotices;
+		}
+
+		/**
+		 * @param array $aAdminNotices
+		 * @return array
+		 */
+		public function adminNoticeAddSite( $aAdminNotices ) {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
 			$oCon = $this->getController();

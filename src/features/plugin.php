@@ -11,6 +11,11 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		 */
 		protected $aRequestParams;
 
+		/**
+		 * @var RequestParameters
+		 */
+		protected $oRequestParams;
+
 		protected function doPostConstruction() {
 			add_action( 'wp_loaded', array( $this, 'doAutoRemoteSiteAdd' ) );
 			add_filter( 'plugin_action_links_'.$this->getController()->getPluginBaseFile(), array( $this, 'onWpPluginActionLinks' ), 100, 1 );
@@ -100,28 +105,6 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		 */
 		public function getIsSiteLinked() {
 			return ( $this->getAssigned() && is_email( $this->getAssignedTo() ) );
-		}
-
-		/**
-		 * @return bool
-		 */
-		public function getIsApiCall() {
-			return ( ( $this->fetchIcwpRequestParam( 'worpit_link', 0 ) == 1 )
-				|| ( $this->fetchIcwpRequestParam( 'worpit_api', 0 ) == 1 ) );
-		}
-
-		/**
-		 * @return bool
-		 */
-		public function getIsApiCall_LinkSite() {
-			return $this->getIsApiCall() && ( $this->fetchIcwpRequestParam( 'worpit_link', 0 ) == 1 );
-		}
-
-		/**
-		 * @return bool
-		 */
-		public function getIsApiCall_Action() {
-			return $this->getIsApiCall() && ( $this->fetchIcwpRequestParam( 'worpit_api', 0 ) == 1 );
 		}
 
 		public function doExtraSubmitProcessing() {
@@ -234,24 +217,29 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		 * @return bool
 		 */
 		public function getAssigned() {
-			$sOptionKey = 'assigned';
-			return $this->getOptIs( $sOptionKey, 'Y' );
+			return $this->getOptIs( 'assigned', 'Y' );
 		}
 
 		/**
 		 * @return string (email)
 		 */
 		public function getAssignedTo() {
-			$sOptionKey = 'assigned_to';
-			return $this->getOpt( $sOptionKey, '' );
+			return $this->getOpt( 'assigned_to', '' );
 		}
 
 		/**
 		 * @return string (URL)
 		 */
 		public function getHelpdeskSsoUrl() {
-			$sOptionKey = 'helpdesk_sso_url';
-			return $this->getOpt( $sOptionKey, '' );
+			return $this->getOpt( 'helpdesk_sso_url', '' );
+		}
+
+		/**
+		 * @return string
+		 */
+		public function getIcwpPublicKey() {
+			$sKey = $this->getDefinition( 'icwp_public_key' );
+			return empty( $sKey ) ? '' : base64_decode( $sKey );
 		}
 
 		/**
@@ -271,8 +259,28 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		 * @return string
 		 */
 		public function getPluginPin() {
-			$sOptionKey = 'pin';
-			return $this->getOpt( $sOptionKey );
+			return $this->getOpt( 'pin' );
+		}
+
+		/**
+		 * @return array
+		 */
+		public function getPermittedApiChannels() {
+			return $this->getDefinition( 'permitted_api_channels' );
+		}
+
+		/**
+		 * @return array
+		 */
+		public function getSupportedInternalApiAction() {
+			return $this->getDefinition( 'internal_api_supported_actions' );
+		}
+
+		/**
+		 * @return array
+		 */
+		public function getSupportedModules() {
+			return $this->getDefinition( 'supported_modules' );
 		}
 
 		/**
@@ -312,33 +320,26 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		/**
 		 * The PIN should be passed here without any pre-processing (such as MD5)
 		 *
-		 * @param string $sRawPin
-		 * @return bool
+		 * @param $sRawPin
+		 * @return $this
 		 */
 		public function setPluginPin( $sRawPin ) {
-			$sTrimmed = trim( $sRawPin );
+			$sTrimmed = trim( (string)$sRawPin );
 			$sPin = empty( $sTrimmed ) ? '' : md5( $sTrimmed );
 			$this->setOpt( 'pin', $sPin );
 			return $this;
 		}
 
 		/**
-		 * @param string $sKey
-		 * @param string $mDefault
-		 *
-		 * @return mixed
+		 * @return RequestParameters
 		 */
-		public function fetchIcwpRequestParam( $sKey, $mDefault = '' ) {
-			if ( !isset( $this->aRequestParams ) ) {
-				$sRawGetParameters = $this->loadDataProcessor()->FetchGet( 'reqpars', '' );
-				$sRawPostParameters = $this->loadDataProcessor()->FetchPost( 'reqpars', '' );
-
-				$aGetParams = empty( $sRawGetParameters ) ? array() : maybe_unserialize( base64_decode( $sRawGetParameters ) );
-				$aPostParams = empty( $sRawPostParameters ) ? array() : maybe_unserialize( base64_decode( $sRawPostParameters ) );
-				$this->aRequestParams = array_merge( $_GET, $_POST, $aGetParams, $aPostParams );
+		public function getRequestParams() {
+			if ( !isset( $this->oRequestParams ) ) {
+				require_once( dirname( dirname( __FILE__ ) ) . DIRECTORY_SEPARATOR . 'api' . DIRECTORY_SEPARATOR . 'RequestParameters.php' );
+				$oDp = $this->loadDataProcessor();
+				$this->oRequestParams = new RequestParameters( $oDp->FetchGet( 'reqpars', '' ), $oDp->FetchPost( 'reqpars', '' ) );
 			}
-			$mReturn = isset( $this->aRequestParams[$sKey] ) ? $this->aRequestParams[$sKey] : $mDefault;
-			return $mReturn;
+			return $this->oRequestParams;
 		}
 
 		/**

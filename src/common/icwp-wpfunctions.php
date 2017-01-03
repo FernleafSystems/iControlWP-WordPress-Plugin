@@ -446,7 +446,6 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 
 		/**
 		 * @param string $sPluginBaseFilename
-		 *
 		 * @return boolean
 		 */
 		public function getIsPluginAutomaticallyUpdated( $sPluginBaseFilename ) {
@@ -833,7 +832,8 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		}
 
 		/**
-		 * @return string
+		 * @param int $nTime
+		 * @return int
 		 */
 		public function getTimeAsGmtOffset( $nTime = null ) {
 
