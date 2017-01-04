@@ -205,6 +205,8 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 				return;
 			}
 
+			$oResponse->setAuthenticated( $this->loadWpUsersProcessor()->isUserLoggedIn() );
+
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
 
