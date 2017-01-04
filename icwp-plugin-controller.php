@@ -1047,7 +1047,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 		if ( empty( $this->sPluginUrl ) ) {
 			$this->sPluginUrl = plugins_url( '/', $this->getRootFile() );
 		}
-		return rtrim( $this->sPluginUrl.$sPath, '/' ).'/';
+		return $this->sPluginUrl.$sPath;
 	}
 
 	/**

@@ -11,6 +11,13 @@ class ApiResponse {
 	protected $oResponsePackageData;
 
 	/**
+	 * @return bool
+	 */
+	public function getAuthenticated() {
+		return (bool)$this->getResponseItem( 'authenticated' );
+	}
+
+	/**
 	 * @return int
 	 */
 	public function getCode() {
@@ -75,6 +82,14 @@ class ApiResponse {
 	 */
 	public function isSuccessful() {
 		return (bool)$this->getResponseItem( 'success', false );
+	}
+
+	/**
+	 * @param bool $bAuthenticated
+	 * @return $this
+	 */
+	public function setAuthenticated( $bAuthenticated ) {
+		return $this->setResponseItem( 'authenticated', $bAuthenticated ? 1 : 0 );
 	}
 
 	/**
@@ -195,10 +210,13 @@ class ApiResponse {
 			$oResponse->message = '';
 			$oResponse->success = true;
 			$oResponse->code = 0;
-			$oResponse->data = array();
+			$oResponse->authenticated = 0;
 			$oResponse->channel = '';
 			$oResponse->die = false;
 			$oResponse->handshake = 'none';
+			$oResponse->openssl_verify = -999;
+			$oResponse->data = array();
+
 			$this->oResponsePackageData = $oResponse;
 		}
 		return $this->oResponsePackageData;

@@ -13,15 +13,6 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 			$oFO = $this->getFeatureOptions();
 			$oReqParams = $this->getRequestParams();
 
-			if ( $oReqParams->getIsApiCall() ) {
-				if ( $oReqParams->getIsApiCall_Action() ) {
-					add_action( $oReqParams->getApiHook(), array( $this, 'doApiAction' ), $oReqParams->getApiHookPriority() );
-				}
-				else if ( $oReqParams->getIsApiCall_LinkSite() ) {
-					add_action( $oReqParams->getApiHook(), array( $this, 'doApiLinkSite' ), $oReqParams->getApiHookPriority() );
-				}
-			}
-
 			add_filter( $oFO->doPluginPrefix( 'get_service_ips_v4' ), array( $this, 'getServiceIpAddressesV4' ) );
 			add_filter( $oFO->doPluginPrefix( 'get_service_ips_v6' ), array( $this, 'getServiceIpAddressesV6' ) );
 
@@ -35,6 +26,26 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 			}
 
 			add_action( 'wp_footer', array( $this, 'printPluginUri') );
+
+			if ( $oReqParams->getIsApiCall() ) {
+				$sApiHook = $oReqParams->getApiHook();
+				if ( $oReqParams->getIsApiCall_Action() ) {
+					if ( $sApiHook == 'immediate' ) {
+						$this->doApiAction();
+					}
+					else {
+						add_action( $sApiHook, array( $this, 'doApiAction' ), $oReqParams->getApiHookPriority() );
+					}
+				}
+				else if ( $oReqParams->getIsApiCall_LinkSite() ) {
+					if ( $sApiHook == 'immediate' ) {
+						$this->doApiLinkSite();
+					}
+					else {
+						add_action( $sApiHook, array( $this, 'doApiLinkSite' ), $oReqParams->getApiHookPriority() );
+					}
+				}
+			}
 		}
 
 		/**
@@ -193,6 +204,8 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 				wp_die( $oResponse->getErrorMessage() );
 				return;
 			}
+
+			$oResponse->setAuthenticated( $this->loadWpUsersProcessor()->isUserLoggedIn() );
 
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
