@@ -200,7 +200,7 @@ class ApiResponse {
 			$oResponse->handshake = 'none';
 			$oResponse->openssl_verify = -999;
 			$oResponse->data = array();
-			
+
 			$this->oResponsePackageData = $oResponse;
 		}
 		return $this->oResponsePackageData;
