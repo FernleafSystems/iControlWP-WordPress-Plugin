@@ -248,16 +248,24 @@ if ( !class_exists( 'ICWP_APP_Processor_Compatibility', false ) ):
 			*/
 		}
 
+		/**
+		 * These should only run when it's an iControlWP request.
+		 */
 		protected function unhookSecurityPlugins() {
 			$this->removeSecureWpHooks();
 			$this->removeWpSpamShield();
 			$this->removeAiowpsHooks(); //wp-security-core.php line 25
 			$this->removeBetterWpSecurityHooks();
 			$this->removeWordfence();
+			$this->removeSucuri();
 		}
 
 		protected function removeWordfence() {
 			remove_action( 'wp_login', 'wordfence::loginAction' );
+		}
+
+		protected function removeSucuri() {
+			remove_action( 'wp_login', 'SucuriScanHook::hook_wp_login' );
 		}
 
 		protected function unhookRedirection() {
