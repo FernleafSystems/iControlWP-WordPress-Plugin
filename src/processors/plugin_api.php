@@ -438,7 +438,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 			if ( empty( $sLoggedInUser ) ) {
 				$oWpUser = $this->loadWpUsersProcessor();
 				if ( $oWpUser->isUserLoggedIn() && $oWpUser->isUserAdmin() ) {
-					$sLoggedInUser = $oWpUser->getCurrentWpUser()->user_login;
+					$sLoggedInUser = $oWpUser->getCurrentWpUser()->get( 'user_login' );
 					$this->setLoggedInUser( $sLoggedInUser );
 				}
 			}
