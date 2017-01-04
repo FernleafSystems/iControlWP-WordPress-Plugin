@@ -72,10 +72,6 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Login', false ) ):
 				$oUser = $aUserRecords[0];
 			}
 
-			if ( !defined( 'COOKIEHASH' ) ) {
-				wp_cookie_constants();
-			}
-
 			$bLoginSuccess = $oWpUsers->setUserLoggedIn( $oUser->get( 'user_login' ) );
 			if ( !$bLoginSuccess ) {
 				return $this->setErrorResponse(

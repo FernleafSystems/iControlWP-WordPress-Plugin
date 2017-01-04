@@ -703,10 +703,11 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		 * @return array
 		 */
 		public function getAllUserLoginUsernames() {
+			/** @var WP_User[] $aUsers */
 			$aUsers = get_users( array( 'fields' => array( 'user_login' ) ) );
 			$aLogins = array();
 			foreach( $aUsers as $oUser ) {
-				$aLogins[] = $oUser->user_login;
+				$aLogins[] = $oUser->get( 'user_login' );
 			}
 			return $aLogins;
 		}
@@ -995,15 +996,6 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		 */
 		public function updateUserMeta( $sKey, $mValue, $nId = null ) {
 			return $this->loadWpUsersProcessor()->updateUserMeta( $sKey, $mValue, $nId );
-		}
-
-		/**
-		 * @deprecated
-		 * @param string $sUsername
-		 * @return bool
-		 */
-		public function setUserLoggedIn( $sUsername ) {
-			return $this->loadWpUsersProcessor()->setUserLoggedIn( $sUsername );
 		}
 
 		/**
