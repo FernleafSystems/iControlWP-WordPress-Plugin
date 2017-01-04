@@ -195,10 +195,12 @@ class ApiResponse {
 			$oResponse->message = '';
 			$oResponse->success = true;
 			$oResponse->code = 0;
-			$oResponse->data = array();
 			$oResponse->channel = '';
 			$oResponse->die = false;
 			$oResponse->handshake = 'none';
+			$oResponse->openssl_verify = -999;
+			$oResponse->data = array();
+			
 			$this->oResponsePackageData = $oResponse;
 		}
 		return $this->oResponsePackageData;
