@@ -113,6 +113,7 @@ definitions:
     - 'plugin_deactivate'
     - 'plugin_delete'
     - 'plugin_install'
+    - 'site_unlink'
     - 'theme_activate'
     - 'theme_delete'
     - 'theme_install'
