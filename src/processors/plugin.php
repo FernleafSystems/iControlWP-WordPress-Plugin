@@ -249,6 +249,10 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 			echo sprintf( "<icwpencoding>%s</icwpencoding>", $sEncoding );
 			echo sprintf( "<icwpversion>%s</icwpversion>", $oFO->getVersion() );
 			if ( !$oFO->getIsSiteLinked() && $this->loadEncryptProcessor()->getSupportsOpenSslSign() ) {
+				/**
+				 * displaying the key here is irrelevant because its use is essentially completely
+				 * redundant for sites that support OpenSSL signatures.
+				 */
 				echo sprintf( "<icwpauth>%s</icwpauth>",  $oFO->getPluginAuthKey() );
 			}
 			die();

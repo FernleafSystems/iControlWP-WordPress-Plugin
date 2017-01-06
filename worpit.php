@@ -3,13 +3,13 @@
 Plugin Name: iControlWP
 Plugin URI: http://icwp.io/home
 Description: Pro WordPress Management - Backups, Security, Updates, and Uptime Monitoring
-Version: 3.0.2
+Version: 3.1.0
 Author: iControlWP
 Author URI: http://www.icontrolwp.com/
 */
 
 /**
- * Copyright (c) 2016 iControlWP <support@icontrolwp.com>
+ * Copyright (c) 2017 iControlWP <support@icontrolwp.com>
  * All rights reserved.
  *
  * "iControlWP" (previously "Worpit") is distributed under the GNU General Public License, Version 2,
