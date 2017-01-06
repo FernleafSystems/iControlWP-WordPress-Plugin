@@ -59,9 +59,25 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_SiteLink', false ) ):
 								 ->setCode( 6 );
 			}
 
+			$sVerificationCode = $oReqParams->getVerificationCode(); //the same as the authkey
+			$oEncryptProcessor = $this->loadEncryptProcessor();
+			if ( $oEncryptProcessor->getSupportsOpenSslSign() ) {
+
+				$sSignature = $oReqParams->getOpenSslSignature();
+				$sPublicKey = $oFO->getIcwpPublicKey();
+				if ( !empty( $sSignature ) && !empty( $sPublicKey ) ) {
+					$nSslSuccess = $oEncryptProcessor->verifySslSignature( $sVerificationCode, $sSignature, $sPublicKey );
+					$oResponse->setOpensslVerify( $nSslSuccess );
+					if ( $nSslSuccess !== 1 ) {
+						return $oResponse->setMessage( 'Failed to Verify SSL Signature.' )
+										 ->setCode( 7 );
+					}
+				}
+
+			}
+
 			$oFO->setPluginPin( $sRequestPin );
 			$oFO->setAssignedAccount( $sRequestedAcc );
-
 			return $oResponse->setSuccess( true );
 		}
 	}
