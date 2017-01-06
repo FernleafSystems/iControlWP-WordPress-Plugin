@@ -2,40 +2,35 @@
 
 if ( !class_exists( 'ICWP_APP_Processor_Plugin_SiteLink', false ) ):
 
-	require_once( dirname(__FILE__).ICWP_DS.'base_app.php' );
+	require_once( dirname(__FILE__).ICWP_DS.'plugin_api.php' );
 
-	class ICWP_APP_Processor_Plugin_SiteLink extends ICWP_APP_Processor_BaseApp {
+	class ICWP_APP_Processor_Plugin_SiteLink extends ICWP_APP_Processor_Plugin_Api {
 
 		/**
 		 * @return ApiResponse
 		 */
 		public function run() {
-			require_once( dirname( dirname( __FILE__ ) ) . DIRECTORY_SEPARATOR . 'api' . DIRECTORY_SEPARATOR . 'ApiResponse.php' );
-			$oResponse = new ApiResponse();
-			$oResponse->setStatus( '' )
-					  ->setCode( 0 )
-					  ->setSuccess( false );
+			$this->preActionEnvironmentSetup();
+			if ( $this->getRequestParams()->getStringParam( 'a' ) == 'check' ) {
+				return $this->getStandardResponse()->setSuccess( true );
+			}
+			return $this->processAction();
+		}
 
+		/**
+		 * @return ApiResponse
+		 */
+		public function processAction() {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
 			$oReqParams = $this->getRequestParams();
+			$oResponse = $this->getStandardResponse();
 
 			if ( $oFO->getIsSiteLinked() ) {
-				$oResponse->setMessage( 'Assigned To:' . $this->getOption( 'assigned_to' ) )
+				return $oResponse->setMessage( 'Assigned To:' . $this->getOption( 'assigned_to' ) )
 						  ->setStatus( 'AlreadyAssigned' )
-						  ->setCode( 1 );
-			}
-
-			// First is the check to see that we can simply call the site and communicate with the plugin
-			if ( $oReqParams->getStringParam( 'a' ) == 'check' ) {
-				return $oResponse->setSuccess( true );
-			}
-
-			// At this point we're in the 2nd stage of the link...
-
-			// bail immediately if we're already assigned
-			if ( $oResponse->getStatus() == 'AlreadyAssigned' ) {
-				return $oResponse;
+						  ->setCode( 1 )
+						  ->setSuccess( false );
 			}
 
 			$sRequestedKey = $oReqParams->getAuthKey();

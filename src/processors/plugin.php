@@ -111,7 +111,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 		 */
 		public function doApiLinkSite() {
 			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-			require_once( dirname(__FILE__).ICWP_DS.'plugin_sitelink.php' );
+			require_once( dirname( __FILE__ ) . ICWP_DS . 'plugin_api_link.php' );
 			$oLinkProcessor = new ICWP_APP_Processor_Plugin_SiteLink( $this->getFeatureOptions() );
 			$oLinkResponse = $oLinkProcessor->run();
 			$this->sendApiResponse( $oLinkResponse );
