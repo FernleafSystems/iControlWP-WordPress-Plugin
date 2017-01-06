@@ -11,10 +11,10 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_SiteLink', false ) ):
 		 */
 		public function run() {
 			require_once( dirname( dirname( __FILE__ ) ) . DIRECTORY_SEPARATOR . 'api' . DIRECTORY_SEPARATOR . 'ApiResponse.php' );
-			$oResponse = ( new ApiResponse() )
-				->setStatus( '' )
-				->setCode( 0 )
-				->setSuccess( false );
+			$oResponse = new ApiResponse();
+			$oResponse->setStatus( '' )
+					  ->setCode( 0 )
+					  ->setSuccess( false );
 
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
