@@ -12,13 +12,6 @@ sections:
     slug: 'section_non_ui'
     hidden: true
 
-admin_notices:
-  'add-site':
-    id: 'add-site'
-    schedule: 'conditions'
-    valid_admin: true
-    type: 'error'
-
 # Define Options
 options:
   -
@@ -113,6 +106,7 @@ definitions:
     - 'plugin_deactivate'
     - 'plugin_delete'
     - 'plugin_install'
+    - 'site_unlink'
     - 'theme_activate'
     - 'theme_delete'
     - 'theme_install'

@@ -25,7 +25,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 				$this->returnIcwpPluginUrl();
 			}
 
-			add_action( 'wp_footer', array( $this, 'printPluginUri') );
+//			add_action( 'wp_footer', array( $this, 'printPluginUri') );
 
 			if ( $oReqParams->getIsApiCall() ) {
 				$sApiHook = $oReqParams->getApiHook();
@@ -111,7 +111,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 		 */
 		public function doApiLinkSite() {
 			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-			require_once( dirname(__FILE__).ICWP_DS.'plugin_sitelink.php' );
+			require_once( dirname( __FILE__ ) . ICWP_DS . 'plugin_api_link.php' );
 			$oLinkProcessor = new ICWP_APP_Processor_Plugin_SiteLink( $this->getFeatureOptions() );
 			$oLinkResponse = $oLinkProcessor->run();
 			$this->sendApiResponse( $oLinkResponse );
@@ -188,7 +188,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 		 * @return void
 		 */
 		protected function returnIcwpPluginUrl() {
-			$this->flushResponse( $this->getController()->getPluginUrl(), false );
+			$this->flushResponse( $this->getController()->getPluginUrl(), false, false );
 		}
 
 		/**
@@ -241,10 +241,20 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 		 * @param bool $bBinary
 		 */
 		private function flushResponse( $sContent, $sEncoding = 'json', $bBinary = true ) {
+			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
+			$oFO = $this->getFeatureOptions();
+
 			$this->sendHeaders( $bBinary );
 			echo sprintf( "<icwp>%s</icwp>", $sContent );
 			echo sprintf( "<icwpencoding>%s</icwpencoding>", $sEncoding );
-			echo sprintf( "<icwpversion>%s</icwpversion>", $this->getFeatureOptions()->getVersion() );
+			echo sprintf( "<icwpversion>%s</icwpversion>", $oFO->getVersion() );
+			if ( !$oFO->getIsSiteLinked() && $this->loadEncryptProcessor()->getSupportsOpenSslSign() ) {
+				/**
+				 * displaying the key here is irrelevant because its use is essentially completely
+				 * redundant for sites that support OpenSSL signatures.
+				 */
+				echo sprintf( "<icwpauth>%s</icwpauth>",  $oFO->getPluginAuthKey() );
+			}
 			die();
 		}
 
@@ -269,53 +279,6 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 			if ( $this->getOption( 'assigned' ) !== 'Y' ) {
 				echo '<!-- Worpit Plugin: '.$this->getController()->getPluginUrl().' -->';
 			}
-		}
-
-		/**
-		 * @param array $aNoticeAttributes
-		 * @return array
-		 */
-		public function addNotice_add_site( $aNoticeAttributes ) {
-
-			if ( $this->getController()->getIsValidAdminArea() && !empty( $aAdminFeedbackNotice ) && is_array( $aAdminFeedbackNotice ) ) {
-
-				foreach ( $aAdminFeedbackNotice as $sNotice ) {
-					if ( empty( $sNotice ) || !is_string( $sNotice ) ) {
-						continue;
-					}
-					$aAdminNotices[] = $this->getAdminNoticeHtml( '<p>'.$sNotice.'</p>', 'updated', false );
-				}
-				/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-				$oFO = $this->getFeatureOptions();
-				$oFO->doClearAdminFeedback();
-			}
-			return $aAdminNotices;
-		}
-
-		/**
-		 * @param array $aAdminNotices
-		 * @return array
-		 */
-		public function adminNoticeAddSite( $aAdminNotices ) {
-			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
-			$oCon = $this->getController();
-
-			if ( $oFO->getIsSiteLinked() || !$oCon->getIsValidAdminArea() ) {
-				return;
-			}
-
-			$sServiceName = $oCon->getHumanName();
-			$sAuthKey = $oFO->getPluginAuthKey();
-
-			$aRenderData = array(
-				'notice_attributes' => $aNoticeAttributes,
-				'strings' => array(
-					'add_site' => sprintf( "Now that you've installed the %s plugin, you need to connect this site to your %s account.", $sServiceName, $sServiceName ),
-					'use_key' => sprintf( 'Use the following Authentication Key when prompted %s.', '<span class="the-key">'.$sAuthKey.'</span>' ),
-				)
-			);
-			$this->insertAdminNotice( $aRenderData );
 		}
 	}
 
