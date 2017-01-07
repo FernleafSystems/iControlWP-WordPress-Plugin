@@ -911,9 +911,22 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		}
 
 		/**
+		 * @param bool $fForceUpdateCheck
+		 * @return bool
+		 */
+		public function getHasCoreUpdatesAvailable( $fForceUpdateCheck = false ) {
+			$aUpdates = $this->updatesGather( 'core', $fForceUpdateCheck );
+			$fUpdateAvailable = true;
+			if ( $aUpdates === false || count( $aUpdates ) == 0 || !isset( $aUpdates[0]->response ) || 'latest' == $aUpdates[0]->response ) {
+				$fUpdateAvailable = false;
+			}
+			return $fUpdateAvailable;
+		}
+
+		/**
 		 * @param string $sContext
 		 * @param bool   $bForceRecheck
-		 * @return stdClass|false
+		 * @return array|stdClass|false
 		 */
 		public function updatesGather( $sContext = 'plugins', $bForceRecheck = false ) {
 			if ( !in_array( $sContext, array( 'plugins', 'themes', 'core' ) ) ) {
