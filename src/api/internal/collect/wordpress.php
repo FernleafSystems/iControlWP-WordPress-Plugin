@@ -20,7 +20,7 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Wordpress', false ) ):
 		 */
 		public function collect() {
 
-			$bForceUpdateCheck = (bool)$this->getRequestParams()->getParam( 'force_update_check', 0 );
+			$bForceUpdateCheck = (bool)$this->getRequestParams()->getParam( 'force_update_check', 1 );
 
 			$oWp = $this->loadWpFunctionsProcessor();
 			$aInfo = array(
