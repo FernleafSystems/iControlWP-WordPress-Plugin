@@ -9,9 +9,31 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Info', false ) ):
 		 * @return ApiResponse
 		 */
 		public function process() {
-			$aData['wordpress-plugins'] = $this->collectWordpressPlugins( true );
-			$aData['wordpress-themes'] = $this->collectWordpressThemes( true );
+			$aData = array(
+				'wordpress-plugins' => $this->collectPlugins(),
+				'wordpress-themes' => $this->collectThemes(),
+			);
 			return $this->success( $aData );
+		}
+
+		/**
+		 * @return array
+		 */
+		private function collectPlugins() {
+			require_once( dirname( __FILE__ ).ICWP_DS.'plugins.php' );
+			$oCollector = new ICWP_APP_Api_Internal_Collect_Plugins();
+			$oCollector->setRequestParams( $this->getRequestParams() );
+			return $oCollector->collect( true );
+		}
+
+		/**
+		 * @return array
+		 */
+		private function collectThemes() {
+			require_once( dirname( __FILE__ ).ICWP_DS.'themes.php' );
+			$oCollector = new ICWP_APP_Api_Internal_Collect_Themes();
+			$oCollector->setRequestParams( $this->getRequestParams() );
+			return $oCollector->collect( true );
 		}
 	}
 
