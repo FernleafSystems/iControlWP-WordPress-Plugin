@@ -22,6 +22,7 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Capabilities', false ) ):
 			return array(
 				'is_force_ssl_admin' => function_exists( 'force_ssl_admin' ) && force_ssl_admin(),
 				'handshake_enabled' => ICWP_Plugin::GetHandshakingEnabled() ? 1 : 0,
+				'can_handshake_openssl' => $this->loadEncryptProcessor()->getSupportsOpenSslSign(),
 			);
 		}
 	}
