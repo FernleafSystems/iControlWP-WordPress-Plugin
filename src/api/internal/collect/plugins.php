@@ -56,7 +56,7 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Plugins', false ) ):
 				}
 
 				// $oCurrentUpdates->no_update seems to be relatively new
-				if ( empty( $aData['slug'] && !empty( $oUpdates->no_update[$sFile]->slug ) ) ) {
+				if ( empty( $aData['slug'] ) && !empty( $oUpdates->no_update[$sFile]->slug ) ) {
 					$aData[ 'slug' ] = $oUpdates->no_update[$sFile]->slug;
 				}
 			}
