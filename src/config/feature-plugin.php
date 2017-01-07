@@ -102,6 +102,9 @@ definitions:
     - 'execute'
     - 'login'
   internal_api_supported_actions:
+    - 'collect_info'
+    - 'collect_plugins'
+    - 'collect_themes'
     - 'plugin_activate'
     - 'plugin_deactivate'
     - 'plugin_delete'

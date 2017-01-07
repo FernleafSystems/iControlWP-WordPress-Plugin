@@ -3,7 +3,7 @@
 Plugin Name: iControlWP
 Plugin URI: http://icwp.io/home
 Description: Pro WordPress Management - Backups, Security, Updates, and Uptime Monitoring
-Version: 3.1.0
+Version: 3.1.1
 Author: iControlWP
 Author URI: http://www.icontrolwp.com/
 */

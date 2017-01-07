@@ -37,7 +37,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_Themes', false ) ):
 			switch_theme( $oTheme->get_stylesheet() );
 
 			// Now test currently active theme
-			$oCurrentTheme = $this->getActiveTheme();
+			$oCurrentTheme = $this->getCurrent();
 
 			return ( !is_null( $oCurrentTheme ) && ( $sThemeStylesheet == $oCurrentTheme->get_stylesheet() ) );
 		}
@@ -89,15 +89,15 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_Themes', false ) ):
 		/**
 		 * @return string|WP_Theme
 		 */
-		public function getActiveThemeName() {
-			return $this->loadWpFunctionsProcessor()->getWordpressIsAtLeastVersion( '3.4.0' )? $this->getActiveTheme()->get( 'Name' ) : get_current_theme();
+		public function getCurrentThemeName() {
+			return $this->loadWpFunctionsProcessor()->getWordpressIsAtLeastVersion( '3.4.0' )? $this->getCurrent()->get( 'Name' ) : get_current_theme();
 		}
 
 		/**
 		 * @return null|WP_Theme
 		 */
-		public function getActiveTheme() {
-			return $this->getTheme( get_stylesheet() );
+		public function getCurrent() {
+			return $this->getTheme();
 		}
 
 		/**
@@ -113,7 +113,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_Themes', false ) ):
 		 * @param string $sStylesheet
 		 * @return null|WP_Theme
 		 */
-		public function getTheme( $sStylesheet ) {
+		public function getTheme( $sStylesheet = null ) {
 			if ( $this->loadWpFunctionsProcessor()->getWordpressIsAtLeastVersion( '3.4.0' ) ) {
 				if ( !function_exists( 'wp_get_theme' ) ) {
 					require_once( ABSPATH . 'wp-admin/includes/theme.php' );

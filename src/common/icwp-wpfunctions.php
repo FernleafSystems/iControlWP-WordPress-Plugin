@@ -403,11 +403,10 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 
 		/**
 		 * @param string $sPluginBaseFilename
-		 *
 		 * @return null|stdClass
 		 */
 		public function getPluginDataAsObject( $sPluginBaseFilename ){
-			$aPlugins = get_plugins();
+			$aPlugins = $this->getPlugins();
 			if ( !isset( $aPlugins[$sPluginBaseFilename] ) || !is_array( $aPlugins[$sPluginBaseFilename] ) ) {
 				return null;
 			}
@@ -909,6 +908,69 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 				define( 'DONOTCACHEPAGE', true );
 			}
 			return DONOTCACHEPAGE;
+		}
+
+		/**
+		 * @param bool $fForceUpdateCheck
+		 * @return bool
+		 */
+		public function getHasCoreUpdatesAvailable( $fForceUpdateCheck = false ) {
+			$aUpdates = $this->updatesGather( 'core', $fForceUpdateCheck );
+			$fUpdateAvailable = true;
+			if ( $aUpdates === false || count( $aUpdates ) == 0 || !isset( $aUpdates[0]->response ) || 'latest' == $aUpdates[0]->response ) {
+				$fUpdateAvailable = false;
+			}
+			return $fUpdateAvailable;
+		}
+
+		/**
+		 * @param string $sContext
+		 * @param bool   $bForceRecheck
+		 * @return array|stdClass|false
+		 */
+		public function updatesGather( $sContext = 'plugins', $bForceRecheck = false ) {
+			if ( !in_array( $sContext, array( 'plugins', 'themes', 'core' ) ) ) {
+				$sContext = 'plugins';
+			}
+
+			if ( $bForceRecheck ) {
+				$this->updatesCheck( $sContext, $bForceRecheck );
+			}
+			return ( $sContext == 'core' ) ? get_core_updates() : $this->getTransient( 'update_'.$sContext );
+		}
+
+		/**
+		 * @param string  $sContext - plugins, themes, core
+		 * @param boolean $bForceRecheck
+		 * @return void
+		 */
+		public function updatesCheck( $sContext, $bForceRecheck = false ) {
+			global $_wp_using_ext_object_cache;
+			$_wp_using_ext_object_cache = false;
+
+			if ( !in_array( $sContext, array( 'plugins', 'themes', 'core' ) ) ) {
+				$sContext = 'plugins';
+			}
+
+			if ( $bForceRecheck ) {
+				$sKey = sprintf( 'update_%s', $sContext );
+				$oResponse = $this->getTransient( $sKey );
+				if ( !is_object( $oResponse ) ) {
+					$oResponse = new stdClass();
+				}
+				$oResponse->last_checked = 0;
+				$this->setTransient( $sKey, $oResponse );
+			}
+
+			if ( $sContext == 'plugins' ) {
+				wp_update_plugins();
+			}
+			else if ( $sContext == 'themes' ) {
+				wp_update_themes();
+			}
+			else if ( $sContext == 'core' ) {
+				wp_version_check();
+			}
 		}
 
 		/**
