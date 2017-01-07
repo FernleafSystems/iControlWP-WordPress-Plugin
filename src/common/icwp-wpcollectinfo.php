@@ -86,7 +86,7 @@ if ( !class_exists( 'ICWP_APP_WpCollectInfo', false ) ):
 			$bIsMultisite = is_multisite();
 			$aNetworkAllowedThemes = $this->loadWpFunctionsThemes()->wpmsGetSiteAllowedThemes();
 
-			$oActiveTheme = $this->loadWpFunctionsThemes()->getActiveTheme();
+			$oActiveTheme = $this->loadWpFunctionsThemes()->getCurrent();
 			$sActiveThemeStylesheet = $oActiveTheme->get_stylesheet();
 
 			foreach ( $aThemes as $nIndex => $aData ) {
