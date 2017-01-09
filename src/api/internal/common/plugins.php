@@ -7,23 +7,6 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Common_Plugins', false ) ):
 	class ICWP_APP_Api_Internal_Common_Plugins extends ICWP_APP_Api_Internal_Base {
 
 		/**
-		 * Gets all the installed plugin and filters
-		 * out unnecessary information based on "desired attributes"
-		 *
-		 * @param array $aDesiredAttributes
-		 * @return array
-		 */
-		public function getInstalledPlugins( $aDesiredAttributes = null ) {
-			$aPlugins = $this->loadWpFunctionsPlugins()->getPlugins();
-			if ( !empty( $aDesiredAttributes ) ) {
-				foreach ( $aPlugins as $sPluginFile => $aData ) {
-					$aPlugins[ $sPluginFile ] = array_intersect_key( $aData, array_flip( $aDesiredAttributes ) );
-				}
-			}
-			return $aPlugins;
-		}
-
-		/**
 		 * @param string $sFile
 		 * @param string $sContext
 		 * @return boolean

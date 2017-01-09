@@ -22,7 +22,7 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Plugin_Update', false ) ):
 			// For some reason, certain updates don't appear and we may have to force an update check to ensure WordPress
 			// knows about the update.
 			$oAvailableUpdates = $this->loadWpFunctionsProcessor()->updatesGather( 'plugins' );
-			if ( empty( $oAvailableUpdates ) || empty( $oAvailableUpdates->response ) || !isset( $oAvailableUpdates->response[ $sAssetFile ] ) ) {
+			if ( empty( $oAvailableUpdates ) || empty( $oAvailableUpdates->response[ $sAssetFile ] ) ) {
 				$this->loadWpFunctionsProcessor()->updatesCheck( 'plugins', true );
 				$aData[ 'force_update_recheck' ] = 1;
 			}
@@ -39,7 +39,6 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Plugin_Update', false ) ):
 
 			$aData[ 'rollback' ] = isset( $fRollbackResult ) ? $fRollbackResult : false;
 			$aData[ 'result' ] = $aResult;
-			$aData[ 'wordpress-plugins' ] = $this->collectPlugins();
 			return $this->success( $aData );
 		}
 	}
