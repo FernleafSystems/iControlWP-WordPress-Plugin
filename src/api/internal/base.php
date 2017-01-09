@@ -77,7 +77,7 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Base', false ) ):
 
 		/**
 		 * @param RequestParameters $oRequestParams
-		 * @return ICWP_APP_Api_Internal_Base
+		 * @return $this
 		 */
 		public function setRequestParams( $oRequestParams ) {
 			$this->oRequestParams = $oRequestParams;
@@ -90,6 +90,33 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Base', false ) ):
 		protected function getWpCollector() {
 			require_once( dirname( __FILE__ ) . '/../../common/icwp-wpcollectinfo.php' );
 			return ICWP_APP_WpCollectInfo::GetInstance();
+		}
+
+		/**
+		 * @return array
+		 */
+		protected function collectPlugins() {
+			require_once( dirname( __FILE__ ).ICWP_DS.'collect/plugins.php' );
+			$oCollector = new ICWP_APP_Api_Internal_Collect_Plugins();
+			return $oCollector->setRequestParams( $this->getRequestParams() )
+							  ->collect();
+		}
+
+		/**
+		 * @return array
+		 */
+		protected function collectThemes() {
+			require_once( dirname( __FILE__ ).ICWP_DS.'collect/themes.php' );
+			$oCollector = new ICWP_APP_Api_Internal_Collect_Themes();
+			return $oCollector->setRequestParams( $this->getRequestParams() )
+							  ->collect();
+		}
+
+		/**
+		 * @param string $sLibName
+		 */
+		protected function importCommonLib( $sLibName ) {
+			require_once( dirname( __FILE__ ) . sprintf( '/common/%s.php', $sLibName ) );
 		}
 	}
 

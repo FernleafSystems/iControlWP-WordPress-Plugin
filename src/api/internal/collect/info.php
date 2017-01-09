@@ -37,26 +37,6 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Info', false ) ):
 		/**
 		 * @return array
 		 */
-		private function collectPlugins() {
-			require_once( dirname( __FILE__ ).ICWP_DS.'plugins.php' );
-			$oCollector = new ICWP_APP_Api_Internal_Collect_Plugins();
-			$oCollector->setRequestParams( $this->getRequestParams() );
-			return $oCollector->collect();
-		}
-
-		/**
-		 * @return array
-		 */
-		private function collectThemes() {
-			require_once( dirname( __FILE__ ).ICWP_DS.'themes.php' );
-			$oCollector = new ICWP_APP_Api_Internal_Collect_Themes();
-			$oCollector->setRequestParams( $this->getRequestParams() );
-			return $oCollector->collect();
-		}
-
-		/**
-		 * @return array
-		 */
 		private function collectWordpress() {
 			require_once( dirname( __FILE__ ).ICWP_DS.'wordpress.php' );
 			$oCollector = new ICWP_APP_Api_Internal_Collect_Wordpress();

@@ -21,11 +21,14 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Plugins', false ) ):
 		 * @return array								associative: PluginFile => PluginData
 		 */
 		public function collect() {
+			$this->importCommonLib( 'plugins' );
 
 			$bForceUpdateCheck = (bool)$this->getRequestParams()->getParam( 'force_update_check', 1 );
 
 //			$this->prepThirdPartyPlugins(); TODO
-			$aPlugins = $this->getInstalledPlugins();
+			$oPluginsCommon = new ICWP_APP_Api_Internal_Common_Plugins();
+			$aPlugins = $oPluginsCommon->getInstalledPlugins( $this->getDesiredPluginAttributes() );
+
 			$oUpdates = $this->loadWpFunctionsProcessor()->updatesGather( 'plugins', $bForceUpdateCheck ); // option to do another update check? force it?
 			$aAutoUpdates = $this->getAutoUpdates( 'plugins' );
 			$sServicePluginBaseFile = ICWP_Plugin::getController()->getPluginBaseFile();

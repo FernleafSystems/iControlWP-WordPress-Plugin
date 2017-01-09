@@ -93,6 +93,32 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_Plugins', false ) ):
 		}
 
 		/**
+		 * @param string $sFile
+		 * @return array
+		 */
+		public function update( $sFile ) {
+			$aResult = array(
+				'successful' => 1,
+				'errors' => array()
+			);
+
+			$oUpgraderSkin = new ICWP_Bulk_Plugin_Upgrader_Skin();
+			$oUpgrader = new Plugin_Upgrader( $oUpgraderSkin );
+			ob_start();
+			$oUpgrader->bulk_upgrade( array( $sFile ) );
+			ob_end_clean();
+
+			if ( isset( $oUpgraderSkin->m_aErrors[0] ) ) {
+				if ( is_wp_error( $oUpgraderSkin->m_aErrors[0] ) ) {
+					$aResult['successful'] = 0;
+					$aResult['errors'] = $oUpgraderSkin->m_aErrors[0]->get_error_messages();
+				}
+			}
+			$aResult['feedback'] = $oUpgraderSkin->getFeedback();
+			return $aResult;
+		}
+
+		/**
 		 * @param string $sPluginFile
 		 * @return true
 		 */
@@ -264,11 +290,11 @@ if ( !class_exists( 'ICWP_Plugin_Upgrader', false ) && class_exists( 'Plugin_Upg
 	}
 }
 
-if ( !class_exists( 'Worpit_Bulk_Plugin_Upgrader_Skin', false ) && class_exists( 'Bulk_Plugin_Upgrader_Skin', false ) ) {
+if ( !class_exists( 'ICWP_Bulk_Plugin_Upgrader_Skin', false ) && class_exists( 'Bulk_Plugin_Upgrader_Skin', false ) ) {
 	/**
-	 * Class Worpit_Bulk_Plugin_Upgrader_Skin
+	 * Class ICWP_Bulk_Plugin_Upgrader_Skin
 	 */
-	class Worpit_Bulk_Plugin_Upgrader_Skin extends Bulk_Plugin_Upgrader_Skin {
+	class ICWP_Bulk_Plugin_Upgrader_Skin extends Bulk_Plugin_Upgrader_Skin {
 
 		/**
 		 * @var array
