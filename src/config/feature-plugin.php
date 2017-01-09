@@ -105,6 +105,7 @@ definitions:
     - 'collect_info'
     - 'collect_plugins'
     - 'collect_themes'
+    - 'core_update'
     - 'db_status'
     - 'db_optimise'
     - 'plugin_activate'
