@@ -202,6 +202,31 @@ if ( !class_exists( 'ICWP_APP_WpDb', false ) ):
 		}
 
 		/**
+		 * @return array|null|object
+		 * @throws Exception
+		 */
+		public function showTableStatus() {
+			if ( !defined( 'DB_NAME' ) ) {
+				throw new Exception( 'DB_NAME constant not defined.' );
+			}
+			$sQuery = sprintf( "SHOW TABLE STATUS FROM `%s`", DB_NAME );
+			return $this->getWpdb()->get_results( $sQuery );
+		}
+
+		/**
+		 * @param $sTableName
+		 * @return false|int
+		 * @throws Exception
+		 */
+		public function optimizeTable( $sTableName ) {
+			if ( empty( $sTableName ) ) {
+				throw new Exception( 'Database table name to optimize cannot be empty.' );
+			}
+			$sQuery = sprintf( 'OPTIMIZE TABLE `%s`', $sTableName );
+			return $this->doSql( $sQuery );
+		}
+
+		/**
 		 * @param string $sTable
 		 * @param array $aData - new insert data (associative array, column=>data)
 		 * @param array $aWhere - insert where (associative array)
@@ -211,6 +236,22 @@ if ( !class_exists( 'ICWP_APP_WpDb', false ) ):
 		public function updateRowsFromTableWhere( $sTable, $aData, $aWhere ) {
 			$oDb = $this->loadWpdb();
 			return $oDb->update( $sTable, $aData, $aWhere );
+		}
+
+		/**
+		 * @param stdClass $oTable
+		 * @return bool
+		 */
+		public function isTableView( $oTable ) {
+			return isset( $oTable->Comment ) && preg_match( '/view/i', $oTable->Comment );
+		}
+
+		/**
+		 * @param stdClass $oTable - as retrieved from "show tables"
+		 * @return bool
+		 */
+		public function isTableCrashed( $oTable ) {
+			return ( !$this->isTableView( $oTable ) && is_null( $oTable->Rows ) );
 		}
 
 		/**

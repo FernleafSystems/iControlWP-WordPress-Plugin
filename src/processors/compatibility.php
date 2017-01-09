@@ -258,6 +258,9 @@ if ( !class_exists( 'ICWP_APP_Processor_Compatibility', false ) ):
 			$this->removeBetterWpSecurityHooks();
 			$this->removeWordfence();
 			$this->removeSucuri();
+
+			// Seems to interfere with update detection? Easy Plugin for Adsense Pro
+			remove_filter( 'pre_set_site_transient_update_plugins', 'killUpdate_ezad' );
 		}
 
 		protected function removeWordfence() {
