@@ -1006,7 +1006,7 @@ endif;
 if ( !class_exists( 'ICWP_Upgrader_Skin', false ) && class_exists( 'WP_Upgrader_Skin', false ) ) {
 
 	/**
-	 * Class Worpit_Upgrader_Skin
+	 * Class ICWP_Upgrader_Skin
 	 */
 	class ICWP_Upgrader_Skin extends WP_Upgrader_Skin {
 
