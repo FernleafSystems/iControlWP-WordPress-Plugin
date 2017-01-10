@@ -911,6 +911,22 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		}
 
 		/**
+		 * @return object
+		 */
+		public function getChosenCoreUpdate() {
+			$aUpdates = $this->updatesGather( 'core' );
+			return isset( $aUpdates[0] )? $aUpdates[0] : null;
+		}
+
+		/**
+		 * @return string
+		 */
+		public function getCoreUpdateType() {
+			$aUpdates = $this->updatesGather( 'core' );
+			return isset( $aUpdates[0]->response )? $aUpdates[0]->response : '';
+		}
+
+		/**
 		 * @param bool $fForceUpdateCheck
 		 * @return bool
 		 */
@@ -984,106 +1000,32 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 			}
 			wp_die( $sMessage, $sTitle );
 		}
-
-		/** DEPRECATED: */
-
-		/**
-		 * @deprecated
-		 * @param array $aLoginUrlParams
-		 */
-		public function forceUserRelogin( $aLoginUrlParams = array() ) {
-			$this->loadWpUsersProcessor()->forceUserRelogin( $aLoginUrlParams );
-		}
-
-		/**
-		 * @deprecated
-		 * @return null|WP_User
-		 */
-		public function getCurrentWpUser() {
-			return $this->loadWpUsersProcessor()->getCurrentWpUser();
-		}
-
-		/**
-		 * @deprecated
-		 * @return integer
-		 */
-		public function getCurrentUserLevel() {
-			return $this->loadWpUsersProcessor()->getCurrentUserLevel();
-		}
-
-		/**
-		 * @deprecated
-		 * @param int $nId
-		 * @return WP_User|null
-		 */
-		public function getUserById( $nId ) {
-			return $this->loadWpUsersProcessor()->getUserById( $nId );
-		}
-
-		/**
-		 * @deprecated
-		 * @param $sUsername
-		 * @return bool|WP_User
-		 */
-		public function getUserByUsername( $sUsername ) {
-			return $this->loadWpUsersProcessor()->getUserByUsername( $sUsername );
-		}
-
-		/**
-		 * @deprecated
-		 * @param string $sKey should be already prefixed
-		 * @param int|null $nId - if omitted get for current user
-		 * @return bool|string
-		 */
-		public function getUserMeta( $sKey, $nId = null ) {
-			return $this->loadWpUsersProcessor()->getUserMeta( $sKey, $nId );
-		}
-
-		/**
-		 * @deprecated
-		 * @param string $sRedirectUrl
-		 */
-		public function logoutUser( $sRedirectUrl = '' ) {
-			$this->loadWpUsersProcessor()->logoutUser( $sRedirectUrl );
-		}
-
-		/**
-		 * Updates the user meta data for the current (or supplied user ID)
-		 *
-		 * @deprecated
-		 * @param string $sKey
-		 * @param mixed $mValue
-		 * @param integer $nId		-user ID
-		 * @return boolean
-		 */
-		public function updateUserMeta( $sKey, $mValue, $nId = null ) {
-			return $this->loadWpUsersProcessor()->updateUserMeta( $sKey, $mValue, $nId );
-		}
-
-		/**
-		 * @deprecated
-		 * @return bool
-		 */
-		public function comments_getIsCommentPost() {
-			return $this->loadWpCommentsProcessor()->isCommentPost();
-		}
-
-		/**
-		 * @deprecated
-		 * @param string $sAuthorEmail
-		 * @return bool
-		 */
-		public function comments_getIfCommentAuthorPreviouslyApproved( $sAuthorEmail ) {
-			return $this->loadWpCommentsProcessor()->isCommentAuthorPreviouslyApproved( $sAuthorEmail );
-		}
-
-		/**
-		 * @deprecated
-		 * @param WP_Post $oPost
-		 * @return bool
-		 */
-		public function comments_getIfCommentsOpen( $oPost = null ) {
-			return $this->loadWpCommentsProcessor()->isCommentsOpen( $oPost );
-		}
 	}
 endif;
+
+if ( !class_exists( 'ICWP_Upgrader_Skin', false ) && class_exists( 'WP_Upgrader_Skin', false ) ) {
+
+	/**
+	 * Class ICWP_Upgrader_Skin
+	 */
+	class ICWP_Upgrader_Skin extends WP_Upgrader_Skin {
+
+		public $m_aErrors;
+		public $aFeedback;
+
+		public function __construct() {
+			parent::__construct();
+			$this->done_header = true;
+		}
+
+		/**
+		 * @return array
+		 */
+		public function getFeedback() {
+			return $this->aFeedback;
+		}
+
+		function error( $errors ) { }
+		function feedback( $string ) { }
+	}
+}

@@ -85,6 +85,31 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_Themes', false ) ):
 			$aResult['feedback'] = $oUpgraderSkin->getFeedback();
 			return $aResult;
 		}
+		/**
+		 * @param string $sFile
+		 * @return array
+		 */
+		public function update( $sFile ) {
+			$aResult = array(
+				'successful' => 1,
+				'errors' => array()
+			);
+
+			$oUpgraderSkin = new ICWP_Bulk_Theme_Upgrader_Skin();
+			$oUpgrader = new Theme_Upgrader( $oUpgraderSkin );
+			ob_start();
+			$oUpgrader->bulk_upgrade( array( $sFile ) );
+			ob_end_clean();
+
+			if ( isset( $oUpgraderSkin->m_aErrors[0] ) ) {
+				if ( is_wp_error( $oUpgraderSkin->m_aErrors[0] ) ) {
+					$aResult['successful'] = 0;
+					$aResult['errors'] = $oUpgraderSkin->m_aErrors[0]->get_error_messages();
+				}
+			}
+			$aResult['feedback'] = $oUpgraderSkin->getFeedback();
+			return $aResult;
+		}
 
 		/**
 		 * @return string|WP_Theme
@@ -271,12 +296,12 @@ if ( !class_exists( 'ICWP_Theme_Upgrader', false ) && class_exists( 'Theme_Upgra
 	}
 }
 
-if ( !class_exists( 'Worpit_Bulk_Theme_Upgrader_Skin', false ) && class_exists( 'Bulk_Theme_Upgrader_Skin', false ) ) {
+if ( !class_exists( 'ICWP_Bulk_Theme_Upgrader_Skin', false ) && class_exists( 'Bulk_Theme_Upgrader_Skin', false ) ) {
 
 	/**
 	 * Class Worpit_Bulk_Theme_Upgrader_Skin
 	 */
-	class Worpit_Bulk_Theme_Upgrader_Skin extends Bulk_Theme_Upgrader_Skin {
+	class ICWP_Bulk_Theme_Upgrader_Skin extends Bulk_Theme_Upgrader_Skin {
 
 		/**
 		 * @var array

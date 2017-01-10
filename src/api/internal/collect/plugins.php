@@ -21,11 +21,13 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Plugins', false ) ):
 		 * @return array								associative: PluginFile => PluginData
 		 */
 		public function collect() {
+			$this->importCommonLib( 'plugins' );
 
 			$bForceUpdateCheck = (bool)$this->getRequestParams()->getParam( 'force_update_check', 1 );
 
 //			$this->prepThirdPartyPlugins(); TODO
-			$aPlugins = $this->getInstalledPlugins();
+			$aPlugins = $this->getInstalledPlugins( $this->getDesiredPluginAttributes() );
+
 			$oUpdates = $this->loadWpFunctionsProcessor()->updatesGather( 'plugins', $bForceUpdateCheck ); // option to do another update check? force it?
 			$aAutoUpdates = $this->getAutoUpdates( 'plugins' );
 			$sServicePluginBaseFile = ICWP_Plugin::getController()->getPluginBaseFile();
@@ -36,7 +38,6 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Plugins', false ) ):
 				$aData[ 'file' ]				= $sFile;
 				$aData[ 'is_service_plugin' ]	= ( $sFile == $sServicePluginBaseFile );
 				$aData[ 'network_active' ]		= is_plugin_active_for_network( $sFile );
-
 				$aData[ 'update_available' ]	= isset( $oUpdates->response[$sFile] )? 1: 0;
 				$aData[ 'update_info' ]			= '';
 
@@ -67,12 +68,15 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Plugins', false ) ):
 		 * Gets all the installed plugin and filters
 		 * out unnecessary information based on "desired attributes"
 		 *
+		 * @param array $aDesiredAttributes
 		 * @return array
 		 */
-		protected function getInstalledPlugins() {
+		protected function getInstalledPlugins( $aDesiredAttributes = null ) {
 			$aPlugins = $this->loadWpFunctionsPlugins()->getPlugins();
-			foreach ( $aPlugins as $sPluginFile => $aData ) {
-				$aPlugins[ $sPluginFile ] = array_intersect_key( $aData, array_flip( $this->getDesiredPluginAttributes() ) );
+			if ( !empty( $aDesiredAttributes ) ) {
+				foreach ( $aPlugins as $sPluginFile => $aData ) {
+					$aPlugins[ $sPluginFile ] = array_intersect_key( $aData, array_flip( $aDesiredAttributes ) );
+				}
 			}
 			return $aPlugins;
 		}
