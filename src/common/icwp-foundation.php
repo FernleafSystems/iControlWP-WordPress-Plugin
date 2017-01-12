@@ -72,6 +72,10 @@ if ( !class_exists( 'ICWP_APP_Foundation', false ) ) :
 		 * @var ICWP_APP_WpTrack
 		 */
 		private static $oTrack;
+		/**
+		 * @var ICWP_APP_WpUpgrades
+		 */
+		private static $oUpgrades;
 
 		/**
 		 * @return ICWP_APP_DataProcessor
@@ -259,6 +263,17 @@ if ( !class_exists( 'ICWP_APP_Foundation', false ) ) :
 				self::$oWpUsers = ICWP_APP_WpUsers::GetInstance();
 			}
 			return self::$oWpUsers;
+		}
+
+		/**
+		 * @return ICWP_APP_WpUpgrades
+		 */
+		static public function loadWpUpgrades() {
+			if ( !isset( self::$oUpgrades ) ) {
+				require_once( dirname(__FILE__).ICWP_DS.'icwp-wpupgrades.php' );
+				self::$oUpgrades = ICWP_APP_WpUpgrades::GetInstance();
+			}
+			return self::$oUpgrades;
 		}
 
 		/**

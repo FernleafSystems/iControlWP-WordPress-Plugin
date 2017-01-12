@@ -1002,30 +1002,3 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		}
 	}
 endif;
-
-if ( !class_exists( 'ICWP_Upgrader_Skin', false ) && class_exists( 'WP_Upgrader_Skin', false ) ) {
-
-	/**
-	 * Class ICWP_Upgrader_Skin
-	 */
-	class ICWP_Upgrader_Skin extends WP_Upgrader_Skin {
-
-		public $m_aErrors;
-		public $aFeedback;
-
-		public function __construct() {
-			parent::__construct();
-			$this->done_header = true;
-		}
-
-		/**
-		 * @return array
-		 */
-		public function getFeedback() {
-			return $this->aFeedback;
-		}
-
-		function error( $errors ) { }
-		function feedback( $string ) { }
-	}
-}

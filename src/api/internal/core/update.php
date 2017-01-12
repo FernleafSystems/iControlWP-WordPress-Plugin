@@ -10,6 +10,7 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Core_Update', false ) ):
 		 * @return ApiResponse
 		 */
 		public function process() {
+			$this->loadWpUpgrades();
 			$oWp = $this->loadWpFunctionsProcessor();
 
 			if ( !$oWp->getHasCoreUpdatesAvailable() ) {
@@ -36,7 +37,6 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Core_Update', false ) ):
 			}
 
 			// This was added because some people's sites didn't upgrade the database
-			include_once ABSPATH . 'wp-admin/includes/upgrade.php';
 			if ( function_exists( 'wp_upgrade' ) ) {
 				wp_upgrade();
 			}
