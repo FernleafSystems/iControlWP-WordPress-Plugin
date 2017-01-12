@@ -295,10 +295,12 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		/**
 		 */
 		protected function setWpEngineAuth() {
-			if ( @getenv( 'IS_WPE' ) == '1' && class_exists( 'WpeCommon', false ) && $this->setAuthorizedUser() ) {
+			if ( @getenv( 'IS_WPE' ) == '1' && class_exists( 'WpeCommon', false ) && $this->isLoggedInUser() ) {
 				$oWpEngineCommon = WpeCommon::instance();
 				$oWpEngineCommon->set_wpe_auth_cookie();
+				return true;
 			}
+			return false;
 		}
 
 		/**

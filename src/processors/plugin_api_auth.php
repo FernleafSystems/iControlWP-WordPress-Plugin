@@ -20,9 +20,15 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Auth', false ) ):
 		 * @return ApiResponse
 		 */
 		protected function doAuth() {
-			$this->setAuthorizedUser();
-			$this->setWpEngineAuth();
-			return $this->setSuccessResponse( 'Auth' ); //just to be sure we proceed thereafter
+			return $this->setSuccessResponse(
+				'Auth',
+				0,
+				array(
+					'is_logged_in' => $this->setAuthorizedUser(),
+					'is_wpe' => @getenv( 'IS_WPE' ),
+					'is_wpe_logged_in' => $this->setWpEngineAuth(),
+				)
+			);
 		}
 	}
 
