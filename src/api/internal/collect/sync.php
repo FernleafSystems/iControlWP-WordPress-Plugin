@@ -84,28 +84,28 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Capabilities', false ) ):
 			$sTestContent = '#FINDME-'.uniqid();
 
 			if ( ! $oFS->mkdir( $sWorkingTestDir ) || !is_dir( $sWorkingTestDir ) ) {
-				$outsMessage = sprintf( 'Failed to create directory: %s', $sWorkingTestDir );
+//				$outsMessage = sprintf( 'Failed to create directory: %s', $sWorkingTestDir );
 				return false;
 			}
 			if ( !is_writable( $sWorkingTestDir ) ) {
-				$outsMessage = sprintf( 'The test directory is not writable: %s', $sWorkingTestDir );
+//				$outsMessage = sprintf( 'The test directory is not writable: %s', $sWorkingTestDir );
 				return false;
 			}
 			if ( !touch( $sWorkingTestFile ) ) {
-				$outsMessage = sprintf( 'Failed to touch "%s"', $sWorkingTestFile );
+//				$outsMessage = sprintf( 'Failed to touch "%s"', $sWorkingTestFile );
 				return false;
 			}
 			if ( !file_put_contents( $sWorkingTestFile, $sTestContent ) ) {
-				$outsMessage = sprintf( 'Failed to write content "%s" to "%s"', $sWorkingTestFile, $sTestContent );
+//				$outsMessage = sprintf( 'Failed to write content "%s" to "%s"', $sWorkingTestFile, $sTestContent );
 				return false;
 			}
 			if ( !@is_file( $sWorkingTestFile ) ) {
-				$outsMessage = sprintf( 'Failed to find file "%s"', $sWorkingTestFile );
+//				$outsMessage = sprintf( 'Failed to find file "%s"', $sWorkingTestFile );
 				return false;
 			}
 			$sContents = @file_get_contents( $sWorkingTestFile );
 			if ( $sContents != $sTestContent ) {
-				$outsMessage = sprintf( 'The content "%s" does not match what we wrote "%s"', $sContents, $sTestContent );
+//				$outsMessage = sprintf( 'The content "%s" does not match what we wrote "%s"', $sContents, $sTestContent );
 				return false;
 			}
 
@@ -167,7 +167,9 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Capabilities', false ) ):
 		 * @return array
 		 */
 		protected function getDbSettings() {
-			$aSettings = array();
+			$aSettings = array(
+				'table_prefix' => $this->loadDbProcessor()->getPrefix()
+			);
 			$aDefines = array(
 				'DB_HOST',
 				'DB_NAME',
@@ -181,15 +183,6 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Capabilities', false ) ):
 					$aSettings[ strtolower( $sDefineKey ) ] = constant( $sDefineKey );
 				}
 			}
-
-			$oWpDbHandler = $this->loadData();
-			$aSettings[ 'table_prefix' ] = $oWpDbHandler->getTablePrefix();
-			if ( empty( $aSettings[ 'db_charset' ] ) ) {
-				$aSettings[ 'db_charset' ] = $oWpDbHandler->getCharset();
-			}
-			if ( empty( $aSettings[ 'db_collate' ] ) ) {
-				$aSettings[ 'db_collate' ] = $oWpDbHandler->getCollate();
-			}
 			return $aSettings;
 		}
 
@@ -199,7 +192,6 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Capabilities', false ) ):
 		protected function getWpPaths() {
 
 			$oWp = $this->loadWpFunctionsProcessor();
-			$oDp = $this->loadDataProcessor();
 			$sHomeUrl = $oWp->getHomeUrl();
 			$sSiteUrl = $oWp->getSiteUrl();
 
@@ -272,7 +264,7 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Capabilities', false ) ):
 				'wordpress_content_dir'        => rtrim( WP_CONTENT_DIR, '/' ),
 				'wordpress_plugin_dir'         => rtrim( WP_PLUGIN_DIR, '/' ),
 				'wordpress_upload_dir'         => rtrim( $sUploadsDir, '/' ),
-				'wordpress_worpit_plugin_dir'  => rtrim( $this->getHandler_PluginSubSystem()->getDriverRootDir(), '/' ),
+				'wordpress_worpit_plugin_dir'  => rtrim( $this->getDriverRootDir(), '/' ),
 				'wordpress_wpconfig'           => $sWpConfig,
 				'wordpress_wpconfig_relocated' => $bRelocatedWpConfig ? 1 : 0,
 				'php_self'                     => isset( $_SERVER[ 'PHP_SELF' ] ) ? $_SERVER[ 'PHP_SELF' ] : '-1',
@@ -280,6 +272,16 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Capabilities', false ) ):
 				'script_filename'              => isset( $_SERVER[ 'SCRIPT_FILENAME' ] ) ? $_SERVER[ 'SCRIPT_FILENAME' ] : '-1',
 				'path_translated'              => isset( $_SERVER[ 'PATH_TRANSLATED' ] ) ? $_SERVER[ 'PATH_TRANSLATED' ] : '-1'
 			);
+		}
+
+		/**
+		 * @return string
+		 */
+		protected function getDriverRootDir() {
+			if ( class_exists( 'ICWP_Plugin' ) && method_exists( 'ICWP_Plugin', 'getController' ) ) {
+				return ICWP_Plugin::getController()->getRootDir();
+			}
+			return '';
 		}
 
 		/**
