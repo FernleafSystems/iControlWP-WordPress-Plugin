@@ -180,6 +180,22 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		}
 
 		/**
+		 * @param bool $bRemoveSchema
+		 * @return string
+		 */
+		public function getSiteUrl( $bRemoveSchema = false ) {
+			$sUrl = site_url();
+			if ( empty( $sUrl ) ) {
+				remove_all_filters( 'site_url' );
+				$sUrl = home_url();
+			}
+			if ( $bRemoveSchema ) {
+				$sUrl = preg_replace( '#^((http|https):)?\/\/#i', '', $sUrl );
+			}
+			return $sUrl;
+		}
+
+		/**
 		 * @param bool $bForChecksums
 		 * @return string
 		 */
@@ -719,6 +735,15 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 				$this->bIsMultisite = function_exists( 'is_multisite' ) && is_multisite();
 			}
 			return $this->bIsMultisite;
+		}
+
+		/**
+		 * @param string $sAbsWpConfigPath
+		 * @param string $sAbsSitePath
+		 * @return bool
+		 */
+		public function isWpConfigRelocated( $sAbsWpConfigPath, $sAbsSitePath ) {
+			return ( strpos( rtrim( $sAbsWpConfigPath, WORPIT_DS ), rtrim( $sAbsSitePath, WORPIT_DS ) ) === false );
 		}
 
 		/**
