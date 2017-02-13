@@ -20,12 +20,9 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 			add_filter( $oFO->doPluginPrefix( 'hide_plugin' ), array( $oFO, 'getIfHidePlugin' ) );
 			add_filter( $oFO->doPluginPrefix( 'filter_hidePluginMenu' ), array( $oFO, 'getIfHidePlugin' ) );
 
-			$oDp = $this->loadDataProcessor();
-			if ( ( $oDp->FetchRequest( 'getworpitpluginurl', false ) == 1 ) || $oDp->FetchRequest( 'geticwppluginurl', false ) == 1 ) {
+			if ( $this->loadDataProcessor()->FetchRequest( 'geticwppluginurl', false ) == 1 ) {
 				$this->returnIcwpPluginUrl();
 			}
-
-//			add_action( 'wp_footer', array( $this, 'printPluginUri') );
 
 			if ( $oReqParams->getIsApiCall() ) {
 				$sApiHook = $oReqParams->getApiHook();

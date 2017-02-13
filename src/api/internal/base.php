@@ -22,7 +22,7 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Base', false ) ):
 		 * This is essentially a placeholder function for the moment.
 		 */
 		protected function initFtp() {
-			$aFtpCreds =  $this->getRequestParams()->getParam( 'ftp_creds', null );
+			$aFtpCreds =  $this->getRequestParams()->getParam( 'ftpcred', null );
 			if ( !empty( $aFtpCreds ) ) {
 				$aRequestToWpMappingFtp = array(
 					'hostname' => 'ftp_host',
