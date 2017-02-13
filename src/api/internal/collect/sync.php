@@ -9,10 +9,9 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Capabilities', false ) ):
 		 * @return ApiResponse
 		 */
 		public function process() {
-
 			$oDp = $this->loadDataProcessor();
 
-			$fCanPHPWrite = $this->checkCanWrite();
+			$bCanPHPWrite = $this->checkCanWrite();
 
 			$fCanExtensionLoaded = function_exists('extension_loaded') && is_callable('extension_loaded');
 			$aData = array(
@@ -31,7 +30,7 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Capabilities', false ) ):
 					'safe_mode_allowed_env_vars'	=> ini_get( 'safe_mode_allowed_env_vars' ),
 					'safe_mode_protected_env_vars'	=> ini_get( 'safe_mode_protected_env_vars' ),
 					'can_timelimit'					=> $oDp->checkCanTimeLimit() ? 1: 0,
-					'can_write'						=> $fCanPHPWrite? 1: 0,
+					'can_write'						=> $bCanPHPWrite? 1: 0,
 					'can_wordpress_write'			=> $this->checkCanWordpressWrite( $sWriteToDiskNotice )? 1: 0,
 					'can_wordpress_write_notice'	=> $sWriteToDiskNotice,
 					'can_exec'						=> $oDp->checkCanExec()? 1: 0,
@@ -53,6 +52,8 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Capabilities', false ) ):
 
 				//,'wordpress-filters'		=> global $wp_filter; $wp_filter
 			);
+
+			$this->cleanRollbackData();
 
 			return $this->success( $aData );
 		}
@@ -83,34 +84,42 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Capabilities', false ) ):
 			$sWorkingTestFile = $sWorkingTestDir.'test_write';
 			$sTestContent = '#FINDME-'.uniqid();
 
-			if ( ! $oFS->mkdir( $sWorkingTestDir ) || !is_dir( $sWorkingTestDir ) ) {
-//				$outsMessage = sprintf( 'Failed to create directory: %s', $sWorkingTestDir );
-				return false;
+			$bGoodSoFar = true;
+			$outsMessage = '';
+
+			if ( ! $oFS->mkdir( $sWorkingTestDir ) || !$oFS->isDir( $sWorkingTestDir ) ) {
+				$outsMessage = sprintf( 'Failed to create directory: %s', $sWorkingTestDir );
+				$bGoodSoFar = false;
 			}
-			if ( !is_writable( $sWorkingTestDir ) ) {
-//				$outsMessage = sprintf( 'The test directory is not writable: %s', $sWorkingTestDir );
-				return false;
+			if ( $bGoodSoFar && !is_writable( $sWorkingTestDir ) ) {
+				$outsMessage = sprintf( 'The test directory is not writable: %s', $sWorkingTestDir );
+				$bGoodSoFar = false;
 			}
-			if ( !touch( $sWorkingTestFile ) ) {
-//				$outsMessage = sprintf( 'Failed to touch "%s"', $sWorkingTestFile );
-				return false;
+			if ( $bGoodSoFar && !$oFS->touch( $sWorkingTestFile ) ) {
+				$outsMessage = sprintf( 'Failed to touch "%s"', $sWorkingTestFile );
+				$bGoodSoFar = false;
 			}
-			if ( !file_put_contents( $sWorkingTestFile, $sTestContent ) ) {
-//				$outsMessage = sprintf( 'Failed to write content "%s" to "%s"', $sWorkingTestFile, $sTestContent );
-				return false;
+			if ( $bGoodSoFar && !file_put_contents( $sWorkingTestFile, $sTestContent ) ) {
+				$outsMessage = sprintf( 'Failed to write content "%s" to "%s"', $sWorkingTestFile, $sTestContent );
+				$bGoodSoFar = false;
 			}
-			if ( !@is_file( $sWorkingTestFile ) ) {
-//				$outsMessage = sprintf( 'Failed to find file "%s"', $sWorkingTestFile );
-				return false;
+			if ( $bGoodSoFar && !@is_file( $sWorkingTestFile ) ) {
+				$outsMessage = sprintf( 'Failed to find file "%s"', $sWorkingTestFile );
+				$bGoodSoFar = false;
 			}
-			$sContents = @file_get_contents( $sWorkingTestFile );
-			if ( $sContents != $sTestContent ) {
-//				$outsMessage = sprintf( 'The content "%s" does not match what we wrote "%s"', $sContents, $sTestContent );
+			$sContents = $oFS->getFileContent( $sWorkingTestFile );
+			if ( $bGoodSoFar && ( $sContents != $sTestContent ) ) {
+				$outsMessage = sprintf( 'The content "%s" does not match what we wrote "%s"', $sContents, $sTestContent );
+				$bGoodSoFar = false;
+			}
+
+			if ( !$bGoodSoFar ) {
+				$this->getStandardResponse()
+					 ->setErrorMessage( $outsMessage );
 				return false;
 			}
 
-			@unlink( $sWorkingTestFile );
-			@rmdir( $sWorkingTestDir );
+			$oFS->deleteDir( $sWorkingTestDir );
 			return true;
 		}
 
@@ -119,23 +128,6 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Capabilities', false ) ):
 		 * @return boolean
 		 */
 		protected function checkCanWordpressWrite( &$outsMessage = '' ) {
-
-			if ( $this->getRequest( 'ftp_host', true ) !== null ) {
-				$_POST['hostname'] = $this->getRequest( 'ftp_host', true );
-				$_POST['username'] = $this->getRequest( 'ftp_user', true );
-				$_POST['password'] = $this->getRequest( 'ftp_pass', true );
-				$_POST['public_key'] = $this->getRequest( 'ftp_public_key', true );
-				$_POST['private_key'] = $this->getRequest( 'ftp_private_key', true );
-				$_POST['connection_type'] = $this->getRequest( 'ftp_protocol', true );
-
-				if ( !empty($_POST['public_key']) && !empty($_POST['private_key']) && !defined( 'FS_METHOD' ) ) {
-					define( 'FS_METHOD', 'ssh' );
-				}
-				//if ( !defined( 'FTP_BASE' ) ) {
-				// define( 'FTP_BASE', $aFtpDetails['ftp_base'] ); //doesn't seem to be necessary.
-				//}
-			}
-
 			$sUrl = '';
 			$sUrl = wp_nonce_url( $sUrl, '' );
 
@@ -291,7 +283,7 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Capabilities', false ) ):
 			if ( class_exists( 'ICWP_Plugin', false ) && method_exists( 'ICWP_Plugin', 'GetHandshakingEnabled' ) ) {
 				return ICWP_Plugin::GetHandshakingEnabled();
 			}
-			return apply_filters( 'icwp-wpsf-CanHandshake', false );
+			return apply_filters( 'icwp-app-CanHandshake', false );
 		}
 
 		/**
@@ -344,6 +336,47 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Capabilities', false ) ):
 				}
 			}
 			return false;
+		}
+
+		/**
+		 * @return bool
+		 */
+		protected function cleanRollbackData() {
+			if ( !class_exists( 'DirectoryIterator', false ) ) {
+				return false;
+			}
+
+			$nBoundary = time() - WEEK_IN_SECONDS;
+			$oFs = $this->loadFileSystemProcessor();
+
+			$aContexts = array( 'plugins', 'themes' );
+			foreach( $aContexts as $sContext )  {
+				$sWorkingDir = path_join( $this->getRollbackBaseDir(), $sContext );
+				if ( !is_dir( $sWorkingDir ) ) {
+					continue;
+				}
+				try {
+					$oDirIt = new DirectoryIterator( $sWorkingDir );
+					foreach ( $oDirIt as $oFileItem ) {
+						if ( $oFileItem->isDir() && !$oFileItem->isDot() ) {
+							if ( $oFileItem->getMTime() < $nBoundary ) {
+								$oFs->deleteDir( $oFileItem->getPathname() );
+							}
+						}
+					}
+				}
+				catch( Exception $oE ) { //  UnexpectedValueException, RuntimeException, Exception
+					continue;
+				}
+			}
+			return true;
+		}
+
+		/**
+		 * @return string
+		 */
+		protected function getRollbackBaseDir() {
+			return path_join( WP_CONTENT_DIR, 'icwp'.WORPIT_DS.'rollback'.WORPIT_DS );
 		}
 	}
 
