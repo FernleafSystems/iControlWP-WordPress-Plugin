@@ -132,21 +132,21 @@ class RequestParameters {
 	 * @return bool
 	 */
 	public function getIsApiCall() {
-		return ( ( $this->getParam( 'worpit_link', 0 ) == 1 ) || ( $this->getParam( 'worpit_api', 0 ) == 1 ) );
+		return $this->getIsApiCall_Action() || $this->getIsApiCall_LinkSite();
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function getIsApiCall_Action() {
-		return $this->getIsApiCall() && ( $this->getParam( 'worpit_api', 0 ) == 1 );
+		return ( $this->getParam( 'worpit_api', 0 ) || $this->getParam( 'icwpapi', 0 ) );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function getIsApiCall_LinkSite() {
-		return $this->getIsApiCall() && ( $this->getParam( 'worpit_link', 0 ) == 1 );
+		return $this->getParam( 'worpit_link', 0 );
 	}
 
 	/**

@@ -104,6 +104,7 @@ definitions:
   internal_api_supported_actions:
     - 'collect_info'
     - 'collect_plugins'
+    - 'collect_sync'
     - 'collect_themes'
     - 'core_update'
     - 'db_status'

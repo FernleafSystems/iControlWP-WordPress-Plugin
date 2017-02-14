@@ -180,6 +180,22 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		}
 
 		/**
+		 * @param bool $bRemoveSchema
+		 * @return string
+		 */
+		public function getSiteUrl( $bRemoveSchema = false ) {
+			$sUrl = site_url();
+			if ( empty( $sUrl ) ) {
+				remove_all_filters( 'site_url' );
+				$sUrl = home_url();
+			}
+			if ( $bRemoveSchema ) {
+				$sUrl = preg_replace( '#^((http|https):)?\/\/#i', '', $sUrl );
+			}
+			return $sUrl;
+		}
+
+		/**
 		 * @param bool $bForChecksums
 		 * @return string
 		 */
@@ -722,6 +738,15 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		}
 
 		/**
+		 * @param string $sAbsWpConfigPath
+		 * @param string $sAbsSitePath
+		 * @return bool
+		 */
+		public function isWpConfigRelocated( $sAbsWpConfigPath, $sAbsSitePath ) {
+			return ( strpos( rtrim( $sAbsWpConfigPath, WORPIT_DS ), rtrim( $sAbsSitePath, WORPIT_DS ) ) === false );
+		}
+
+		/**
 		 * @param string $sKey
 		 * @param string $sValue
 		 * @return bool
@@ -1002,30 +1027,3 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		}
 	}
 endif;
-
-if ( !class_exists( 'ICWP_Upgrader_Skin', false ) && class_exists( 'WP_Upgrader_Skin', false ) ) {
-
-	/**
-	 * Class ICWP_Upgrader_Skin
-	 */
-	class ICWP_Upgrader_Skin extends WP_Upgrader_Skin {
-
-		public $m_aErrors;
-		public $aFeedback;
-
-		public function __construct() {
-			parent::__construct();
-			$this->done_header = true;
-		}
-
-		/**
-		 * @return array
-		 */
-		public function getFeedback() {
-			return $this->aFeedback;
-		}
-
-		function error( $errors ) { }
-		function feedback( $string ) { }
-	}
-}
