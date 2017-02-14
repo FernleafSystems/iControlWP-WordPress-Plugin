@@ -14,13 +14,14 @@ if ( !class_exists( 'ICWP_APP_WpUpgrades', false ) ):
 		public static function GetInstance() {
 			if ( is_null( self::$oInstance ) ) {
 				self::$oInstance = new self();
-				require_once ( ABSPATH . 'wp-admin/includes/upgrade.php' );
-				require_once ( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
 			}
 			return self::$oInstance;
 		}
 	}
 endif;
+
+require_once ( ABSPATH . 'wp-admin/includes/upgrade.php' );
+require_once ( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
 
 if ( !class_exists( 'WP_Upgrader_Skin', false ) ) {
 	$sWordPressWpUpgraderClass = ABSPATH.'wp-admin/includes/class-wp-upgrader.php';
