@@ -9,7 +9,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Login', false ) ):
 	 */
 	class ICWP_APP_Processor_Plugin_Api_Login extends ICWP_APP_Processor_Plugin_Api {
 
-		const LoginTokenKey = 'worpit_login_token';
+		const LoginTokenKey = 'icwplogintoken';
 
 		/**
 		 * Override so that we don't run the handshaking etc.
