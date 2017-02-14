@@ -14,6 +14,35 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Base', false ) ):
 		 */
 		protected $oRequestParams;
 
+		public function preProcess() {
+			$this->initFtp();
+		}
+
+		/**
+		 * This is essentially a placeholder function for the moment.
+		 */
+		protected function initFtp() {
+			$aFtpCreds =  $this->getRequestParams()->getParam( 'ftpcred', null );
+			if ( !empty( $aFtpCreds ) ) {
+				$aRequestToWpMappingFtp = array(
+					'hostname' => 'ftp_host',
+					'username' => 'ftp_user',
+					'password' => 'ftp_pass',
+					'public_key' => 'ftp_public_key',
+					'private_key' => 'ftp_private_key',
+					'connection_type' => 'ftp_protocol',
+				);
+				foreach ( $aRequestToWpMappingFtp as $sWpKey => $sRequestKey ) {
+					$_POST[ $sWpKey ] = isset( $aFtpCreds[ $sRequestKey ] ) ? $aFtpCreds[ $sRequestKey ] : '';
+				}
+				if ( !empty($_POST['public_key']) && !empty($_POST['private_key']) && !defined( 'FS_METHOD' ) ) {
+					define( 'FS_METHOD', 'ssh' );
+				}
+			}
+		}
+
+		public function process() { }
+
 		/**
 		 * @return ApiResponse
 		 */

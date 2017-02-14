@@ -42,6 +42,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Internal', false ) ):
 			$oApi = new $sClassName();
 			$oApi->setRequestParams( $this->getRequestParams() )
 				 ->setStandardResponse( $this->getStandardResponse() );
+			$oApi->preProcess();
 			return call_user_func( array( $oApi, 'process' ) );
 		}
 

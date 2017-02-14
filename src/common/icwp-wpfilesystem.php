@@ -430,6 +430,18 @@ if ( !class_exists( 'ICWP_APP_WpFilesystem', false ) ):
 		}
 
 		/**
+		 * @param string $sFilePath
+		 * @return bool|null
+		 */
+		public function isDir( $sFilePath ) {
+			$oFs = $this->getWpfs();
+			if ( $oFs && $oFs->is_dir( $sFilePath ) ) {
+				return true;
+			}
+			return function_exists( 'is_dir' ) ? @is_dir( $sFilePath ) : null;
+		}
+
+		/**
 		 * @param $sFilePath
 		 * @return bool|mixed
 		 */
@@ -438,7 +450,7 @@ if ( !class_exists( 'ICWP_APP_WpFilesystem', false ) ):
 			if ( $oFs && $oFs->is_file( $sFilePath ) ) {
 				return true;
 			}
-			return function_exists( 'is_file' ) ? is_file( $sFilePath ) : null;
+			return function_exists( 'is_file' ) ? @is_file( $sFilePath ) : null;
 		}
 
 		/**

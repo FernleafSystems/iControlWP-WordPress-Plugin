@@ -177,6 +177,39 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 		}
 
 		/**
+		 * @param array $outaOutput
+		 * @return boolean
+		 */
+		public function checkCanExec( &$outaOutput = array() ) {
+			if ( !$this->suhosinFunctionExists( 'exec' ) ) {
+				return false;
+			}
+
+			if ( !@exec( 'ls ./', $outaOutput, $nReturn ) ) {
+				return false;
+			}
+
+			if ( $nReturn != 0 ) {
+				return false;
+			}
+			return true;
+		}
+
+		/**
+		 * @return bool
+		 */
+		public function checkCanTimeLimit() {
+			if ( !$this->suhosinFunctionExists( 'set_time_limit' ) ) {
+				return false;
+			}
+
+			$nPrevious = (int)ini_get( 'max_execution_time' );
+			$nNew = $nPrevious + 30;
+			@set_time_limit( $nNew );
+			return ( ini_get( 'max_execution_time' ) == ( $nNew ) );
+		}
+
+		/**
 		 * @param string $sHaystack
 		 * @param string $sNeedle
 		 * @return bool
@@ -204,6 +237,23 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 				self::$nIpAddressVersion = $this->getIpAddressVersion( $this->getVisitorIpAddress( true ) );
 			}
 			return self::$nIpAddressVersion;
+		}
+
+		/**
+		 * @param string $sFunctionName
+		 * @return bool
+		 */
+		public function suhosinFunctionExists( $sFunctionName ) {
+			if ( extension_loaded( 'suhosin' ) ) {
+				$sBlackList = @ini_get( "suhosin.executor.func.blacklist" );
+				if ( !empty( $sBlackList ) ) {
+					$aBlackList = explode( ',', $sBlackList );
+					$aBlackList = array_map( 'trim', $aBlackList );
+					$aBlackList = array_map( 'strtolower', $aBlackList );
+					return ( function_exists( $sFunctionName ) == true && array_search( $sFunctionName, $aBlackList ) === false );
+				}
+			}
+			return function_exists( $sFunctionName );
 		}
 
 		/**
@@ -246,6 +296,21 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 				$aNewList[ $aParts[0] ] = $aParams;
 			}
 			return $aNewList;
+		}
+
+		/**
+		 * @return bool
+		 */
+		public function isUrlRewritten() {
+			$sVirtualScriptName = reset( explode( "?", $_SERVER['REQUEST_URI'] ) );
+			return !( $this->FetchServer( 'SCRIPT_NAME' ) == $sVirtualScriptName );
+		}
+
+		/**
+		 * @return bool
+		 */
+		public function isWindows() {
+			return ( strtoupper( substr( PHP_OS, 0, 3 ) ) === 'WIN' );
 		}
 
 		/**

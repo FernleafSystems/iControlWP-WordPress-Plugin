@@ -61,7 +61,13 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Themes', false ) ):
 				/** @var WP_Theme[] $aThemeObjects */
 				$aThemeObjects = $this->loadWpFunctionsThemes()->getThemes();
 
+				$bHasChildThemes = false;
+
 				foreach ( $aThemeObjects as $oTheme ) {
+
+					$bIsChildTheme = ( $oTheme->offsetGet( 'Template' ) != $oTheme->offsetGet( 'Stylesheet' ) );
+					$bHasChildThemes = $bHasChildThemes || $bIsChildTheme;
+
 					$sName = $oTheme->get( 'Name' );
 					$aThemes[$sName] = array(
 						'Name'				=> $oTheme->display( 'Name' ),
@@ -81,10 +87,25 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Themes', false ) ):
 
 						'Status'			=> $oTheme->offsetGet( 'Status' ),
 
+						'IsChild'			=> $bIsChildTheme ? 1 : 0,
+						'IsParent'			=> 0,
+
 						// We add our own
 						'network_active'	=> $oTheme->is_allowed( 'network' )
 					);
 					$aThemes[$sName] = array_intersect_key( $aThemes[$sName], array_flip( $this->getDesiredThemeAttributes() ) );
+				}
+
+				if ( $bHasChildThemes ) {
+					foreach ( $aThemes as $aMaybeChildTheme ) {
+						if ( $aMaybeChildTheme[ 'IsChild' ] ) {
+							foreach ( $aThemes as &$aMaybeParentTheme ) {
+								if ( $aMaybeParentTheme[ 'Stylesheet' ] == $aMaybeChildTheme[ 'Template' ] ) {
+									$aMaybeParentTheme[ 'IsParent' ] = 1;
+								}
+							}
+						}
+					}
 				}
 			}
 			else {
@@ -110,6 +131,8 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Themes', false ) ):
 				'Version',
 				'Template',
 				'Stylesheet',
+				'IsChild',
+				'IsParent',
 				'Network',
 				'active',
 				'network_active'
