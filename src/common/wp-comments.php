@@ -21,6 +21,62 @@ if ( !class_exists( 'ICWP_APP_WpComments', false ) ):
 		}
 
 		/**
+		 * @param array $aLookupParams
+		 * @return array[]
+		 */
+		public function getComments( $aLookupParams = array() ) {
+			$aResults = get_comments( wp_parse_args( $aLookupParams, $this->getDefaultLookupParams() ) );
+			foreach( $aResults as $nKey => $oComment ) {
+				$aResults[ $nKey ] = (array)$oComment;
+			}
+			return $aResults;
+		}
+
+		/**
+		 * @param string $sType
+		 * @param array $aLookupParams
+		 * @return array[]
+		 */
+		public function getCommentsOfType( $sType, $aLookupParams = array() ) {
+			$aLookupParams[ 'type' ] = $sType;
+			return $this->getComments( $aLookupParams );
+		}
+
+		/**
+		 * @param array $aCommentTypes
+		 * @param array $aLookupParams
+		 * @return array[]
+		 */
+		public function getCommentsOfTypes( $aCommentTypes, $aLookupParams = array() ) {
+			$aResults = array();
+			foreach( $aCommentTypes as $sType ) {
+				$aResults = array_merge( $aResults, $this->getCommentsOfType( $sType, $aLookupParams ) ) ;
+			}
+			return $aResults;
+		}
+
+		/**
+		 * @param $nCommentId
+		 * @return false|string
+		 */
+		public function getCommentStatus( $nCommentId ) {
+			return wp_get_comment_status( $nCommentId );
+		}
+
+		/**
+		 * @param string $nCommentId
+		 * @param string $sNewStatus
+		 * @return bool|WP_Error
+		 */
+		public function setCommentStatus( $nCommentId, $sNewStatus ) {
+			$mResult = false;
+			if ( in_array( $sNewStatus, array( 'hold', 'approve', 'spam', 'trash', 'delete' ) ) ) {
+				$mResult = wp_set_comment_status( $nCommentId, $sNewStatus );
+			}
+			return is_wp_error( $mResult ) ? false : $mResult;
+		}
+
+		/**
 		 * @return bool
 		 */
 		public function getIfCommentsMustBePreviouslyApproved() {
@@ -79,6 +135,19 @@ if ( !class_exists( 'ICWP_APP_WpComments', false ) ):
 		 */
 		public function isCommentPost() {
 			return $this->loadDataProcessor()->GetIsRequestPost() && $this->loadWpFunctionsProcessor()->getIsCurrentPage( 'wp-comments-post.php' );
+		}
+
+		/**
+		 * http://codex.wordpress.org/Function_Reference/get_comments
+		 * @return array
+		 */
+		protected function getDefaultLookupParams() {
+			return array(
+				'orderby'	=> 'comment_date_gmt', //comment_post_ID, comment_approved, comment_ID
+				'order'		=> 'DESC',
+				'number'	=> '10', //set blank to get unlimited
+				'count'		=> false,
+			);
 		}
 	}
 

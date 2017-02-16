@@ -106,6 +106,8 @@ definitions:
     - 'collect_plugins'
     - 'collect_sync'
     - 'collect_themes'
+    - 'comments_retrieve'
+    - 'comments_status'
     - 'core_update'
     - 'db_status'
     - 'db_optimise'
@@ -119,6 +121,8 @@ definitions:
     - 'theme_delete'
     - 'theme_install'
     - 'theme_update'
+    - 'user_create'
+    - 'user_delete'
     - 'user_list'
     - 'user_login'
   supported_modules:
