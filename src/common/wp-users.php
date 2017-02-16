@@ -21,6 +21,35 @@ if ( !class_exists( 'ICWP_APP_WpUsers', false ) ):
 		}
 
 		/**
+		 * If setting password, do not send the hashed password as this will hash it for you
+		 *
+		 * @param array $aNewUserData
+		 * @param bool $bSendNotification
+		 * @return int|WP_Error
+		 */
+		public function create( $aNewUserData, $bSendNotification = false ) {
+
+			$aUserDefaults = array(
+				'user_registered' => strftime( '%F %T', time() ),
+				'display_name' => false,
+				'user_url' => '',
+				'description'	=> ''
+			);
+
+			//set defaults for unset vars
+			$aNewUser = wp_parse_args( $aNewUserData, $aUserDefaults );
+			if ( !empty( $aNewUser[ 'user_pass' ] ) ) {
+				$aNewUser[ 'user_pass' ] = wp_hash_password( $aNewUser[ 'user_pass' ] );
+			}
+			$mNewUserId = wp_insert_user( $aNewUser );
+
+			if ( $bSendNotification && !is_wp_error( $mNewUserId ) && function_exists( 'wp_new_user_notification' ) ) {
+				wp_new_user_notification( $mNewUserId );
+			}
+			return $mNewUserId;
+		}
+
+		/**
 		 * @param string $sKey
 		 * @param integer $nUserId		-user ID
 		 * @return boolean
