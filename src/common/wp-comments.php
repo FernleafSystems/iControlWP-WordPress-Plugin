@@ -56,6 +56,27 @@ if ( !class_exists( 'ICWP_APP_WpComments', false ) ):
 		}
 
 		/**
+		 * @param $nCommentId
+		 * @return false|string
+		 */
+		public function getCommentStatus( $nCommentId ) {
+			return wp_get_comment_status( $nCommentId );
+		}
+
+		/**
+		 * @param string $nCommentId
+		 * @param string $sNewStatus
+		 * @return bool|WP_Error
+		 */
+		public function setCommentStatus( $nCommentId, $sNewStatus ) {
+			$mResult = false;
+			if ( in_array( $sNewStatus, array( 'hold', 'approve', 'spam', 'trash', 'delete' ) ) ) {
+				$mResult = wp_set_comment_status( $nCommentId, $sNewStatus );
+			}
+			return is_wp_error( $mResult ) ? false : $mResult;
+		}
+
+		/**
 		 * @return bool
 		 */
 		public function getIfCommentsMustBePreviouslyApproved() {
