@@ -28,12 +28,12 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_User_Create', false ) ):
 			$aActionParams = $this->getActionParams();
 			$aUser = $aActionParams[ 'user' ];
 			if ( $aUser['role'] == 'default' ) {
-				$aUser['role'] = get_option( 'default_role' );
+				$aUser[ 'role' ] = get_option( 'default_role' );
 			}
 
 			$mNewUserId = $this->loadWpUsersProcessor()->createUser(
 				$aUser,
-				isset( $aNewUser[ 'send_notification' ] ) && $aNewUser[ 'send_notification' ]
+				isset( $aActionParams[ 'send_notification' ] ) && $aActionParams[ 'send_notification' ]
 			);
 
 			if ( is_wp_error( $mNewUserId ) ) {
@@ -42,7 +42,7 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_User_Create', false ) ):
 
 			$aData = array(
 				'new_user_id' => $mNewUserId,
-				'new_user_data' => $aNewUser,
+				'new_user_data' => $aUser,
 			);
 			return $this->success( $aData );
 		}
