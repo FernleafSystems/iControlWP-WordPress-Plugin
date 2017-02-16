@@ -106,6 +106,8 @@ definitions:
     - 'collect_plugins'
     - 'collect_sync'
     - 'collect_themes'
+    - 'comments_retrieve'
+    - 'comments_status'
     - 'core_update'
     - 'db_status'
     - 'db_optimise'
