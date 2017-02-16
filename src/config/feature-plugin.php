@@ -122,6 +122,7 @@ definitions:
     - 'theme_install'
     - 'theme_update'
     - 'user_create'
+    - 'user_delete'
     - 'user_list'
     - 'user_login'
   supported_modules:

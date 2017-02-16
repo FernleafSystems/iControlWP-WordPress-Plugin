@@ -27,7 +27,7 @@ if ( !class_exists( 'ICWP_APP_WpUsers', false ) ):
 		 * @param bool $bSendNotification
 		 * @return int|WP_Error
 		 */
-		public function create( $aNewUserData, $bSendNotification = false ) {
+		public function createUser( $aNewUserData, $bSendNotification = false ) {
 
 			$aUserDefaults = array(
 				'user_registered' => strftime( '%F %T', time() ),
@@ -47,6 +47,38 @@ if ( !class_exists( 'ICWP_APP_WpUsers', false ) ):
 				wp_new_user_notification( $mNewUserId );
 			}
 			return $mNewUserId;
+		}
+
+		/**
+		 * @param int $nUserId
+		 * @param bool $bPermitAdminDelete
+		 * @param int $nReassignUserId
+		 * @return bool
+		 * @throws Exception
+		 */
+		public function deleteUser( $nUserId, $bPermitAdminDelete = false, $nReassignUserId = null ) {
+			if ( !function_exists( 'wp_delete_user' ) ) {
+				include( ABS_PATH.'wp-admin/includes/user.php' );
+				if ( !function_exists( 'wp_delete_user' ) ) {
+					throw new Exception( 'Could not find the function wp_delete_user()' );
+				}
+			}
+			if ( empty( $nUserId ) ) {
+				throw new Exception( 'User ID value was not set' );
+			}
+			if ( $nUserId <= 0 ) {
+				throw new Exception( sprintf( 'Supplied User ID "%s" to delete was less than or equal to zero', $nUserId ) );
+			}
+
+			$oUserToDelete = $this->getUserById( $nUserId );
+			if ( empty( $oUserToDelete ) ) {
+				throw new Exception( sprintf( 'Could not load User with ID "%s" to delete', $nUserId ) );
+			}
+			if ( !$bPermitAdminDelete && $this->isUserAdmin( $oUserToDelete ) ) {
+				throw new Exception( sprintf( 'Attempting to delete Administrator User ID "%s"', $nUserId ) );
+			}
+
+			return wp_delete_user( $nUserId, $nReassignUserId );
 		}
 
 		/**

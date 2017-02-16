@@ -1,6 +1,6 @@
 <?php
 
-if ( !class_exists( 'ICWP_APP_Api_Internal_User_Create', false ) ):
+if ( !class_exists( 'ICWP_APP_Api_Internal_User_Delete', false ) ):
 
 	require_once( dirname( dirname( __FILE__ ) ) . ICWP_DS . 'base.php' );
 
@@ -18,32 +18,33 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_User_Create', false ) ):
 		'user_registered' => $user_registered,
 		'display_name' => $display_name,
 	 */
-	class ICWP_APP_Api_Internal_User_Create extends ICWP_APP_Api_Internal_Base {
+	class ICWP_APP_Api_Internal_User_Delete extends ICWP_APP_Api_Internal_Base {
 
 		/**
 		 * @return ApiResponse
 		 */
 		public function process() {
 
+			//Ensure we have the delete function available
+
 			$aActionParams = $this->getActionParams();
-			$aUser = $aActionParams[ 'user' ];
-			if ( $aUser['role'] == 'default' ) {
-				$aUser['role'] = get_option( 'default_role' );
+			$nUserId = (int)$aActionParams[ 'user_id' ];
+			$nReassignUserId = isset( $aActionParams[ 'reassign_id' ] ) ? $aActionParams[ 'reassign_id' ] : null;
+
+			// Validate User ID
+
+			try {
+				$bResult = $this->loadWpUsersProcessor()->deleteUser(
+					$nUserId,
+					false,
+					$nReassignUserId
+				);
+			}
+			catch ( Exception $oE ) {
+				return $this->fail( $oE->getMessage() );
 			}
 
-			$mNewUserId = $this->loadWpUsersProcessor()->createUser(
-				$aUser,
-				isset( $aNewUser[ 'send_notification' ] ) && $aNewUser[ 'send_notification' ]
-			);
-
-			if ( is_wp_error( $mNewUserId ) ) {
-				return $this->fail( 'Could not create user with error: '.$mNewUserId->get_error_message() );
-			}
-
-			$aData = array(
-				'new_user_id' => $mNewUserId,
-				'new_user_data' => $aNewUser,
-			);
+			$aData = array( 'result' => $bResult );
 			return $this->success( $aData );
 		}
 	}
