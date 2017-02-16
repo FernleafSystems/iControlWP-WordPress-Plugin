@@ -36,7 +36,9 @@ if ( !class_exists( 'ICWP_APP_BaseDbProcessor', false ) ):
 		public function deleteTable() {
 			if ( apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'has_permission_to_submit' ), true ) && $this->getTableExists() ) {
 				$this->deleteCleanupCron();
-				$this->loadDbProcessor()->doDropTable( $this->getTableName() );
+				if ( $this->getTableExists() ) {
+					$this->loadDbProcessor()->doDropTable( $this->getTableName() );
+				}
 			}
 		}
 

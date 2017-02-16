@@ -159,6 +159,16 @@ if ( !class_exists( 'ICWP_APP_Processor_Statistics', false ) ):
 		}
 
 		/**
+		 * @return bool
+		 */
+		public function removeStats() {
+			$this->getFeatureOptions()->setIsMainFeatureEnabled( false );
+			remove_action( $this->getController()->doPluginPrefix( 'plugin_shutdown' ), array( $this, 'doStats' ) );
+			$this->deleteTable();
+			return true;
+		}
+
+		/**
 		 * @return bool|int
 		 */
 		protected function doPageStats() {
