@@ -29,9 +29,9 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Themes', false ) ):
 
 			$sActiveThemeName = $this->loadWpFunctionsThemes()->getCurrentThemeName();
 
-			foreach ( $aThemes as $sName => &$aData ) {
-				$aData[ 'active' ]				= ( $sName == $sActiveThemeName );
-				$aData[ 'auto_update' ]			= in_array( $sName, $aAutoUpdates );
+			foreach ( $aThemes as $sStylesheet => &$aData ) {
+				$aData[ 'active' ]				= ( $sStylesheet == $sActiveThemeName );
+				$aData[ 'auto_update' ]			= in_array( $sStylesheet, $aAutoUpdates );
 				$aData[ 'update_available' ]	= isset( $oUpdates->response[ $aData[ 'Stylesheet' ] ] ) ? 1 : 0;
 				$aData[ 'update_info' ]			= '';
 
@@ -68,8 +68,8 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Themes', false ) ):
 					$bIsChildTheme = ( $oTheme->offsetGet( 'Template' ) != $oTheme->offsetGet( 'Stylesheet' ) );
 					$bHasChildThemes = $bHasChildThemes || $bIsChildTheme;
 
-					$sName = $oTheme->get( 'Name' );
-					$aThemes[$sName] = array(
+					$sStylesheet = $oTheme->offsetGet( 'Stylesheet' );
+					$aThemes[ $sStylesheet ] = array(
 						'Name'				=> $oTheme->display( 'Name' ),
 						'Title'				=> $oTheme->offsetGet( 'Title' ),
 						'Description'		=> $oTheme->offsetGet( 'Description' ),
@@ -79,7 +79,7 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Themes', false ) ):
 						'Version'			=> $oTheme->offsetGet( 'Version' ),
 
 						'Template'			=> $oTheme->offsetGet( 'Template' ),
-						'Stylesheet'		=> $oTheme->offsetGet( 'Stylesheet' ),
+						'Stylesheet'		=> $sStylesheet,
 						//'Template Dir'		=> $oTheme->offsetGet( 'Template Dir' ),
 						//'Stylesheet Dir'	=> $oTheme->offsetGet( 'Stylesheet Dir' ),
 						'Theme Root'		=> $oTheme->offsetGet( 'Theme Root' ),
@@ -93,7 +93,10 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Themes', false ) ):
 						// We add our own
 						'network_active'	=> $oTheme->is_allowed( 'network' )
 					);
-					$aThemes[$sName] = array_intersect_key( $aThemes[$sName], array_flip( $this->getDesiredThemeAttributes() ) );
+					$aThemes[ $sStylesheet ] = array_intersect_key(
+						$aThemes[ $sStylesheet ],
+						array_flip( $this->getDesiredThemeAttributes() )
+					);
 				}
 
 				if ( $bHasChildThemes ) {
@@ -115,7 +118,10 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Themes', false ) ):
 
 				// We add our own here because it's easier due to WordPress differences
 				foreach( $aThemes as $sName => $aData ) {
-					$aThemes[$sName]['network_active'] = $fIsMultisite && isset( $aNetworkAllowedThemes[ $aData['Stylesheet'] ] );
+					$sStylesheet = $aData[ 'Stylesheet' ];
+					$aData[ 'network_active' ] = $fIsMultisite && isset( $aNetworkAllowedThemes[ $sStylesheet ] );
+					unset( $aThemes[ $sName ] );
+					$aThemes[ $sStylesheet ] = $aData;
 				}
 			}
 
