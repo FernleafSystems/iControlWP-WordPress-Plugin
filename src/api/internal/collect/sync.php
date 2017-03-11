@@ -376,7 +376,7 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Capabilities', false ) ):
 		 * @return string
 		 */
 		protected function getRollbackBaseDir() {
-			return path_join( WP_CONTENT_DIR, 'icwp'.WORPIT_DS.'rollback'.WORPIT_DS );
+			return path_join( WP_CONTENT_DIR, 'icwp'.ICWP_DS.'rollback'.ICWP_DS );
 		}
 	}
 
