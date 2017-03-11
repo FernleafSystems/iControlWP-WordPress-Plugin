@@ -27,10 +27,10 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Themes', false ) ):
 			$oUpdates = $this->loadWpFunctionsProcessor()->updatesGather( 'themes', $bForceUpdateCheck ); // option to do another update check? force it?
 			$aAutoUpdates = $this->getAutoUpdates( 'themes' );
 
-			$sActiveThemeName = $this->loadWpFunctionsThemes()->getCurrentThemeName();
+			$sActiveThemeStylesheet = $this->loadWpFunctionsThemes()->getCurrent()->get_stylesheet();
 
 			foreach ( $aThemes as $sStylesheet => &$aData ) {
-				$aData[ 'active' ]				= ( $sStylesheet == $sActiveThemeName );
+				$aData[ 'active' ]				= ( $sStylesheet == $sActiveThemeStylesheet );
 				$aData[ 'auto_update' ]			= in_array( $sStylesheet, $aAutoUpdates );
 				$aData[ 'update_available' ]	= isset( $oUpdates->response[ $aData[ 'Stylesheet' ] ] ) ? 1 : 0;
 				$aData[ 'update_info' ]			= '';
@@ -77,7 +77,6 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Themes', false ) ):
 						'Author Name'		=> $oTheme->offsetGet( 'Author Name' ),
 						'Author URI'		=> $oTheme->offsetGet( 'Author URI' ),
 						'Version'			=> $oTheme->offsetGet( 'Version' ),
-
 						'Template'			=> $oTheme->offsetGet( 'Template' ),
 						'Stylesheet'		=> $sStylesheet,
 						//'Template Dir'		=> $oTheme->offsetGet( 'Template Dir' ),
