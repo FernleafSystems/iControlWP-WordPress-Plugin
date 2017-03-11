@@ -302,8 +302,9 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 		 * @return bool
 		 */
 		public function isUrlRewritten() {
-			$sVirtualScriptName = reset( explode( "?", $_SERVER['REQUEST_URI'] ) );
-			return !( $this->FetchServer( 'SCRIPT_NAME' ) == $sVirtualScriptName );
+			$aParts = explode( "?", $_SERVER[ 'REQUEST_URI' ] );
+			$sVirtualScriptName = isset( $aParts[ 0 ] ) ? $aParts[ 0 ] : '';
+			return $this->FetchServer( 'SCRIPT_NAME', '' ) != $sVirtualScriptName;
 		}
 
 		/**
