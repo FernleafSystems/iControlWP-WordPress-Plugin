@@ -19,10 +19,6 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Theme_Update', false ) ):
 				$fRollbackResult = $oPluginsCommon->prepRollbackData( $sAssetFile, 'plugins' );
 			}
 
-			if ( $this->isIgnoreUserAbort() ) {
-				ignore_user_abort( true );
-			}
-
 			$aResult = $this->loadWpFunctionsThemes()->update( $sAssetFile );
 			if ( isset( $aResult['successful'] ) && $aResult['successful'] == 0 ) {
 				return $this->fail( implode( ' | ', $aResult['errors'] ), $aResult );

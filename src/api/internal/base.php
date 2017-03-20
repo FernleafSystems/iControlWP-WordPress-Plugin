@@ -15,6 +15,9 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Base', false ) ):
 		protected $oRequestParams;
 
 		public function preProcess() {
+			if ( $this->isIgnoreUserAbort() ) {
+				ignore_user_abort( true );
+			}
 			$this->initFtp();
 		}
 

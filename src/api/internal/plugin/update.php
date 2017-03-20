@@ -32,9 +32,6 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Plugin_Update', false ) ):
 				$fRollbackResult = $oPluginsCommon->prepRollbackData( $sAssetFile, 'plugins' );
 			}
 
-			if ( $this->isIgnoreUserAbort() ) {
-				ignore_user_abort( true );
-			}
 			$aResult = $this->loadWpFunctionsPlugins()->update( $sAssetFile );
 
 			if ( isset( $aResult['successful'] ) && $aResult['successful'] == 0 ) {

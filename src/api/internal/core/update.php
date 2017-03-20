@@ -30,10 +30,6 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Core_Update', false ) ):
 				return $this->fail( 'Failed to find an update' );
 			}
 
-			if ( $this->isIgnoreUserAbort() ) {
-				ignore_user_abort( true );
-			}
-
 			$oUpgrader = new Core_Upgrader( new ICWP_Upgrader_Skin() );
 			$oResult = $oUpgrader->upgrade( $oChosenUpdate );
 			if ( is_wp_error( $oResult ) ) {
