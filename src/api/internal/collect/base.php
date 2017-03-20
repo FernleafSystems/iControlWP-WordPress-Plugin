@@ -13,14 +13,6 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Base', false ) ):
 		protected function getAutoUpdates( $sContext = 'plugins' ) {
 			return ICWP_Plugin::GetAutoUpdatesSystem()->getAutoUpdates( $sContext );
 		}
-
-		/**
-		 * @return bool
-		 */
-		protected function isForceUpdateCheck() {
-			$aActionParams = $this->getActionParams();
-			return isset( $aActionParams[ 'force_update_check' ] ) ? (bool)$aActionParams[ 'force_update_check' ] : true;
-		}
 	}
 
 endif;
