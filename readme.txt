@@ -114,14 +114,15 @@ No. WorpDrive is available for a small monthly fee.
 
 == Changelog ==
 
-= Latest Release: 3.2.2 =
-*Released: 11th March, 2017*
+= Latest Release: 3.2.3 =
+*Released: 25th April, 2017*
 
-* **(v.2)**	FIXED:		Remove strict warning
+* **(v.3)**	IMPROVED:	More thorough cleaning of rollback directory
 
 = 3.2 Series =
 *Released: 14th February, 2017*
 
+* **(v.3)**	IMPROVED:	More thorough cleaning of rollback directory
 * **(v.2)**	FIXED:		Remove strict warning
 * **(v.1)**	IMPROVED:	Further optimizations and performance improvements
 * **(v.0)**	IMPROVED:	Further optimizations and performance improvements
