@@ -26,11 +26,8 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Plugins', false ) ):
 //			$this->prepThirdPartyPlugins(); TODO
 			$aPlugins = $this->getInstalledPlugins( $this->getDesiredPluginAttributes() );
 
-			var_dump( $this->loadWpFunctionsProcessor()->getTransient( 'update_plugins' ) );
-
 			$oUpdates = $this->loadWpFunctionsProcessor()->updatesGather( 'plugins', $this->isForceUpdateCheck() ); // option to do another update check? force it?
 
-			var_dump( $this->loadWpFunctionsProcessor()->getTransient( 'update_plugins' ) );
 			$aAutoUpdates = $this->getAutoUpdates( 'plugins' );
 			$sServicePluginBaseFile = ICWP_Plugin::getController()->getPluginBaseFile();
 
