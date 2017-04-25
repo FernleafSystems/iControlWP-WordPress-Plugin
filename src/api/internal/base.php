@@ -15,6 +15,9 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Base', false ) ):
 		protected $oRequestParams;
 
 		public function preProcess() {
+			if ( $this->isIgnoreUserAbort() ) {
+				ignore_user_abort( true );
+			}
 			$this->initFtp();
 		}
 
@@ -22,7 +25,7 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Base', false ) ):
 		 * This is essentially a placeholder function for the moment.
 		 */
 		protected function initFtp() {
-			$sFtpCreds =  $this->getRequestParams()->getParam( 'ftpcred', null );
+			$sFtpCreds = $this->getRequestParams()->getParam( 'ftpcred', null );
 			$aFtpCreds = empty( $sFtpCreds ) ? null : maybe_unserialize( $sFtpCreds );
 			if ( !empty( $aFtpCreds ) ) {
 				$aRequestToWpMappingFtp = array(
@@ -147,6 +150,22 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Base', false ) ):
 		 */
 		protected function importCommonLib( $sLibName ) {
 			require_once( dirname( __FILE__ ) . sprintf( '/common/%s.php', $sLibName ) );
+		}
+
+		/**
+		 * @return bool
+		 */
+		protected function isForceUpdateCheck() {
+			$aActionParams = $this->getActionParams();
+			return isset( $aActionParams[ 'force_update_check' ] ) ? (bool)$aActionParams[ 'force_update_check' ] : true;
+		}
+
+		/**
+		 * @return bool
+		 */
+		protected function isIgnoreUserAbort() {
+			$aActionParams = $this->getActionParams();
+			return isset( $aActionParams[ 'ignore_user_abort' ] ) ? (bool)$aActionParams[ 'ignore_user_abort' ] : false;
 		}
 	}
 

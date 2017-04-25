@@ -20,6 +20,7 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Info', false ) ):
 				'wordpress-paths' => array(
 					'wordpress_admin_url'	=> network_admin_url()
 				),
+				'force_update_check' => $this->isForceUpdateCheck() ? 1 : 0
 			);
 			return $this->success( $aData );
 		}

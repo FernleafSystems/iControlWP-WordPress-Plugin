@@ -53,7 +53,10 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Capabilities', false ) ):
 				//,'wordpress-filters'		=> global $wp_filter; $wp_filter
 			);
 
-			$this->cleanRollbackData();
+			if ( class_exists( 'DirectoryIterator', false ) ) {
+				$this->cleanRollbackData();
+				$this->cleanRollbackDir();
+			}
 
 			return $this->success( $aData );
 		}
@@ -342,9 +345,6 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Capabilities', false ) ):
 		 * @return bool
 		 */
 		protected function cleanRollbackData() {
-			if ( !class_exists( 'DirectoryIterator', false ) ) {
-				return false;
-			}
 
 			$nBoundary = time() - WEEK_IN_SECONDS;
 			$oFs = $this->loadFileSystemProcessor();
@@ -370,6 +370,30 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Capabilities', false ) ):
 				}
 			}
 			return true;
+		}
+
+		/**
+		 */
+		protected function cleanRollbackDir() {
+			$oFs = $this->loadFileSystemProcessor();
+
+			try {
+				$oDirIt = new DirectoryIterator( $this->getRollbackBaseDir() );
+				foreach ( $oDirIt as $oFileItem ) {
+					if ( !$oFileItem->isDot() ) {
+
+						if ( !$oFileItem->isDir() ) {
+							$oFs->deleteFile( $oFileItem->getPathname() );
+						}
+						else if ( !in_array( $oFileItem->getFilename(), array( 'plugins', 'themes' ) ) ) {
+							$oFs->deleteDir( $oFileItem->getPathname() );
+						}
+					}
+				}
+			}
+			catch( Exception $oE ) {
+				//  UnexpectedValueException, RuntimeException, Exception
+			}
 		}
 
 		/**

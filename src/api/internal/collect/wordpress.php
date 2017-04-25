@@ -16,17 +16,15 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Wordpress', false ) ):
 		}
 
 		/**
-		 * @return array								associative: ThemeStylesheet => ThemeData
+		 * @return array associative: ThemeStylesheet => ThemeData
 		 */
 		public function collect() {
-
-			$bForceUpdateCheck = (bool)$this->getRequestParams()->getParam( 'force_update_check', 1 );
 
 			$oWp = $this->loadWpFunctionsProcessor();
 			$aInfo = array(
 				'is_multisite'			=> is_multisite()? 1: 0,
 				'admin_url'				=> network_admin_url(),
-				'core_update_available'	=> $oWp->getHasCoreUpdatesAvailable( $bForceUpdateCheck )? 1 : 0,
+				'core_update_available'	=> $oWp->getHasCoreUpdatesAvailable( $this->isForceUpdateCheck() )? 1 : 0,
 				'wordpress_version'		=> $oWp->getWordPressVersion(),
 				'wordpress_title'		=> get_bloginfo( 'name' ),
 				'wordpress_tagline'		=> get_bloginfo( 'description' ),

@@ -24,10 +24,10 @@ if ( !class_exists( 'ICWP_APP_WpUsers', false ) ):
 		 * If setting password, do not send the hashed password as this will hash it for you
 		 *
 		 * @param array $aNewUserData
-		 * @param bool $bSendNotification
+		 * @param bool  $bSendUserNotification
 		 * @return int|WP_Error
 		 */
-		public function createUser( $aNewUserData, $bSendNotification = false ) {
+		public function createUser( $aNewUserData, $bSendUserNotification = false ) {
 
 			$aUserDefaults = array(
 				'user_registered' => strftime( '%F %T', time() ),
@@ -43,8 +43,8 @@ if ( !class_exists( 'ICWP_APP_WpUsers', false ) ):
 			}
 			$mNewUserId = wp_insert_user( $aNewUser );
 
-			if ( $bSendNotification && !is_wp_error( $mNewUserId ) && function_exists( 'wp_new_user_notification' ) ) {
-				wp_new_user_notification( $mNewUserId );
+			if ( $bSendUserNotification && !is_wp_error( $mNewUserId ) && function_exists( 'wp_new_user_notification' ) ) {
+				wp_new_user_notification( $mNewUserId, null, $bSendUserNotification ? 'both' : 'admin' );
 			}
 			return $mNewUserId;
 		}

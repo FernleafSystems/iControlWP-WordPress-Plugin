@@ -20,11 +20,9 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Themes', false ) ):
 		 */
 		public function collect() {
 
-			$bForceUpdateCheck = (bool)$this->getRequestParams()->getParam( 'force_update_check', 1 );
-
 //			$this->prepThirdPartyThemes(); TODO
 			$aThemes = $this->getInstalledThemes();
-			$oUpdates = $this->loadWpFunctionsProcessor()->updatesGather( 'themes', $bForceUpdateCheck ); // option to do another update check? force it?
+			$oUpdates = $this->loadWpFunctionsProcessor()->updatesGather( 'themes', $this->isForceUpdateCheck() ); // option to do another update check? force it?
 			$aAutoUpdates = $this->getAutoUpdates( 'themes' );
 
 			$sActiveThemeStylesheet = $this->loadWpFunctionsThemes()->getCurrent()->get_stylesheet();
