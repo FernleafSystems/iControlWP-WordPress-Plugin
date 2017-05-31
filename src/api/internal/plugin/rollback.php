@@ -30,7 +30,10 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Plugin_Rollback', false ) ):
 			copy_dir( $sRollbackSourcePath, $sPluginDirPath );
 			$oFS->deleteDir( $sRollbackSourcePath );
 
-			return $this->success();
+			$aData = array(
+				'wordpress-plugins'	=> $this->getWpCollector()->collectWordpressPlugins( null, true )
+			);
+			return $this->success( $aData );
 		}
 
 		/**

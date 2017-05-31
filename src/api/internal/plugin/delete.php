@@ -16,11 +16,10 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Plugin_Delete', false ) ):
 
 			$bResult = $this->loadWpFunctionsPlugins()->delete( $sPluginFile, $bIsWpms );
 			wp_cache_flush(); // since we've deleted a plugin, we need to ensure our collection is up-to-date rebuild.
-			$aPlugins = $this->getWpCollector()->collectWordpressPlugins();
 
 			$aData = array(
 				'result'			=> $bResult,
-				'wordpress-plugins'	=> $aPlugins
+				'wordpress-plugins'	=> $this->getWpCollector()->collectWordpressPlugins()
 			);
 			return $bResult ? $this->success( $aData ) : $this->fail( $aData );
 		}
