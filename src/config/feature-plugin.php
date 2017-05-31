@@ -109,6 +109,7 @@ definitions:
     - 'comments_retrieve'
     - 'comments_status'
     - 'core_update'
+    - 'core_reinstall'
     - 'db_status'
     - 'db_optimise'
     - 'plugin_activate'
