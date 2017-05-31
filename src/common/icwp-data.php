@@ -6,7 +6,7 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 		/**
 		 * @var ICWP_APP_DataProcessor
 		 */
-		protected static $oInstance = NULL;
+		protected static $oInstance = null;
 
 		/**
 		 * @var bool
@@ -33,7 +33,8 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 		 */
 		protected $aRequestUriParts;
 
-		protected function __construct() { }
+		protected function __construct() {
+		}
 
 		/**
 		 * @return ICWP_APP_DataProcessor
@@ -92,7 +93,7 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 			);
 
 			$sIpToReturn = false;
-			foreach( $aAddressSourceOptions as $sOption ) {
+			foreach ( $aAddressSourceOptions as $sOption ) {
 
 				$sIpAddressToTest = self::FetchServer( $sOption );
 				if ( empty( $sIpAddressToTest ) ) {
@@ -100,7 +101,7 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 				}
 
 				$aIpAddresses = explode( ',', $sIpAddressToTest ); //sometimes a comma-separated list is returned
-				foreach( $aIpAddresses as $sIpAddress ) {
+				foreach ( $aIpAddresses as $sIpAddress ) {
 					if ( empty( $sIpAddress ) ) {
 						continue;
 					}
@@ -110,7 +111,7 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 					$nVersion = $this->getIpAddressVersion( $sIpAddress );
 					if ( $nVersion != false ) {
 						$sIpToReturn = $sIpAddress;
-						break(2);
+						break( 2 );
 					}
 				}
 			}
@@ -121,8 +122,8 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 		 * @return string URI Path in lowercase
 		 */
 		public function getRequestPath() {
-			$aParts = $this->getRequestUriParts();
-			return isset( $aParts[ 'path' ] ) ? strtolower( $aParts[ 'path' ] ) : '';
+			$aRequestParts = $this->getRequestUriParts();
+			return $aRequestParts[ 'path' ];
 		}
 
 		/**
@@ -142,19 +143,15 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 		}
 
 		/**
-		 * @return array|false
+		 * @return array
 		 */
 		public function getRequestUriParts() {
 			if ( !isset( $this->aRequestUriParts ) ) {
-				$aParts = array();
 				$aExploded = explode( '?', $this->getRequestUri(), 2 );
-				if ( !empty( $aExploded[0] ) ) {
-					$aParts['path'] = $aExploded[0];
-				}
-				if ( !empty( $aExploded[1] ) ) {
-					$aParts['query'] = $aExploded[1];
-				}
-				$this->aRequestUriParts = $aParts;
+				$this->aRequestUriParts = array(
+					'path' => empty( $aExploded[ 0 ] ) ? '' : $aExploded[ 0 ],
+					'query' => empty( $aExploded[ 1 ] ) ? '' : $aExploded[ 1 ],
+				);
 			}
 			return $this->aRequestUriParts;
 		}
@@ -167,11 +164,11 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 		public function addExtensionToFilePath( $sPath, $sExtensionToAdd ) {
 
 			if ( strpos( $sExtensionToAdd, '.' ) === false ) {
-				$sExtensionToAdd = '.'.$sExtensionToAdd;
+				$sExtensionToAdd = '.' . $sExtensionToAdd;
 			}
 
 			if ( !$this->getIfStringEndsIn( $sPath, $sExtensionToAdd ) ) {
-				$sPath = $sPath.$sExtensionToAdd;
+				$sPath = $sPath . $sExtensionToAdd;
 			}
 			return $sPath;
 		}
@@ -270,7 +267,7 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 			$aRawList = array_map( 'trim', preg_split( '/\r\n|\r|\n/', $sRawList ) );
 			$aNewList = array();
 			$bHadStar = false;
-			foreach( $aRawList as $sKey => $sRawLine ) {
+			foreach ( $aRawList as $sKey => $sRawLine ) {
 
 				if ( empty( $sRawLine ) ) {
 					continue;
@@ -278,7 +275,7 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 				$sRawLine = str_replace( ' ', '', $sRawLine );
 				$aParts = explode( ',', $sRawLine, 2 );
 				// we only permit 1x line beginning with *
-				if ( $aParts[0] == '*' ) {
+				if ( $aParts[ 0 ] == '*' ) {
 					if ( $bHadStar ) {
 						continue;
 					}
@@ -287,13 +284,13 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 				else {
 					//If there's only 1 item on the line, we assume it to be a global
 					// parameter rule
-					if ( count( $aParts ) == 1 || empty( $aParts[1] ) ) { // there was no comma in this line in the first place
+					if ( count( $aParts ) == 1 || empty( $aParts[ 1 ] ) ) { // there was no comma in this line in the first place
 						array_unshift( $aParts, '*' );
 					}
 				}
 
-				$aParams = empty( $aParts[1] )? array() : explode( ',', $aParts[1] );
-				$aNewList[ $aParts[0] ] = $aParams;
+				$aParams = empty( $aParts[ 1 ] ) ? array() : explode( ',', $aParts[ 1 ] );
+				$aNewList[ $aParts[ 0 ] ] = $aParams;
 			}
 			return $aNewList;
 		}
@@ -342,7 +339,7 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 			}
 
 			$sBots = 'Googlebot|bingbot|Twitterbot|Baiduspider|ia_archiver|R6_FeedFetcher|NetcraftSurveyAgent'
-				.'|Sogou web spider|Yahoo! Slurp|facebookexternalhit|PrintfulBot|msnbot|UnwindFetchor|urlresolver|Butterfly|TweetmemeBot';
+				. '|Sogou web spider|Yahoo! Slurp|facebookexternalhit|PrintfulBot|msnbot|UnwindFetchor|urlresolver|Butterfly|TweetmemeBot';
 
 			return ( preg_match( "/$sBots/", $sUserAgent ) > 0 );
 		}
@@ -400,7 +397,7 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 			$sPassword = '';
 			$sCharset = implode( '', $aChars );
 			for ( $i = 0; $i < $nLength; $i++ ) {
-				$sPassword .= $sCharset[(rand() % strlen( $sCharset ))];
+				$sPassword .= $sCharset[ ( rand() % strlen( $sCharset ) ) ];
 			}
 			return $sPassword;
 		}
@@ -410,7 +407,7 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 		 */
 		static public function GenerateRandomLetter() {
 			$sAtoZ = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-			$nRandomInt = rand( 0, (strlen( $sAtoZ ) - 1) );
+			$nRandomInt = rand( 0, ( strlen( $sAtoZ ) - 1 ) );
 			return $sAtoZ[ $nRandomInt ];
 		}
 
@@ -423,7 +420,6 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 
 		/**
 		 * Returns the current request method as an all-lower-case string
-		 *
 		 * @return bool|string
 		 */
 		static public function GetRequestMethod() {
@@ -436,7 +432,7 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 		 */
 		static public function GetScriptName() {
 			$sScriptName = self::FetchServer( 'SCRIPT_NAME' );
-			return !empty( $sScriptName )? $sScriptName : self::FetchServer( 'PHP_SELF' );
+			return !empty( $sScriptName ) ? $sScriptName : self::FetchServer( 'PHP_SELF' );
 		}
 
 		/**
@@ -447,21 +443,21 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 		}
 
 		/**
-		 * @param array $aArray
-		 * @param string $sKey		The array key to fetch
-		 * @param mixed $mDefault
+		 * @param array  $aArray
+		 * @param string $sKey The array key to fetch
+		 * @param mixed  $mDefault
 		 * @return mixed|null
 		 */
 		public static function ArrayFetch( &$aArray, $sKey, $mDefault = null ) {
-			if ( empty( $aArray ) || !isset( $aArray[$sKey] ) ) {
+			if ( !isset( $aArray[ $sKey ] ) ) {
 				return $mDefault;
 			}
-			return $aArray[$sKey];
+			return $aArray[ $sKey ];
 		}
 
 		/**
-		 * @param string $sKey		The $_COOKIE key
-		 * @param mixed $mDefault
+		 * @param string $sKey The $_COOKIE key
+		 * @param mixed  $mDefault
 		 * @return mixed|null
 		 */
 		public static function FetchCookie( $sKey, $mDefault = null ) {
@@ -476,7 +472,7 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 
 		/**
 		 * @param string $sKey
-		 * @param mixed $mDefault
+		 * @param mixed  $mDefault
 		 * @return mixed|null
 		 */
 		public static function FetchEnv( $sKey, $mDefault = null ) {
@@ -491,7 +487,7 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 
 		/**
 		 * @param string $sKey
-		 * @param mixed $mDefault
+		 * @param mixed  $mDefault
 		 * @return mixed|null
 		 */
 		public static function FetchGet( $sKey, $mDefault = null ) {
@@ -503,9 +499,10 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 			}
 			return self::ArrayFetch( $_GET, $sKey, $mDefault );
 		}
+
 		/**
-		 * @param string $sKey		The $_POST key
-		 * @param mixed $mDefault
+		 * @param string $sKey The $_POST key
+		 * @param mixed  $mDefault
 		 * @return mixed|null
 		 */
 		public static function FetchPost( $sKey, $mDefault = null ) {
@@ -519,10 +516,9 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 		}
 
 		/**
-		 * @param string $sKey
+		 * @param string  $sKey
 		 * @param boolean $bIncludeCookie
-		 * @param mixed $mDefault
-		 *
+		 * @param mixed   $mDefault
 		 * @return mixed|null
 		 */
 		public static function FetchRequest( $sKey, $bIncludeCookie = false, $mDefault = null ) {
@@ -533,12 +529,12 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 					$mFetchVal = self::FetchCookie( $sKey );
 				}
 			}
-			return is_null( $mFetchVal )? $mDefault : $mFetchVal;
+			return is_null( $mFetchVal ) ? $mDefault : $mFetchVal;
 		}
 
 		/**
 		 * @param string $sKey
-		 * @param mixed $mDefault
+		 * @param mixed  $mDefault
 		 * @return mixed|null
 		 */
 		public static function FetchServer( $sKey, $mDefault = null ) {
@@ -580,8 +576,15 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 		 * @param string $sBaseUrl
 		 */
 		public function doSendApache404( $sRequestedUrl, $sBaseUrl ) {
+			$bForwardedProto = $this->FetchServer( 'HTTP_X_FORWARDED_PROTO' ) == 'https';
 			header( 'HTTP/1.1 404 Not Found' );
-			die( '<html><head><title>404 Not Found</title><style type="text/css"></style></head><body><h1>Not Found</h1><p>The requested URL '.$sRequestedUrl.' was not found on this server.</p><p>Additionally, a 404 Not Found error was encountered while trying to use an ErrorDocument to handle the request.</p><hr><address>Apache Server at '.$sBaseUrl.' Port 80</address></body></html>' );
+			$sDie = sprintf(
+				'<html><head><title>404 Not Found</title><style type="text/css"></style></head><body><h1>Not Found</h1><p>The requested URL %s was not found on this server.</p><p>Additionally, a 404 Not Found error was encountered while trying to use an ErrorDocument to handle the request.</p><hr><address>Apache Server at %s Port %s</address></body></html>',
+				$sRequestedUrl,
+				$sBaseUrl,
+				( $bForwardedProto || is_ssl() ) ? 443 : $this->FetchServer( 'SERVER_PORT' )
+			);
+			die( $sDie );
 		}
 
 		/**
@@ -591,27 +594,41 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 		 */
 		public function downloadStringAsFile( $sStringContent, $sFilename ) {
 			header( "Content-type: application/octet-stream" );
-			header( "Content-disposition: attachment; filename=".$sFilename );
-			header( "Content-Transfer-Encoding: binary");
-			header( "Content-Length: ".filesize( $sStringContent ) );
+			header( "Content-disposition: attachment; filename=" . $sFilename );
+			header( "Content-Transfer-Encoding: binary" );
+			header( "Content-Length: " . filesize( $sStringContent ) );
 			echo $sStringContent;
 			die();
 		}
 
 		/**
-		 * @param $sKey
-		 * @param $mValue
-		 * @param int $nExpireLength
+		 * Use this to reliably read the contents of a PHP file that doesn't have executable
+		 * PHP Code.
+		 * Why use this? In the name of naive security, silly web hosts can prevent reading the contents of
+		 * non-PHP files so we simply put the content we want to have read into a php file and then "include" it.
+		 * @param string $sFile
+		 * @return string
+		 */
+		public function readFileContentsUsingInclude( $sFile ) {
+			ob_start();
+			include( $sFile );
+			return ob_get_clean();
+		}
+
+		/**
+		 * @param      $sKey
+		 * @param      $mValue
+		 * @param int  $nExpireLength
 		 * @param null $sPath
 		 * @param null $sDomain
 		 * @param bool $bSsl
-		 *
 		 * @return bool
 		 */
 		public function setCookie( $sKey, $mValue, $nExpireLength = 3600, $sPath = null, $sDomain = null, $bSsl = false ) {
 			if ( function_exists( 'headers_sent' ) && headers_sent() ) {
 				return false;
 			}
+			$_COOKIE[ $sKey ] = $mValue;
 			return setcookie(
 				$sKey,
 				$mValue,
@@ -633,7 +650,6 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 
 		/**
 		 * Effectively validates and IP Address.
-		 *
 		 * @param string $sIpAddress
 		 * @return int|false
 		 */
@@ -656,8 +672,23 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 		}
 
 		/**
+		 * Cleans out any of the junk that can appear in a PHP version and returns just the 5.4.45
+		 * e.g. 5.4.45-0+deb7u5
+		 * @return string
+		 */
+		public function getPhpVersionCleaned() {
+			$sVersion = $this->getPhpVersion();
+			if ( preg_match( '#^[0-9]{1}\.[0-9]{1}(\.[0-9]{1,3})?#', $sVersion, $aMatches ) ) {
+				return $aMatches[ 0 ];
+			}
+			else {
+				return $sVersion;
+			}
+		}
+
+		/**
 		 * @param string $sAtLeastVersion
-		 * @return boolean
+		 * @return bool
 		 */
 		public function getPhpVersionIsAtLeast( $sAtLeastVersion ) {
 			return version_compare( $this->getPhpVersion(), $sAtLeastVersion, '>=' );
@@ -675,9 +706,9 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 		 */
 		public function getCanOpensslSign() {
 			return function_exists( 'base64_decode' )
-				   && function_exists( 'openssl_sign' )
-				   && function_exists( 'openssl_verify' )
-				   && defined( 'OPENSSL_ALGO_SHA1' );
+				&& function_exists( 'openssl_sign' )
+				&& function_exists( 'openssl_verify' )
+				&& defined( 'OPENSSL_ALGO_SHA1' );
 		}
 
 		/**
@@ -687,7 +718,7 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 		public function convertArrayToStdClass( $aArray ) {
 			$oObject = new stdClass();
 			if ( !empty( $aArray ) && is_array( $aArray ) ) {
-				foreach( $aArray as $sKey => $mValue ) {
+				foreach ( $aArray as $sKey => $mValue ) {
 					$oObject->{$sKey} = $mValue;
 				}
 			}
@@ -697,7 +728,7 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 		/**
 		 * @param array $aSubjectArray
 		 * @param mixed $mValue
-		 * @param int $nDesiredPosition
+		 * @param int   $nDesiredPosition
 		 * @return array
 		 */
 		public function setArrayValueToPosition( $aSubjectArray, $mValue, $nDesiredPosition ) {
@@ -724,6 +755,18 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 			}
 
 			return $aSubjectArray;
+		}
+
+		/**
+		 * Taken from: http://stackoverflow.com/questions/1755144/how-to-validate-domain-name-in-php
+		 * @param string $sDomainName
+		 * @return bool
+		 */
+		public function isValidDomainName( $sDomainName ) {
+			$sDomainName = trim( $sDomainName );
+			return ( preg_match( "/^([a-z\d](-*[a-z\d])*)(\.([a-z\d](-*[a-z\d])*))*$/i", $sDomainName ) //valid chars check
+				&& preg_match( "/^.{1,253}$/", $sDomainName ) //overall length check
+				&& preg_match( "/^[^\.]{1,63}(\.[^\.]{1,63})*$/", $sDomainName ) );//length of each label
 		}
 
 		/**
