@@ -115,6 +115,7 @@ definitions:
     - 'plugin_deactivate'
     - 'plugin_delete'
     - 'plugin_install'
+    - 'plugin_rollback'
     - 'plugin_update'
     - 'site_unlink'
     - 'theme_activate'

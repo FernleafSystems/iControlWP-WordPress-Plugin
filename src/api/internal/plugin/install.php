@@ -22,7 +22,6 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Plugin_Install', false ) ):
 			$sPluginUrl = wp_http_validate_url( $aPlugin['url'] );
 			if ( !$sPluginUrl ) {
 				return $this->fail(
-					array(),
 					'The URL did not pass the WordPress HTTP URL Validation.'
 				);
 			}

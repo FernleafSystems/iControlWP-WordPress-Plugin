@@ -442,6 +442,17 @@ if ( !class_exists( 'ICWP_APP_WpFilesystem', false ) ):
 		}
 
 		/**
+		 * @param string $sDir
+		 * @return bool
+		 */
+		public function isDirEmpty( $sDir ) {
+			if ( !is_readable( $sDir) ) {
+				return null;
+			}
+			return ( count( scandir( $sDir ) ) == 2 );
+		}
+
+		/**
 		 * @param $sFilePath
 		 * @return bool|mixed
 		 */
