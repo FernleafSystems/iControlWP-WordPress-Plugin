@@ -99,7 +99,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 			if ( !$sResponse ) {
 				return false;
 			}
-			$oJsonResponse = $oDp->doJsonDecode( trim( $sResponse ) );
+			$oJsonResponse = json_decode( trim( $sResponse ) );
 			return ( is_object( $oJsonResponse ) && isset( $oJsonResponse->success ) && $oJsonResponse->success === true );
 		}
 
@@ -227,7 +227,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 
 			$sResponseBody = $oResponse->getResponsePackage();
 			if ( $bDoBinaryEncode ) {
-				$sResponseBody = base64_encode( $this->loadDataProcessor()->jsonEncode( $oResponse->getResponsePackage() ) );
+				$sResponseBody = base64_encode( wp_json_encode( $oResponse->getResponsePackage() ) );
 			}
 			$this->flushResponse( $sResponseBody, $bDoBinaryEncode ? 'json' : 'none', $bDoBinaryEncode );
 		}

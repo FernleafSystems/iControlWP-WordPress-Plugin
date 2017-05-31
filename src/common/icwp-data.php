@@ -254,6 +254,14 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 		}
 
 		/**
+		 * @param string $sEmail
+		 * @return boolean
+		 */
+		public function validEmail( $sEmail ) {
+			return ( !empty( $sEmail ) && is_email( $sEmail ) );
+		}
+
+		/**
 		 * @param string $sRawList
 		 * @return array
 		 */
@@ -345,34 +353,10 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 		}
 
 		/**
-		 * @param $sRawKeys
-		 * @return array
-		 */
-		public static function CleanYubikeyUniqueKeys( $sRawKeys ) {
-			$aKeys = explode( "\n", $sRawKeys );
-			foreach( $aKeys as $nIndex => $sUsernameKey ) {
-				if ( empty( $sUsernameKey ) ) {
-					unset( $aKeys[$nIndex] );
-					continue;
-				}
-				$aParts = array_map( 'trim', explode( ',', $sUsernameKey ) );
-				if ( empty( $aParts[0] ) || empty( $aParts[1] ) || strlen( $aParts[1] ) < 12 ) {
-					unset( $aKeys[$nIndex] );
-					continue;
-				}
-				$aParts[1] = substr( $aParts[1], 0, 12 );
-				$aKeys[$nIndex] = array( $aParts[0] => $aParts[1] );
-			}
-			return $aKeys;
-		}
-
-		/**
 		 * Strength can be 1, 3, 7, 15
-		 *
 		 * @param integer $nLength
 		 * @param integer $nStrength
 		 * @param boolean $bIgnoreAmb
-		 *
 		 * @return string
 		 */
 		static public function GenerateRandomString( $nLength = 10, $nStrength = 7, $bIgnoreAmb = true ) {
@@ -545,30 +529,6 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 				}
 			}
 			return self::ArrayFetch( $_SERVER, $sKey, $mDefault );
-		}
-
-		/**
-		 * @param $mData
-		 * @return false|string
-		 */
-		public function jsonEncode( $mData ) {
-			return function_exists( 'wp_json_encode' ) ? wp_json_encode( $mData ) : json_encode( $mData );
-		}
-
-		/**
-		 * @param $sData
-		 *
-		 * @return array|mixed
-		 */
-		public function doJsonDecode( $sData ) {
-			if ( function_exists( 'json_decode' ) ) {
-				return json_decode( $sData );
-			}
-			if ( !class_exists( 'JSON' )  ) {
-				require_once( dirname(__FILE__).ICWP_DS.'json/JSON.php' );
-			}
-			$oJson = new JSON();
-			return @$oJson->unserialize( $sData );
 		}
 
 		/**

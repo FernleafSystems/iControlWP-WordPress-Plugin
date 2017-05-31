@@ -273,7 +273,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				);
 			}
 
-			$oJsonResponse = $this->loadDataProcessor()->doJsonDecode( trim( $sResponse ) );
+			$oJsonResponse = json_decode( trim( $sResponse ) );
 			if ( !is_object( $oJsonResponse ) || !isset( $oJsonResponse->success ) || $oJsonResponse->success !== true ) {
 				return $this->setErrorResponse(
 					sprintf( 'Package Handshaking Failed against URL "%s" with response: "%s".', $sHandshakeVerifyUrl, print_r( $oJsonResponse,true ) ),
