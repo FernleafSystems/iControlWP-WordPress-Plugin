@@ -32,6 +32,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 					'bAssigned' => $this->getAssigned(),
 					'bIsLinked' => $this->getIsSiteLinked(),
 					'bCanHandshake' => $this->getCanHandshake(),
+					'sExtraContent' => apply_filters( $this->getController()->doPluginPrefix( 'main_extracontent' ), '' ),
 				),
 				'feature-plugin'
 			);

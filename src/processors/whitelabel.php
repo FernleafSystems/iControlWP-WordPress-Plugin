@@ -11,6 +11,16 @@ if ( !class_exists( 'ICWP_APP_Processor_Whitelabel', false ) ):
 		public function run() {
 			add_filter( $this->getController()->doPluginPrefix( 'plugin_labels' ), array( $this, 'doRelabelPlugin' ) );
 			add_filter( 'plugin_row_meta', array( $this, 'fRemoveDetailsMetaLink' ), 200, 2 );
+			add_filter( $this->getController()->doPluginPrefix( 'main_extracontent' ), array( $this, 'addExtraContent' ) );
+		}
+
+		/**
+		 * @param string $sExtraContent
+		 * @return string
+		 */
+		public function addExtraContent( $sExtraContent = '' ) {
+			$sExtraContent = apply_filters( 'icwp-whitelabel-extracontent', 'test' );
+			return $sExtraContent;
 		}
 
 		/**
