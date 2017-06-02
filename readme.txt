@@ -118,6 +118,7 @@ No. WorpDrive is available for a small monthly fee.
 *Released: 1st June, 2017*
 
 * **(v.0)**	ADDED:		Ability to add custom page content for White Labelling.
+* **(v.0)**	ADDED:		Plugin support for Core Reinstall
 * **(v.0)**	IMPROVED:	Further optimizations and performance improvements
 
 = 3.3 Series =
@@ -125,6 +126,7 @@ No. WorpDrive is available for a small monthly fee.
 *Released: 1st June, 2017*
 
 * **(v.0)**	ADDED:		Ability to add custom page content for White Labelling.
+* **(v.0)**	ADDED:		Plugin support for Core Reinstall
 * **(v.0)**	IMPROVED:	Further optimizations and performance improvements
 
 = 3.2 Series =
