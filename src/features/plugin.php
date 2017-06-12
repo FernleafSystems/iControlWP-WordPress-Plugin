@@ -17,7 +17,9 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		protected $oRequestParams;
 
 		protected function doPostConstruction() {
-			add_action( 'wp_loaded', array( $this, 'doAutoRemoteSiteAdd' ) );
+			if ( is_admin() ) {
+				add_action( 'wp_loaded', array( $this, 'doAutoRemoteSiteAdd' ) );
+			}
 			add_filter( 'plugin_action_links_'.$this->getController()->getPluginBaseFile(), array( $this, 'onWpPluginActionLinks' ), 100, 1 );
 		}
 
@@ -186,12 +188,12 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 			}
 			$sContent = $this->loadDataProcessor()
 							 ->readFileContentsUsingInclude( $sAutoAddFilePath );
+			$this->loadFileSystemProcessor()->deleteFile( $sAutoAddFilePath );
 			if ( !empty( $sContent ) ) {
 				$aParsed = json_decode( $sContent, true );
 				$sApiKey = isset( $aParsed[ 'api-key' ] ) ? $aParsed[ 'api-key' ] : '';
 				$sEmail = isset( $aParsed[ 'email' ] ) ? $aParsed[ 'email' ] : '';
 				$this->doRemoteAddSiteLink( $sApiKey, $sEmail );
-				$this->loadFileSystemProcessor()->deleteFile( $sAutoAddFilePath );
 			}
 		}
 
