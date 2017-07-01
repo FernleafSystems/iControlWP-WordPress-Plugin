@@ -19,7 +19,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Whitelabel', false ) ):
 		 * @return string
 		 */
 		public function addExtraContent( $sExtraContent = '' ) {
-			$sExtraContent = apply_filters( 'icwp-whitelabel-extracontent', 'test' );
+			$sExtraContent = apply_filters( 'icwp-whitelabel-extracontent', '' );
 			return $sExtraContent;
 		}
 
