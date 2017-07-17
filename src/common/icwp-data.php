@@ -75,6 +75,14 @@ if ( !class_exists( 'ICWP_APP_DataProcessor', false ) ):
 		}
 
 		/**
+		 * @param mixed $mItem
+		 * @return false|string
+		 */
+		public function encodeJson( $mItem ) {
+			return function_exists( 'wp_json_encode' ) ? wp_json_encode( $mItem ) : json_encode( $mItem );
+		}
+
+		/**
 		 * Cloudflare compatible.
 		 * @return string|bool
 		 */

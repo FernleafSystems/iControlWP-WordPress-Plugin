@@ -63,7 +63,7 @@ if ( !class_exists( 'ICWP_APP_Encrypt', false ) ):
 			}
 
 			if ( !is_string( $mDataToEncrypt ) ) {
-				$mDataToEncrypt = wp_json_encode( $mDataToEncrypt );
+				$mDataToEncrypt = $this->loadDataProcessor()->encodeJson( $mDataToEncrypt );
 				$oEncryptResponse->serialized = true;
 			}
 			else {
