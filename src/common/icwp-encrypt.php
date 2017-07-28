@@ -73,10 +73,12 @@ if ( !class_exists( 'ICWP_APP_Encrypt', false ) ):
 			$aPasswordKeys = array();
 			$nResult = openssl_seal( $mDataToEncrypt, $sEncryptedData, $aPasswordKeys, array( $sPublicKey ) );
 
-			$oEncryptResponse->success = true;
 			$oEncryptResponse->result = $nResult;
-			$oEncryptResponse->encrypted_data = base64_encode( $sEncryptedData );
-			$oEncryptResponse->encrypted_password = base64_encode( $aPasswordKeys[0] );
+			$oEncryptResponse->success = is_int( $nResult ) && $nResult > 0 && !is_null( $sEncryptedData );
+			if ( $oEncryptResponse->success ) {
+				$oEncryptResponse->encrypted_data = base64_encode( $sEncryptedData );
+				$oEncryptResponse->encrypted_password = base64_encode( $aPasswordKeys[ 0 ] );
+			}
 
 			return $oEncryptResponse;
 		}
