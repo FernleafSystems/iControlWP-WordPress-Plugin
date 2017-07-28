@@ -115,14 +115,16 @@ No. WorpDrive is available for a small monthly fee.
 == Changelog ==
 
 = Latest Release: 3.4.1 =
-*Released: 17th July, 2017*
+*Released: 28th July, 2017*
 
 * **(v.1)**	IMPROVED:	Support for older versions of WordPress.
+* **(v.1)**	IMPROVED:	Better handling in cases where web server can't/won't encrypt response data.
 
 = 3.4 Series =
 *Released: 1st July, 2017*
 
 * **(v.1)**	IMPROVED:	Support for older versions of WordPress.
+* **(v.1)**	IMPROVED:	Better handling cases where web server can't or wont encrypt response data.
 * **(v.0)**	ADDED:		Ability to automatically link site to iControlWP with a specially built plugin.
 
 = 3.3 Series =
