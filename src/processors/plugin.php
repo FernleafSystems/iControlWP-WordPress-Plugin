@@ -227,7 +227,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 
 			$sResponseBody = $oResponse->getResponsePackage();
 			if ( $bDoBinaryEncode ) {
-				$sResponseBody = base64_encode( wp_json_encode( $oResponse->getResponsePackage() ) );
+				$sResponseBody = base64_encode( $this->loadDataProcessor()->encodeJson( $oResponse->getResponsePackage() ) );
 			}
 			$this->flushResponse( $sResponseBody, $bDoBinaryEncode ? 'json' : 'none', $bDoBinaryEncode );
 		}
