@@ -1,6 +1,6 @@
 <?php
 
-if ( !class_exists( 'ICWP_APP_Encrypt', false ) ) {
+if ( class_exists( 'ICWP_APP_Encrypt', false ) ) {
 	return;
 }
 
