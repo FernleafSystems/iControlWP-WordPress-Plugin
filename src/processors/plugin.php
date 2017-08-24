@@ -21,7 +21,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 			add_filter( $oFO->doPluginPrefix( 'filter_hidePluginMenu' ), array( $oFO, 'getIfHidePlugin' ) );
 
 			if ( $this->loadDataProcessor()->FetchRequest( 'geticwppluginurl', false ) == 1 ) {
-				$this->returnIcwpPluginUrl();
+				add_action( 'init', array( $this, 'getPluginUrl' ), 0 );
 			}
 
 			if ( $oReqParams->getIsApiCall() ) {
@@ -42,6 +42,12 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 						add_action( $sApiHook, array( $this, 'doApiLinkSite' ), $oReqParams->getApiHookPriority() );
 					}
 				}
+			}
+		}
+
+		public function getPluginUrl() {
+			if ( $this->loadDataProcessor()->FetchRequest( 'geticwppluginurl', false ) == 1 ) {
+				$this->returnIcwpPluginUrl();
 			}
 		}
 
