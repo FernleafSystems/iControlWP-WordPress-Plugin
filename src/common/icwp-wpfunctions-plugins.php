@@ -59,7 +59,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_Plugins', false ) ):
 				$sPluginDir = $sPluginFile;
 			}
 			$sPath = path_join( WP_PLUGIN_DIR, $sPluginDir );
-			return $this->loadFileSystemProcessor()->deleteDir( $sPath );
+			return $this->loadFS()->deleteDir( $sPath );
 		}
 
 		/**
@@ -151,12 +151,12 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_Plugins', false ) ):
 		 */
 		protected function clearUpdates() {
 			$sKey = 'update_plugins';
-			$oResponse = $this->loadWpFunctionsProcessor()->getTransient( $sKey );
+			$oResponse = $this->loadWpFunctions()->getTransient( $sKey );
 			if ( !is_object( $oResponse ) ) {
 				$oResponse = new stdClass();
 			}
 			$oResponse->last_checked = 0;
-			$this->loadWpFunctionsProcessor()->setTransient( $sKey, $oResponse );
+			$this->loadWpFunctions()->setTransient( $sKey, $oResponse );
 		}
 
 		/**
@@ -207,7 +207,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_Plugins', false ) ):
 				$this->clearUpdates();
 				$this->checkForUpdates();
 			}
-			return $this->loadWpFunctionsProcessor()->getTransient( 'update_plugins' );
+			return $this->loadWpFunctions()->getTransient( 'update_plugins' );
 		}
 	}
 endif;

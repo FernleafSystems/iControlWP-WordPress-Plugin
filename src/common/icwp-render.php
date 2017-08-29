@@ -101,7 +101,7 @@ if ( !class_exists( 'ICWP_APP_Render', false ) ):
 			}
 
 			$sTemplate = $this->getTemplateRoot() . ltrim( $this->getTemplate(), ICWP_DS );
-			if ( $this->loadFileSystemProcessor()->isFile( $sTemplate ) ) {
+			if ( $this->loadFS()->isFile( $sTemplate ) ) {
 				ob_start();
 				include( $sTemplate );
 				$sContents = ob_get_contents();
@@ -197,7 +197,7 @@ if ( !class_exists( 'ICWP_APP_Render', false ) ):
 		 */
 		public function getTemplateExists( $sTemplate = '' ) {
 			$sFullPath = $this->getTemplateFullPath( $sTemplate );
-			return $this->loadFileSystemProcessor()->exists( $sFullPath );
+			return $this->loadFS()->exists( $sFullPath );
 		}
 
 		/**

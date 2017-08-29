@@ -117,7 +117,7 @@ if ( !class_exists( 'ICWP_APP_WpCollectInfo', false ) ):
 
 			$aNormalizedThemes = array();
 
-			if ( $this->loadWpFunctionsProcessor()->getWordpressIsAtLeastVersion( '3.4' ) ) {
+			if ( $this->loadWpFunctions()->getWordpressIsAtLeastVersion( '3.4' ) ) {
 
 				/** @var WP_Theme[] $aThemes */
 				foreach ( $aThemes as $sStylesheet => $oTheme ) {

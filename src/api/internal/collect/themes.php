@@ -22,7 +22,7 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Themes', false ) ):
 
 //			$this->prepThirdPartyThemes(); TODO
 			$aThemes = $this->getInstalledThemes();
-			$oUpdates = $this->loadWpFunctionsProcessor()->updatesGather( 'themes', $this->isForceUpdateCheck() ); // option to do another update check? force it?
+			$oUpdates = $this->loadWpFunctions()->updatesGather( 'themes', $this->isForceUpdateCheck() ); // option to do another update check? force it?
 			$aAutoUpdates = $this->getAutoUpdates( 'themes' );
 
 			$sActiveThemeStylesheet = $this->loadWpFunctionsThemes()->getCurrent()->get_stylesheet();
@@ -54,7 +54,7 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Themes', false ) ):
 
 			$aThemes = array();
 
-			if ( $this->loadWpFunctionsProcessor()->getWordpressIsAtLeastVersion( '3.4' ) ) {
+			if ( $this->loadWpFunctions()->getWordpressIsAtLeastVersion( '3.4' ) ) {
 
 				/** @var WP_Theme[] $aThemeObjects */
 				$aThemeObjects = $this->loadWpFunctionsThemes()->getThemes();

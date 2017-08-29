@@ -1,7 +1,7 @@
 === iControlWP - Multiple WordPress Management ===
 Contributors: paultgoodchild
 Donate link: http://www.icontrolwp.com/
-Tags: manage, manage wordpress, wordpress admin, backup, restore, bulk, icontrolwp, managewp, worpit, automatic updates
+Tags: manage wordpress, backup, restore, bulk, icontrolwp, managewp, worpit, automatic updates
 Requires at least: 3.2.0
 Tested up to: 4.8
 Stable tag: 3.4.3

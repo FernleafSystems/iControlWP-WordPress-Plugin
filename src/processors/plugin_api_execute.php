@@ -13,7 +13,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Execute', false ) ):
 		 * @return ApiResponse
 		 */
 		protected function processAction() {
-			$oFs = $this->loadFileSystemProcessor();
+			$oFs = $this->loadFS();
 
 			/**
 			 * @since 1.0.14

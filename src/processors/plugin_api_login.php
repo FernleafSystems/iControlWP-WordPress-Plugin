@@ -25,7 +25,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Login', false ) ):
 		 */
 		protected function processAction() {
 			$oReqParams = $this->getRequestParams();
-			$oWp = $this->loadWpFunctionsProcessor();
+			$oWp = $this->loadWpFunctions();
 
 			$this->getStandardResponse()->setDie( true );
 

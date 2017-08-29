@@ -96,7 +96,7 @@ if ( !class_exists( 'ICWP_APP_Processor_BasePlugin', false ) ):
 				return;
 			}
 
-			$oWp = $this->loadWpFunctionsProcessor();
+			$oWp = $this->loadWpFunctions();
 			$sBaseFile = $this->getController()->getPluginBaseFile();
 			if ( !$oWp->getIsPage_Updates() && $oWp->getIsPluginUpdateAvailable( $sBaseFile ) ) { // Don't show on the update page
 
@@ -206,7 +206,7 @@ if ( !class_exists( 'ICWP_APP_Processor_BasePlugin', false ) ):
 				$bShow = false;
 			}
 
-			$oWpFunctions = $this->loadWpFunctionsProcessor();
+			$oWpFunctions = $this->loadWpFunctions();
 			if ( class_exists( 'Worpit_Plugin' ) ) {
 				if ( method_exists( 'Worpit_Plugin', 'IsLinked' ) ) {
 					$bShow = !Worpit_Plugin::IsLinked();

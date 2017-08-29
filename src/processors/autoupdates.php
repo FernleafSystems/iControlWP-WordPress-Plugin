@@ -73,7 +73,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Autoupdates', false ) ):
 			if ( !$this->getIfForceRunAutoupdates() ) {
 				return true;
 			}
-			return $this->loadWpFunctionsProcessor()->doForceRunAutomaticUpdates();
+			return $this->loadWpFunctions()->doForceRunAutomaticUpdates();
 		}
 
 		/**
@@ -252,7 +252,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Autoupdates', false ) ):
 					return $aPluginMeta;
 				}
 			}
-			$bUpdate = $this->loadWpFunctionsProcessor()->getIsPluginAutomaticallyUpdated( $sPluginBaseFileName );
+			$bUpdate = $this->loadWpFunctions()->getIsPluginAutomaticallyUpdated( $sPluginBaseFileName );
 			$sHtml = $this->getPluginAutoupdateIconHtml( $bUpdate );
 			array_unshift( $aPluginMeta, sprintf( '%s', $sHtml ) );
 			return $aPluginMeta;
@@ -281,7 +281,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Autoupdates', false ) ):
 			if ( $sColumnName != 'icwp_autoupdate' ) {
 				return;
 			}
-			$bUpdate = $this->loadWpFunctionsProcessor()->getIsPluginAutomaticallyUpdated( $sPluginBaseFileName );
+			$bUpdate = $this->loadWpFunctions()->getIsPluginAutomaticallyUpdated( $sPluginBaseFileName );
 			echo $this->getPluginAutoupdateIconHtml( $bUpdate );
 		}
 

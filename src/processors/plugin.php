@@ -100,7 +100,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 				'redirection'	=> $nTimeout,
 				'sslverify'		=> true //this is default, but just to make sure.
 			);
-			$sResponse = $this->loadFileSystemProcessor()->getUrlContent( $sHandshakeVerifyTestUrl, $aArgs );
+			$sResponse = $this->loadFS()->getUrlContent( $sHandshakeVerifyTestUrl, $aArgs );
 
 			if ( !$sResponse ) {
 				return false;

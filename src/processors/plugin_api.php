@@ -265,7 +265,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				$sPin
 			);
 
-			$sResponse = $this->loadFileSystemProcessor()->getUrlContent( $sHandshakeVerifyUrl );
+			$sResponse = $this->loadFS()->getUrlContent( $sHandshakeVerifyUrl );
 			if ( empty( $sResponse ) ) {
 				return $this->setErrorResponse(
 					sprintf( 'Package Handshaking Failed against URL "%s" with an empty response.', $sHandshakeVerifyUrl ),
@@ -288,7 +288,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		/**
 		 */
 		protected function preActionEnvironmentSetup() {
-			$this->loadWpFunctionsProcessor()->doBustCache();
+			$this->loadWpFunctions()->doBustCache();
 			@set_time_limit( $this->getRequestParams()->getTimeout() );
 		}
 
@@ -314,7 +314,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 				$sWpUser = $oReqParams->getStringParam( 'wpadmin_user' );
 				if ( empty( $sWpUser ) ) {
 
-					if ( version_compare( $this->loadWpFunctionsProcessor()->getWordpressVersion(), '3.1', '>=' ) ) {
+					if ( version_compare( $this->loadWpFunctions()->getWordpressVersion(), '3.1', '>=' ) ) {
 						$aUserRecords = get_users( array(
 							'role' => 'administrator',
 							'number' => 1,
@@ -343,7 +343,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		 * @return ApiResponse
 		 */
 		protected function runInstaller( $sInstallerFileToInclude ) {
-			$oFs = $this->loadFileSystemProcessor();
+			$oFs = $this->loadFS();
 
 			$bIncludeSuccess = include_once( $sInstallerFileToInclude );
 			$oFs->deleteFile( $sInstallerFileToInclude );

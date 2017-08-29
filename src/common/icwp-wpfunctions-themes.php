@@ -119,7 +119,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_Themes', false ) ):
 		 * @return string|WP_Theme
 		 */
 		public function getCurrentThemeName() {
-			return $this->loadWpFunctionsProcessor()->getWordpressIsAtLeastVersion( '3.4.0' )? $this->getCurrent()->get( 'Name' ) : get_current_theme();
+			return $this->loadWpFunctions()->getWordpressIsAtLeastVersion( '3.4.0' )? $this->getCurrent()->get( 'Name' ) : get_current_theme();
 		}
 
 		/**
@@ -143,7 +143,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_Themes', false ) ):
 		 * @return null|WP_Theme
 		 */
 		public function getTheme( $sStylesheet = null ) {
-			if ( $this->loadWpFunctionsProcessor()->getWordpressIsAtLeastVersion( '3.4.0' ) ) {
+			if ( $this->loadWpFunctions()->getWordpressIsAtLeastVersion( '3.4.0' ) ) {
 				if ( !function_exists( 'wp_get_theme' ) ) {
 					require_once( ABSPATH . 'wp-admin/includes/theme.php' );
 				}
@@ -173,7 +173,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_Themes', false ) ):
 				$this->clearUpdates();
 				$this->checkForUpdates();
 			}
-			return $this->loadWpFunctionsProcessor()->getTransient( 'update_themes' );
+			return $this->loadWpFunctions()->getTransient( 'update_themes' );
 		}
 
 		/**
@@ -196,12 +196,12 @@ if ( !class_exists( 'ICWP_APP_WpFunctions_Themes', false ) ):
 		 */
 		protected function clearUpdates() {
 			$sKey = 'update_themes';
-			$oResponse = $this->loadWpFunctionsProcessor()->getTransient( $sKey );
+			$oResponse = $this->loadWpFunctions()->getTransient( $sKey );
 			if ( !is_object( $oResponse ) ) {
 				$oResponse = new stdClass();
 			}
 			$oResponse->last_checked = 0;
-			$this->loadWpFunctionsProcessor()->setTransient( $sKey, $oResponse );
+			$this->loadWpFunctions()->setTransient( $sKey, $oResponse );
 		}
 
 		/**

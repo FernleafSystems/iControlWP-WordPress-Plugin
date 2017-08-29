@@ -52,7 +52,7 @@ class ICWP_APP_Api_Internal_Collect_Sync extends ICWP_APP_Api_Internal_Collect_B
 			'is_multisite'      => is_multisite() ? 1 : 0,
 			'wordpress_title'   => get_bloginfo( 'name' ),
 			'wordpress_tagline' => get_bloginfo( 'description' ),
-			'wordpress_version' => $this->loadWpFunctionsProcessor()->getWordpressVersion(),
+			'wordpress_version' => $this->loadWpFunctions()->getWordpressVersion(),
 			'config'            => array(
 				'table_prefix' => ''
 			)
@@ -90,7 +90,7 @@ class ICWP_APP_Api_Internal_Collect_Sync extends ICWP_APP_Api_Internal_Collect_B
 	 */
 	protected function getWpPaths() {
 
-		$oWp      = $this->loadWpFunctionsProcessor();
+		$oWp      = $this->loadWpFunctions();
 		$sHomeUrl = $oWp->getHomeUrl();
 		$sSiteUrl = $oWp->getSiteUrl();
 
@@ -241,7 +241,7 @@ class ICWP_APP_Api_Internal_Collect_Sync extends ICWP_APP_Api_Internal_Collect_B
 	protected function cleanRollbackData() {
 
 		$nBoundary = time() - WEEK_IN_SECONDS;
-		$oFs       = $this->loadFileSystemProcessor();
+		$oFs       = $this->loadFS();
 
 		$aContexts = array( 'plugins', 'themes' );
 		foreach ( $aContexts as $sContext ) {
@@ -270,7 +270,7 @@ class ICWP_APP_Api_Internal_Collect_Sync extends ICWP_APP_Api_Internal_Collect_B
 	/**
 	 */
 	protected function cleanRollbackDir() {
-		$oFs = $this->loadFileSystemProcessor();
+		$oFs = $this->loadFS();
 
 		try {
 			$oDirIt = new DirectoryIterator( $this->getRollbackBaseDir() );

@@ -14,7 +14,7 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Plugin_Rollback', false ) ):
 			$aActionParams = $this->getActionParams();
 			$sPluginFile = $aActionParams[ 'plugin_file' ];
 
-			$oFS = $this->loadFileSystemProcessor();
+			$oFS = $this->loadFS();
 
 			$sPluginDirName = dirname( $sPluginFile );
 			$sPluginDirPath = path_join( WP_PLUGIN_DIR, $sPluginDirName );

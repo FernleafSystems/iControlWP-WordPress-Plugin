@@ -102,7 +102,7 @@ if ( !class_exists( 'ICWP_APP_WpUsers', false ) ):
 		 */
 		public function forceUserRelogin( $aLoginUrlParams = array() ) {
 			$this->logoutUser();
-			$this->loadWpFunctionsProcessor()->redirectToLogin( $aLoginUrlParams );
+			$this->loadWpFunctions()->redirectToLogin( $aLoginUrlParams );
 		}
 
 		/**
@@ -165,7 +165,7 @@ if ( !class_exists( 'ICWP_APP_WpUsers', false ) ):
 				return false;
 			}
 
-			if ( version_compare( $this->loadWpFunctionsProcessor()->getWordpressVersion(), '2.8.0', '<' ) ) {
+			if ( version_compare( $this->loadWpFunctions()->getWordpressVersion(), '2.8.0', '<' ) ) {
 				$oUser = get_userdatabylogin( $sUsername );
 			}
 			else {
@@ -180,7 +180,7 @@ if ( !class_exists( 'ICWP_APP_WpUsers', false ) ):
 		 * @return WP_User|null
 		 */
 		public function getUserById( $nId ) {
-			if ( version_compare( $this->loadWpFunctionsProcessor()->getWordpressVersion(), '2.8.0', '<' ) || !function_exists( 'get_user_by' ) ) {
+			if ( version_compare( $this->loadWpFunctions()->getWordpressVersion(), '2.8.0', '<' ) || !function_exists( 'get_user_by' ) ) {
 				return null;
 			}
 			return get_user_by( 'id', $nId );

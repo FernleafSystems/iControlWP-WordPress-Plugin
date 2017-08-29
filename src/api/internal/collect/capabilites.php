@@ -62,7 +62,7 @@ class ICWP_APP_Api_Internal_Collect_Capabilities extends ICWP_APP_Api_Internal_C
 	 * @return bool
 	 */
 	protected function checkCanWrite() {
-		$oFS = $this->loadFileSystemProcessor();
+		$oFS = $this->loadFS();
 
 		$sWorkingTestDir  = dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'icwp_test' . DIRECTORY_SEPARATOR;
 		$sWorkingTestFile = $sWorkingTestDir . 'test_write';
