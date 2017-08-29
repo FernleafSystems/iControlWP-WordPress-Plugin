@@ -20,7 +20,7 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Wordpress', false ) ):
 		 */
 		public function collect() {
 
-			$oWp = $this->loadWpFunctionsProcessor();
+			$oWp = $this->loadWpFunctions();
 			$aInfo = array(
 				'is_multisite'			=> is_multisite()? 1: 0,
 				'admin_url'				=> network_admin_url(),

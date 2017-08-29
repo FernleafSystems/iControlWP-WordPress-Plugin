@@ -99,7 +99,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Compatibility', false ) ):
 		 */
 		protected function addToWpMaintenanceMode() {
 			if ( class_exists( 'WP_Maintenance_Mode', false ) ) {
-				$aWpmmOptions = $this->loadWpFunctionsProcessor()->getOption( 'wpmm_settings' );
+				$aWpmmOptions = $this->loadWpFunctions()->getOption( 'wpmm_settings' );
 				$aExcludes = empty( $aWpmmOptions['general']['exclude'] ) ? array() : array_unique( $aWpmmOptions['general']['exclude'] );
 				$bAdded = false;
 				foreach( $this->getServiceIps( 4 ) as $sIp ) {
@@ -110,7 +110,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Compatibility', false ) ):
 				}
 				if ( $bAdded ) {
 					$aWpmmOptions['general']['exclude'] = $aExcludes;
-					$this->loadWpFunctionsProcessor()->updateOption( 'wpmm_settings', $aWpmmOptions );
+					$this->loadWpFunctions()->updateOption( 'wpmm_settings', $aWpmmOptions );
 				}
 			}
 		}

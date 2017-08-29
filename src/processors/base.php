@@ -69,7 +69,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Base', false ) ):
 				return false;
 			}
 
-			if ( isset( $aNoticeAttributes['type'] ) && $aNoticeAttributes['type'] == 'promo' && $this->loadWpFunctionsProcessor()->getIsMobile() ) {
+			if ( isset( $aNoticeAttributes['type'] ) && $aNoticeAttributes['type'] == 'promo' && $this->loadWpFunctions()->getIsMobile() ) {
 				return false;
 			}
 
@@ -185,7 +185,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Base', false ) ):
 		 * @return mixed
 		 */
 		public function getPluginDefaultRecipientAddress() {
-			$oWp = $this->loadWpFunctionsProcessor();
+			$oWp = $this->loadWpFunctions();
 			return apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'report_email_address' ), $oWp->getSiteAdminEmail() );
 		}
 

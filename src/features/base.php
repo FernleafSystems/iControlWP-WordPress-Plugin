@@ -471,7 +471,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 				return false;
 			}
 
-			$oWpFunc = $this->loadWpFunctionsProcessor();
+			$oWpFunc = $this->loadWpFunctions();
 			if ( is_admin() && !$oWpFunc->isMultisite() ) {
 				return true;
 			}
@@ -562,7 +562,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 		}
 
 		protected function setupAjaxHandlers() {
-			if ( $this->loadWpFunctionsProcessor()->getIsAjax() ) {
+			if ( $this->loadWpFunctions()->getIsAjax() ) {
 				if ( is_admin() || is_network_admin() ) {
 					$this->adminAjaxHandlers();
 				}
@@ -958,7 +958,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 		 * @return bool
 		 */
 		public function getIsCurrentPageConfig() {
-			$oWpFunctions = $this->loadWpFunctionsProcessor();
+			$oWpFunctions = $this->loadWpFunctions();
 			return $oWpFunctions->getCurrentWpAdminPage() == $this->doPluginPrefix( $this->getFeatureSlug() );
 		}
 
@@ -1057,7 +1057,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 			}
 
 			if ( empty( $sSubView ) ) {
-				$oWpFs = $this->loadFileSystemProcessor();
+				$oWpFs = $this->loadFS();
 				$sFeatureInclude = 'feature-'.$this->getFeatureSlug();
 				if ( $oWpFs->exists( $this->getController()->getPath_TemplatesFile( $sFeatureInclude ) ) ) {
 					$sSubView = $sFeatureInclude;

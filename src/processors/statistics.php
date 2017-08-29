@@ -357,7 +357,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Statistics', false ) ):
 		 */
 		protected function getPageId() {
 			if ( !isset( $this->nCurrentPageId ) ) {
-				$this->nCurrentPageId = $this->loadWpFunctionsProcessor()->getCurrentPostId();
+				$this->nCurrentPageId = $this->loadWpFunctions()->getCurrentPostId();
 			}
 			return $this->nCurrentPageId;
 		}

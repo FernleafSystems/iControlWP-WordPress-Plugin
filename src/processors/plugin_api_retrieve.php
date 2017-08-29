@@ -16,7 +16,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Retrieve', false ) ):
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
 			$oReqParams = $this->getRequestParams();
-			$oFs = $this->loadFileSystemProcessor();
+			$oFs = $this->loadFS();
 
 			if ( !function_exists( 'download_url' ) ) {
 				return $this->setErrorResponse(

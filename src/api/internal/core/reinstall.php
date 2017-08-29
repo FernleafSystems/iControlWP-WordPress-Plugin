@@ -12,7 +12,7 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Core_Reinstall', false ) ):
 		 */
 		public function process() {
 			$this->loadWpUpgrades();
-			$oWp = $this->loadWpFunctionsProcessor();
+			$oWp = $this->loadWpFunctions();
 
 			$oWpCoreUpdate = find_core_update( $oWp->getWordpressVersion(), $oWp->getLocale() );
 			if ( empty( $oWpCoreUpdate ) ) {

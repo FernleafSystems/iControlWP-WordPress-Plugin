@@ -11,7 +11,7 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Core_Update', false ) ):
 		 */
 		public function process() {
 			$this->loadWpUpgrades();
-			$oWp = $this->loadWpFunctionsProcessor();
+			$oWp = $this->loadWpFunctions();
 
 			if ( !$oWp->getHasCoreUpdatesAvailable() ) {
 				return $this->success( array(), 'There is no update available' );

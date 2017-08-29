@@ -120,7 +120,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 
 				if ( !empty( $sTo ) && !empty( $sKey ) && !empty( $sPin ) ) {
 					$aParts = array( urlencode( $sTo ), $sKey, $sPin );
-					$this->loadFileSystemProcessor()->getUrl( $this->getAppUrl( 'reset_site_url' ) . implode( '/', $aParts ) );
+					$this->loadFS()->getUrl( $this->getAppUrl( 'reset_site_url' ) . implode( '/', $aParts ) );
 				}
 				$this->setOpt( 'key', '' );
 				$this->setPluginPin( '' );
@@ -173,7 +173,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 				$aArgs = array(
 					'body'	=> $aPostVars
 				);
-				return $this->loadFileSystemProcessor()->postUrl( $this->getAppUrl( 'remote_add_site_url' ), $aArgs );
+				return $this->loadFS()->postUrl( $this->getAppUrl( 'remote_add_site_url' ), $aArgs );
 			}
 			return false;
 		}
@@ -183,12 +183,12 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		 */
 		public function doAutoRemoteSiteAdd() {
 			$sAutoAddFilePath = $this->getController()->getRootDir().'auto_add.php';
-			if ( $this->getIsSiteLinked() || !$this->loadFileSystemProcessor()->isFile( $sAutoAddFilePath ) ) {
+			if ( $this->getIsSiteLinked() || !$this->loadFS()->isFile( $sAutoAddFilePath ) ) {
 				return;
 			}
 			$sContent = $this->loadDataProcessor()
 							 ->readFileContentsUsingInclude( $sAutoAddFilePath );
-			$this->loadFileSystemProcessor()->deleteFile( $sAutoAddFilePath );
+			$this->loadFS()->deleteFile( $sAutoAddFilePath );
 			if ( !empty( $sContent ) ) {
 				$aParsed = json_decode( $sContent, true );
 				$sApiKey = isset( $aParsed[ 'api-key' ] ) ? $aParsed[ 'api-key' ] : '';

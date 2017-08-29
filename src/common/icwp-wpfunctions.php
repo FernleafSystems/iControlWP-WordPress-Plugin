@@ -145,7 +145,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 					'locale'	=> $this->getLocale( true )
 				);
 				$sQueryUrl = add_query_arg( $aQueryArgs, 'https://api.wordpress.org/core/checksums/1.0/' );
-				$sResponse = $this->loadFileSystemProcessor()->getUrlContent( $sQueryUrl );
+				$sResponse = $this->loadFS()->getUrlContent( $sQueryUrl );
 				if ( !empty( $sResponse ) ) {
 					$aDecodedResponse = json_decode( trim( $sResponse ), true );
 					if ( is_array( $aDecodedResponse ) && isset( $aDecodedResponse['checksums'] ) && is_array( $aDecodedResponse['checksums'] ) ) {
@@ -337,6 +337,21 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 				'_wpnonce'	=> wp_create_nonce( 'upgrade-plugin_' . $sPluginFile )
 			);
 			return add_query_arg( $aQueryArgs, $sUrl );
+		}
+
+		/**
+		 * @param stdClass|string $mItem
+		 * @param string          $sContext from plugin|theme
+		 * @return string
+		 */
+		public function getFileFromAutomaticUpdateItem( $mItem, $sContext = 'plugin' ) {
+			if ( is_object( $mItem ) && isset( $mItem->{$sContext} ) )  { // WP 3.8.2+
+				$mItem = $mItem->{$sContext};
+			}
+			else if ( !is_string( $mItem ) ) { // WP pre-3.8.2
+				$mItem = '';
+			}
+			return $mItem;
 		}
 
 		/**

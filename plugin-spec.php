@@ -1,13 +1,14 @@
 <?php
 return "---
 properties:
-  version: '3.4.3'
+  version: '3.5.0'
 #  slug_parent: 'worpit'
 #  slug_plugin: 'admin'
   slug_parent: 'icwp'
   slug_plugin: 'app'
   text_domain: 'worpit-admin-dashboard-plugin'
   base_permissions: 'manage_options'
+  options_encoding: 'yaml'
   wpms_network_admin_only: true
   logging_enabled: false
   autoupdate: 'confidence' #yes/block/pass/confidence - confidence is where the version update detected has been available for at least 48hrs.
