@@ -3,26 +3,27 @@ Contributors: paultgoodchild
 Donate link: http://www.icontrolwp.com/
 Tags: manage wordpress, backup, restore, bulk, icontrolwp, managewp, worpit, automatic updates
 Requires at least: 3.2.0
-Tested up to: 4.8
-Stable tag: 3.4.3
+Tested up to: 4.9
+Stable tag: 3.5.0
 
 == Description ==
 
-The [iControlWP Secure WordPress Manager](http://www.icontrolwp.com/?src=icwp_readme) is the only solution you need to
-manage all your WordPress websites.
+The [iControlWP WordPress Security Manager](http://icwp.io/9g) is the only solution you need to manage all your WordPress websites.
 
-You're serious about WordPress Management, so we don't restrict you on features and tiers like "Pro" and "Business" - you can pick and choose exactly what you need.
+You need more time and WordPress management every day doesn't make your business any money. iControlWP will give you back the time you need to focus on your business.
 
-*Our Mission - Better WordPress Management with Fewer WordPress Plugins*
+*Our Mission: Give you more free time to focus on your core business*
 
-With iControlWP you need fewer WordPress plugins on your sites because you can centrally manage much more from within your
-control panel. For example:
+With iControlWP you need fewer WordPress plugins because you can centrally manage much more from within your control panel. For example:
 
-*	You don't need an extra plugin for Google Analytics tracking codes.
-*	You don't need an extra plugin for CloudFlare integration and management
-*	You don't need an extra plugin to optimize your databases
-*	You don't need an extra plugin to clean up old drafts, comments and post revisions
-*	You don't need an extra plugin to manage WordPress automatic updates
+*	No extra plugins to security
+*	No extra plugins to backups / restores
+*	No extra plugins for uptime monitoring
+*	No extra plugins for Google Analytics tracking codes.
+*	No extra plugins for CloudFlare integration and management
+*	No extra plugins to optimize your databases
+*	No extra plugins to clean up old drafts, comments and post revisions
+*	No extra plugins to manage WordPress automatic updates
 
 With iControlWP you can:
 
@@ -114,10 +115,15 @@ No. WorpDrive is available for a small monthly fee.
 
 == Changelog ==
 
-= Latest Release: 3.4.3 =
-*Released: 24th August, 2017*
+= Latest Release: 3.5.0 =
+*Released: 29th August, 2017*
 
-* **(v.3)**	ADDED:		Workaround for [WP Super Cache bug](https://wordpress.org/support/topic/fatal-error-with-latest-update-4/)
+* **(v.0)**	IMPROVED:	Better support for WordPress sites that can't write to disk by default.
+
+= 3.5 Series =
+*Released: 29th August, 2017*
+
+* **(v.0)**	IMPROVED:	Better support for WordPress sites that can't write to disk by default.
 
 = 3.4 Series =
 *Released: 1st July, 2017*
