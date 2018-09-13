@@ -39,7 +39,7 @@ if ( !class_exists( 'ICWP_APP_WpAdminNotices', false ) ):
 			add_action( 'wp_loaded',				array( $this, 'flushFlashMessage' ) );
 
 			if ( $this->loadWpFunctions()->getIsAjax() ) {
-				add_action( 'wp_ajax_icwp_DismissAdminNotice', array( $this, 'ajaxDismissAdminNotice' ) );
+				add_action( 'wp_ajax_icwp_DismissAdminNotice', array( $this, 'ajaxDismissAdminNotice' ), 11 );
 			}
 		}
 

@@ -1,10 +1,10 @@
 === iControlWP - Multiple WordPress Management ===
 Contributors: paultgoodchild
 Donate link: http://www.icontrolwp.com/
-Tags: manage wordpress, backup, restore, bulk, icontrolwp, managewp, worpit, automatic updates
+Tags: manage wordpress, backup, security, restore, bulk, icontrolwp, managewp, worpit, automatic updates
 Requires at least: 3.2.0
-Tested up to: 4.9
-Stable tag: 3.5.0
+Tested up to: 5.0
+Stable tag: 3.5.1
 
 == Description ==
 
@@ -115,14 +115,15 @@ No. WorpDrive is available for a small monthly fee.
 
 == Changelog ==
 
-= Latest Release: 3.5.0 =
-*Released: 29th August, 2017*
+= Latest Release: 3.5.1 =
+*Released: 23rd January, 2018*
 
-* **(v.0)**	IMPROVED:	Better support for WordPress sites that can't write to disk by default.
+* **(v.1)**	FIXED:		Fix where unable to dismiss admin notice
 
 = 3.5 Series =
 *Released: 29th August, 2017*
 
+* **(v.1)**	FIXED:		Fix where unable to dismiss admin notice
 * **(v.0)**	IMPROVED:	Better support for WordPress sites that can't write to disk by default.
 
 = 3.4 Series =
