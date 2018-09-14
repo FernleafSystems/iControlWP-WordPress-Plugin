@@ -26,7 +26,8 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Wordpress', false ) ):
 			$aInfo = array(
 				'is_multisite'          => is_multisite() ? 1 : 0,
 				'type'                  => is_multisite() ? 'wpms' : 'wordpress',
-				'admin_url'             => network_admin_url(),
+				'admin_path'            => network_admin_url(),
+				'admin_url'             => network_admin_url(), // TODO: DELETE
 				'core_update_available' => $oWp->getHasCoreUpdatesAvailable( $this->isForceUpdateCheck() ) ? 1 : 0,
 				'wordpress_version'     => $oWp->getWordPressVersion(),
 				'wordpress_title'       => get_bloginfo( 'name' ),
