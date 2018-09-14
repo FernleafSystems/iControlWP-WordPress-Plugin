@@ -2,7 +2,7 @@
 
 if ( !class_exists( 'ICWP_APP_Api_Internal_Common_Plugins', false ) ):
 
-	require_once( dirname( dirname( __FILE__ ) ).ICWP_DS.'base.php' );
+	require_once( dirname( dirname( __FILE__ ) ).'/base.php' );
 
 	class ICWP_APP_Api_Internal_Common_Plugins extends ICWP_APP_Api_Internal_Base {
 
@@ -29,7 +29,7 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Common_Plugins', false ) ):
 		 * @return string
 		 */
 		protected function getRollbackBaseDir() {
-			return path_join( WP_CONTENT_DIR, 'icwp'.ICWP_DS.'rollback'.ICWP_DS );
+			return path_join( WP_CONTENT_DIR, 'icwp'.'/rollback'.ICWP_DS );
 		}
 	}
 

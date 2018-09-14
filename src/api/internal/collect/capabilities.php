@@ -4,16 +4,26 @@ if ( class_exists( 'ICWP_APP_Api_Internal_Collect_Capabilities', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ) . ICWP_DS . 'base.php' );
+require_once( dirname( __FILE__ ).'/base.php' );
 
 class ICWP_APP_Api_Internal_Collect_Capabilities extends ICWP_APP_Api_Internal_Collect_Base {
+
+	/**
+	 * @var bool
+	 */
+	private $bCanWrite;
+
+	/**
+	 * @var bool
+	 */
+	private $bDoFullCapabilitiesTest;
 
 	/**
 	 * @return ApiResponse
 	 */
 	public function process() {
 		$aData = array(
-			'capabilities' => $this->collect( true )
+			'capabilities' => $this->collect()
 		);
 		return $this->success( $aData );
 	}
@@ -24,17 +34,19 @@ class ICWP_APP_Api_Internal_Collect_Capabilities extends ICWP_APP_Api_Internal_C
 	 */
 	public function collect( $bFull = false ) {
 		$oDp = $this->loadDataProcessor();
+		$bCanExtensionLoaded = function_exists( 'extension_loaded' ) && is_callable( 'extension_loaded' );
 
+		$bCanWpWrite = $this->checkCanWordpressWrite( $sWriteToDiskNotice ) ? 1 : 0;
 		$aData = array(
+			'php_version'                => $oDp->getPhpVersion(),
 			'is_force_ssl_admin'         => ( function_exists( 'force_ssl_admin' ) && force_ssl_admin() ) ? 1 : 0,
 			'can_handshake'              => $this->isHandshakeEnabled() ? 1 : 0,
 			'can_handshake_openssl'      => $this->loadEncryptProcessor()->getSupportsOpenSslSign() ? 1 : 0,
-			'can_wordpress_write'        => $this->checkCanWordpressWrite( $sWriteToDiskNotice ) ? 1 : 0,
+			'can_wordpress_write'        => $bCanWpWrite, //TODO: DELETE
 			'can_wordpress_write_notice' => $sWriteToDiskNotice,
 		);
 
-		if ( $bFull ) {
-			$bCanExtensionLoaded = function_exists( 'extension_loaded' ) && is_callable( 'extension_loaded' );
+		if ( $this->isDoFullCapabilitiesTest() ) {
 
 			$aData = array_merge(
 				$aData,
@@ -64,42 +76,42 @@ class ICWP_APP_Api_Internal_Collect_Capabilities extends ICWP_APP_Api_Internal_C
 	protected function checkCanWrite() {
 		$oFS = $this->loadFS();
 
-		$sWorkingTestDir  = dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'icwp_test' . DIRECTORY_SEPARATOR;
-		$sWorkingTestFile = $sWorkingTestDir . 'test_write';
-		$sTestContent     = '#FINDME-' . uniqid();
+		$sWorkingTestDir = dirname( __FILE__ ).DIRECTORY_SEPARATOR.'icwp_test'.DIRECTORY_SEPARATOR;
+		$sWorkingTestFile = $sWorkingTestDir.'test_write';
+		$sTestContent = '#FINDME-'.uniqid();
 
-		$bGoodSoFar  = true;
+		$bGoodSoFar = true;
 		$outsMessage = '';
 
-		if ( ! $oFS->mkdir( $sWorkingTestDir ) || ! $oFS->isDir( $sWorkingTestDir ) ) {
+		if ( !$oFS->mkdir( $sWorkingTestDir ) || !$oFS->isDir( $sWorkingTestDir ) ) {
 			$outsMessage = sprintf( 'Failed to create directory: %s', $sWorkingTestDir );
-			$bGoodSoFar  = false;
+			$bGoodSoFar = false;
 		}
-		if ( $bGoodSoFar && ! is_writable( $sWorkingTestDir ) ) {
+		if ( $bGoodSoFar && !is_writable( $sWorkingTestDir ) ) {
 			$outsMessage = sprintf( 'The test directory is not writable: %s', $sWorkingTestDir );
-			$bGoodSoFar  = false;
+			$bGoodSoFar = false;
 		}
-		if ( $bGoodSoFar && ! $oFS->touch( $sWorkingTestFile ) ) {
+		if ( $bGoodSoFar && !$oFS->touch( $sWorkingTestFile ) ) {
 			$outsMessage = sprintf( 'Failed to touch "%s"', $sWorkingTestFile );
-			$bGoodSoFar  = false;
+			$bGoodSoFar = false;
 		}
-		if ( $bGoodSoFar && ! file_put_contents( $sWorkingTestFile, $sTestContent ) ) {
+		if ( $bGoodSoFar && !file_put_contents( $sWorkingTestFile, $sTestContent ) ) {
 			$outsMessage = sprintf( 'Failed to write content "%s" to "%s"', $sWorkingTestFile, $sTestContent );
-			$bGoodSoFar  = false;
+			$bGoodSoFar = false;
 		}
-		if ( $bGoodSoFar && ! @is_file( $sWorkingTestFile ) ) {
+		if ( $bGoodSoFar && !@is_file( $sWorkingTestFile ) ) {
 			$outsMessage = sprintf( 'Failed to find file "%s"', $sWorkingTestFile );
-			$bGoodSoFar  = false;
+			$bGoodSoFar = false;
 		}
 		$sContents = $oFS->getFileContent( $sWorkingTestFile );
 		if ( $bGoodSoFar && ( $sContents != $sTestContent ) ) {
 			$outsMessage = sprintf( 'The content "%s" does not match what we wrote "%s"', $sContents, $sTestContent );
-			$bGoodSoFar  = false;
+			$bGoodSoFar = false;
 		}
 
-		if ( ! $bGoodSoFar ) {
+		if ( !$bGoodSoFar ) {
 			$this->getStandardResponse()
-			     ->setErrorMessage( $outsMessage );
+				 ->setErrorMessage( $outsMessage );
 
 			return false;
 		}
@@ -126,7 +138,7 @@ class ICWP_APP_Api_Internal_Collect_Capabilities extends ICWP_APP_Api_Internal_C
 			return false;
 		}
 
-		if ( ! WP_Filesystem( $aCredentials ) ) {
+		if ( !WP_Filesystem( $aCredentials ) ) {
 			global $wp_filesystem;
 
 			$oWpError = null;
@@ -153,5 +165,31 @@ class ICWP_APP_Api_Internal_Collect_Capabilities extends ICWP_APP_Api_Internal_C
 			return ICWP_Plugin::GetHandshakingEnabled();
 		}
 		return apply_filters( 'icwp-app-CanHandshake', false );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function canWrite() {
+		if ( !isset( $this->bCanWrite ) ) {
+			$this->bCanWrite = $this->checkCanWordpressWrite();
+		}
+		return $this->bCanWrite;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isDoFullCapabilitiesTest() {
+		return (bool)$this->bDoFullCapabilitiesTest;
+	}
+
+	/**
+	 * @param bool $bDoFullCapabilitiesTest
+	 * @return $this
+	 */
+	public function setDoFullCapabilitiesTest( $bDoFullCapabilitiesTest ) {
+		$this->bDoFullCapabilitiesTest = $bDoFullCapabilitiesTest;
+		return $this;
 	}
 }

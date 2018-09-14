@@ -2,7 +2,7 @@
 
 if ( !class_exists( 'ICWP_APP_Api_Internal_Collect_Themes', false ) ):
 
-	require_once( dirname( __FILE__ ).ICWP_DS.'base.php' );
+	require_once( dirname( __FILE__ ).'/base.php' );
 
 	class ICWP_APP_Api_Internal_Collect_Themes extends ICWP_APP_Api_Internal_Collect_Base {
 		/**
