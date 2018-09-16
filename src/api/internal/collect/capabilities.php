@@ -29,16 +29,16 @@ class ICWP_APP_Api_Internal_Collect_Capabilities extends ICWP_APP_Api_Internal_C
 	}
 
 	/**
-	 * @param bool $bFull
 	 * @return array
 	 */
-	public function collect( $bFull = false ) {
+	public function collect() {
 		$oDp = $this->loadDataProcessor();
 		$bCanExtensionLoaded = function_exists( 'extension_loaded' ) && is_callable( 'extension_loaded' );
 
 		$bCanWpWrite = $this->checkCanWordpressWrite( $sWriteToDiskNotice ) ? 1 : 0;
 		$aData = array(
-			'php_version'                => $oDp->getPhpVersion(),
+			'php_version'                => $oDp->getPhpVersion(), //TODO DELETE
+			'version_php'                => $oDp->getPhpVersion(),
 			'is_force_ssl_admin'         => ( function_exists( 'force_ssl_admin' ) && force_ssl_admin() ) ? 1 : 0,
 			'can_handshake'              => $this->isHandshakeEnabled() ? 1 : 0,
 			'can_handshake_openssl'      => $this->loadEncryptProcessor()->getSupportsOpenSslSign() ? 1 : 0,
@@ -60,7 +60,7 @@ class ICWP_APP_Api_Internal_Collect_Capabilities extends ICWP_APP_Api_Internal_C
 					'safe_mode_protected_env_vars' => ini_get( 'safe_mode_protected_env_vars' ),
 					'can_timelimit'                => $oDp->checkCanTimeLimit() ? 1 : 0,
 					'can_write'                    => $this->checkCanWrite() ? 1 : 0,
-					'can_exec'                     => $oDp->checkCanExec() ? 1 : 0,
+//					'can_exec'                     => $oDp->checkCanExec() ? 1 : 0,
 					'ext_pdo'                      => class_exists( 'PDO' ) || ( $bCanExtensionLoaded && extension_loaded( 'pdo' ) ),
 					'ext_mysqli'                   => ( $bCanExtensionLoaded && extension_loaded( 'mysqli' ) ) ? 1 : 0,
 				)
@@ -76,7 +76,7 @@ class ICWP_APP_Api_Internal_Collect_Capabilities extends ICWP_APP_Api_Internal_C
 	protected function checkCanWrite() {
 		$oFS = $this->loadFS();
 
-		$sWorkingTestDir = dirname( __FILE__ ).DIRECTORY_SEPARATOR.'icwp_test'.DIRECTORY_SEPARATOR;
+		$sWorkingTestDir = dirname( __FILE__ ).'/icwp_test/';
 		$sWorkingTestFile = $sWorkingTestDir.'test_write';
 		$sTestContent = '#FINDME-'.uniqid();
 

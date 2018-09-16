@@ -13,13 +13,11 @@ class ICWP_APP_Api_Internal_Collect_Sync extends ICWP_APP_Api_Internal_Collect_B
 	 */
 	public function process() {
 		$aData = array(
-			'start'           => $this->loadDataProcessor()->time(),
 			'capabilities'    => $this->getCollector_Capabilities()
-									  ->setDoFullCapabilitiesTest( true )
+									  ->setDoFullCapabilitiesTest( false )
 									  ->collect(),
 			'wordpress-info'  => $this->getCollector_WordPressInfo()->collect(),
 			'wordpress-paths' => $this->getCollector_Paths()->collect(),
-			'end'             => time(),
 		);
 
 		if ( class_exists( 'DirectoryIterator', false ) ) {
