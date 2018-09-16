@@ -12,10 +12,7 @@ class ICWP_APP_Api_Internal_Collect_Themes extends ICWP_APP_Api_Internal_Collect
 	 * @return ApiResponse
 	 */
 	public function process() {
-		$aData = array(
-			'wordpress-themes' => $this->collect(),
-		);
-		return $this->success( $aData );
+		return $this->success( array( 'wordpress-themes' => $this->collect() ) );
 	}
 
 	/**

@@ -13,9 +13,7 @@ class ICWP_APP_Api_Internal_Collect_Sync extends ICWP_APP_Api_Internal_Collect_B
 	 */
 	public function process() {
 		$aData = array(
-			'capabilities'    => $this->getCollector_Capabilities()
-									  ->setDoFullCapabilitiesTest( false )
-									  ->collect(),
+			'capabilities'    => $this->getCollector_Capabilities()->collect(),
 			'wordpress-info'  => $this->getCollector_WordPressInfo()->collect(),
 			'wordpress-paths' => $this->getCollector_Paths()->collect(),
 		);

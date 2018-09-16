@@ -12,10 +12,7 @@ class ICWP_APP_Api_Internal_Collect_Paths extends ICWP_APP_Api_Internal_Collect_
 	 * @return ApiResponse
 	 */
 	public function process() {
-		$aData = array(
-			'paths' => $this->collect()
-		);
-		return $this->success( $aData );
+		return $this->success( array( 'paths' => $this->collect() ) );
 	}
 
 	/**
@@ -29,9 +26,6 @@ class ICWP_APP_Api_Internal_Collect_Paths extends ICWP_APP_Api_Internal_Collect_
 	 * @return array
 	 */
 	protected function getDbSettings() {
-		$aSettings = array(
-			'table_prefix' => $this->loadDbProcessor()->getPrefix()
-		);
 		$aDefines = array(
 			'DB_HOST',
 			'DB_NAME',
@@ -39,6 +33,10 @@ class ICWP_APP_Api_Internal_Collect_Paths extends ICWP_APP_Api_Internal_Collect_
 			'DB_PASSWORD',
 			'DB_CHARSET',
 			'DB_COLLATE'
+		);
+
+		$aSettings = array(
+			'table_prefix' => $this->loadDbProcessor()->getPrefix()
 		);
 		foreach ( $aDefines as $sDefineKey ) {
 			if ( defined( $sDefineKey ) ) {

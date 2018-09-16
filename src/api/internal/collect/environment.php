@@ -31,25 +31,34 @@ class ICWP_APP_Api_Internal_Collect_Environment extends ICWP_APP_Api_Internal_Co
 		}
 
 		return array(
-			'can_exec'        => $oDp->checkCanExec() ? 1 : 0,
-			'can_tar'         => $aAppsData[ 'tar' ][ 'version-info' ] > 0 ? 1 : 0,
-			'can_zip'         => $aAppsData[ 'zip' ][ 'version-info' ] > 0 ? 1 : 0,
-			'can_unzip'       => $aAppsData[ 'unzip' ][ 'version-info' ] > 0 ? 1 : 0,
-			'can_mysql'       => $aAppsData[ 'mysql' ][ 'version-info' ] > 0 ? 1 : 0,
-			'can_mysqldump'   => $aAppsData[ 'mysqldump' ][ 'version-info' ] > 0 ? 1 : 0,
-			'can_mysqlimport' => $aAppsData[ 'mysqlimport' ][ 'version-info' ] > 0 ? 1 : 0,
-			'applications'    => $aAppsData,
+			'open_basedir'                 => ini_get( 'open_basedir' ),
+			'safe_mode'                    => ini_get( 'safe_mode' ),
+			'safe_mode_gid'                => ini_get( 'safe_mode_gid' ),
+			'safe_mode_include_dir'        => ini_get( 'safe_mode_include_dir' ),
+			'safe_mode_exec_dir'           => ini_get( 'safe_mode_exec_dir' ),
+			'safe_mode_allowed_env_vars'   => ini_get( 'safe_mode_allowed_env_vars' ),
+			'safe_mode_protected_env_vars' => ini_get( 'safe_mode_protected_env_vars' ),
+			'can_exec'                     => $oDp->checkCanExec() ? 1 : 0,
+			'can_timelimit'                => $oDp->checkCanTimeLimit() ? 1 : 0,
+			'can_write'                    => $this->checkCanWrite() ? 1 : 0,
+			'can_tar'                      => $aAppsData[ 'tar' ][ 'version-info' ] > 0 ? 1 : 0,
+			'can_zip'                      => $aAppsData[ 'zip' ][ 'version-info' ] > 0 ? 1 : 0,
+			'can_unzip'                    => $aAppsData[ 'unzip' ][ 'version-info' ] > 0 ? 1 : 0,
+			'can_mysql'                    => $aAppsData[ 'mysql' ][ 'version-info' ] > 0 ? 1 : 0,
+			'can_mysqldump'                => $aAppsData[ 'mysqldump' ][ 'version-info' ] > 0 ? 1 : 0,
+			'can_mysqlimport'              => $aAppsData[ 'mysqlimport' ][ 'version-info' ] > 0 ? 1 : 0,
+			'applications'                 => $aAppsData,
 		);
 	}
 
 	/**
-	 * @param array $inaAppVersionCmds
+	 * @param array $aAppVersionCmds
 	 * @return array
 	 */
-	protected function collectApplicationVersions( $inaAppVersionCmds ) {
+	protected function collectApplicationVersions( $aAppVersionCmds ) {
 		$aApplications = array();
 
-		foreach ( $inaAppVersionCmds as $nIndex => $sVersionCmd ) {
+		foreach ( $aAppVersionCmds as $nIndex => $sVersionCmd ) {
 			list( $sExecutable, $sVersionParam ) = explode( ' ', $sVersionCmd, 2 );
 			@exec( $sVersionCmd, $aOutput, $nReturnVal );
 
