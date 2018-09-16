@@ -2,7 +2,7 @@
 
 if ( !class_exists( 'ICWP_APP_Api_Internal_User_Create', false ) ):
 
-	require_once( dirname( dirname( __FILE__ ) ) . ICWP_DS . 'base.php' );
+	require_once( dirname( dirname( __FILE__ ) ).'/base.php' );
 
 	/* http://codex.wordpress.org/Function_Reference/wp_insert_user
 	 * When performing an update operation, user_pass should be the hashed password and not the plain text password
@@ -18,6 +18,7 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_User_Create', false ) ):
 		'user_registered' => $user_registered,
 		'display_name' => $display_name,
 	 */
+
 	class ICWP_APP_Api_Internal_User_Create extends ICWP_APP_Api_Internal_Base {
 
 		/**
@@ -27,7 +28,7 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_User_Create', false ) ):
 
 			$aActionParams = $this->getActionParams();
 			$aUser = $aActionParams[ 'user' ];
-			if ( $aUser['role'] == 'default' ) {
+			if ( $aUser[ 'role' ] == 'default' ) {
 				$aUser[ 'role' ] = get_option( 'default_role' );
 			}
 
@@ -41,7 +42,7 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_User_Create', false ) ):
 			}
 
 			$aData = array(
-				'new_user_id' => $mNewUserId,
+				'new_user_id'   => $mNewUserId,
 				'new_user_data' => $aUser,
 			);
 			return $this->success( $aData );

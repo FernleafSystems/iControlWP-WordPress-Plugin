@@ -79,7 +79,7 @@ if ( !class_exists( 'ICWP_APP_YamlProcessor', false ) ):
 		 */
 		protected function loadSpycYamlParser() {
 			if ( !class_exists( 'Spyc', false ) ) {
-				require_once( dirname(__FILE__).ICWP_DS.'yaml/Spyc.php' );
+				require_once( dirname(__FILE__).'/yaml/Spyc.php' );
 			}
 			return class_exists( 'Spyc', false );
 		}
@@ -87,7 +87,7 @@ if ( !class_exists( 'ICWP_APP_YamlProcessor', false ) ):
 		 */
 		protected function loadSymfonyYamlParser() {
 			if ( !class_exists( 'sfYaml', false ) ) {
-				require_once( dirname(__FILE__).ICWP_DS.'yaml/symfony/sfYaml.php' );
+				require_once( dirname(__FILE__).'/yaml/symfony/sfYaml.php' );
 			}
 			return class_exists( 'sfYaml', false );
 		}

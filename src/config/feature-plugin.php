@@ -106,6 +106,7 @@ definitions:
     - 'collect_plugins'
     - 'collect_sync'
     - 'collect_themes'
+    - 'collect_environment'
     - 'comments_retrieve'
     - 'comments_status'
     - 'core_update'

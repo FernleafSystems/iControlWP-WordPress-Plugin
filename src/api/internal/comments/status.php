@@ -2,7 +2,7 @@
 
 if ( !class_exists( 'ICWP_APP_Api_Internal_Comments_Status', false ) ):
 
-	require_once( dirname( dirname( __FILE__ ) ) . ICWP_DS . 'base.php' );
+	require_once( dirname( dirname( __FILE__ ) ).'/base.php' );
 
 	class ICWP_APP_Api_Internal_Comments_Status extends ICWP_APP_Api_Internal_Base {
 
@@ -18,10 +18,9 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Comments_Status', false ) ):
 
 			$aResults = array();
 			$aActionParams = $this->getActionParams();
-			foreach( $aActionParams[ 'comments_and_status' ] as $nCommentId => $sStatus ) {
+			foreach ( $aActionParams[ 'comments_and_status' ] as $nCommentId => $sStatus ) {
 
 				$aResults[ $nCommentId ] = $oWpComments->setCommentStatus( $nCommentId, $sStatus );
-
 				/* did it work?
 				$mNewStatus = $oWpComments->getCommentStatus( $nCommentId );
 				if ( $mNewStatus == $sStatus ) {

@@ -2,7 +2,7 @@
 
 if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 
-	require_once( dirname(__FILE__).ICWP_DS.'base_app.php' );
+	require_once( dirname( __FILE__ ).'/base_app.php' );
 
 	class ICWP_APP_Processor_Plugin extends ICWP_APP_Processor_BaseApp {
 
@@ -71,8 +71,8 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 		 */
 		protected function getValidServiceIps( $sIps = 'ipv4' ) {
 			$aLists = $this->getFeatureOptions()->getDefinition( 'service_ip_addresses' );
-			if ( isset( $aLists[$sIps] ) && is_array( $aLists[$sIps] ) && isset( $aLists[$sIps]['valid'] ) && is_array( $aLists[$sIps]['valid'] ) ) {
-				return $aLists[$sIps]['valid'];
+			if ( isset( $aLists[ $sIps ] ) && is_array( $aLists[ $sIps ] ) && isset( $aLists[ $sIps ][ 'valid' ] ) && is_array( $aLists[ $sIps ][ 'valid' ] ) ) {
+				return $aLists[ $sIps ][ 'valid' ];
 			}
 			return array();
 		}
@@ -96,9 +96,9 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 			$nTimeout = 20;
 			$sHandshakeVerifyTestUrl = $oFO->getAppUrl( 'handshake_verify_test_url' );
 			$aArgs = array(
-				'timeout'		=> $nTimeout,
-				'redirection'	=> $nTimeout,
-				'sslverify'		=> true //this is default, but just to make sure.
+				'timeout'     => $nTimeout,
+				'redirection' => $nTimeout,
+				'sslverify'   => true //this is default, but just to make sure.
 			);
 			$sResponse = $this->loadFS()->getUrlContent( $sHandshakeVerifyTestUrl, $aArgs );
 
@@ -113,8 +113,8 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 		 * @uses die()
 		 */
 		public function doApiLinkSite() {
-			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-			require_once( dirname( __FILE__ ) . ICWP_DS . 'plugin_api_link.php' );
+			require_once( ABSPATH.'wp-admin/includes/upgrade.php' );
+			require_once( dirname( __FILE__ ).'/plugin_api_link.php' );
 			$oLinkProcessor = new ICWP_APP_Processor_Plugin_SiteLink( $this->getFeatureOptions() );
 			$oLinkResponse = $oLinkProcessor->run();
 			$this->sendApiResponse( $oLinkResponse );
@@ -130,12 +130,12 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 		public function doApiAction() {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
-			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+			require_once( ABSPATH.'wp-admin/includes/upgrade.php' );
 
 			$sApiChannel = $this->getApiChannel(); // also verifies it's a valid channel
-			require_once( dirname(__FILE__).ICWP_DS. sprintf( 'plugin_api_%s.php', $sApiChannel ) );
+			require_once( dirname( __FILE__ ).sprintf( '/plugin_api_%s.php', $sApiChannel ) );
 
-			switch( $sApiChannel ) {
+			switch ( $sApiChannel ) {
 
 				case 'auth':
 					$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Auth( $oFO );
@@ -163,7 +163,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 
 				default: // case 'index':
 					echo $sApiChannel;
-					require_once( dirname(__FILE__).ICWP_DS. sprintf( 'plugin_api_index.php', $sApiChannel ) );
+					require_once( dirname( __FILE__ ).sprintf( '/plugin_api_index.php', $sApiChannel ) );
 					$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Index( $oFO );
 					break;
 			}
@@ -196,10 +196,9 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 
 		/**
 		 * @uses die() / wp_die()
-		 *
 		 * @param ApiResponse|string $oResponse
-		 * @param bool $bDoBinaryEncode
-		 * @param bool $bEncrypt
+		 * @param bool               $bDoBinaryEncode
+		 * @param bool               $bEncrypt
 		 */
 		protected function sendApiResponse( $oResponse, $bDoBinaryEncode = true, $bEncrypt = false ) {
 
@@ -224,8 +223,8 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 					$oResponse->setData(
 						array(
 							'is_encrypted' => 1,
-							'password' => $oEncryptedResult->encrypted_password,
-							'sealed_data' => $oEncryptedResult->encrypted_data
+							'password'     => $oEncryptedResult->encrypted_password,
+							'sealed_data'  => $oEncryptedResult->encrypted_data
 						)
 					);
 				}
@@ -233,7 +232,8 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 
 			$sResponseBody = $oResponse->getResponsePackage();
 			if ( $bDoBinaryEncode ) {
-				$sResponseBody = base64_encode( $this->loadDataProcessor()->encodeJson( $oResponse->getResponsePackage() ) );
+				$sResponseBody = base64_encode( $this->loadDataProcessor()
+													 ->encodeJson( $oResponse->getResponsePackage() ) );
 			}
 			$this->flushResponse( $sResponseBody, $bDoBinaryEncode ? 'json' : 'none', $bDoBinaryEncode );
 		}
@@ -241,7 +241,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 		/**
 		 * @param string $sContent
 		 * @param string $sEncoding
-		 * @param bool $bBinary
+		 * @param bool   $bBinary
 		 */
 		private function flushResponse( $sContent, $sEncoding = 'json', $bBinary = true ) {
 			/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
@@ -256,7 +256,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 				 * displaying the key here is irrelevant because its use is essentially completely
 				 * redundant for sites that support OpenSSL signatures.
 				 */
-				echo sprintf( "<icwpauth>%s</icwpauth>",  $oFO->getPluginAuthKey() );
+				echo sprintf( "<icwpauth>%s</icwpauth>", $oFO->getPluginAuthKey() );
 			}
 			die();
 		}
@@ -267,11 +267,11 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin', false ) ):
 		private function sendHeaders( $bAsBinary = true ) {
 			if ( $bAsBinary ) {
 				header( "Content-type: application/octet-stream" );
-				header( "Content-Transfer-Encoding: binary");
+				header( "Content-Transfer-Encoding: binary" );
 			}
 			else {
 				header( "Content-type: text/html" );
-				header( "Content-Transfer-Encoding: quoted-printable");
+				header( "Content-Transfer-Encoding: quoted-printable" );
 			}
 		}
 

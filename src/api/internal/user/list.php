@@ -2,7 +2,7 @@
 
 if ( !class_exists( 'ICWP_APP_Api_Internal_User_List', false ) ):
 
-	require_once( dirname( dirname( __FILE__ ) ) . ICWP_DS . 'base.php' );
+	require_once( dirname( dirname( __FILE__ ) ).'/base.php' );
 
 	class ICWP_APP_Api_Internal_User_List extends ICWP_APP_Api_Internal_Base {
 
@@ -46,10 +46,10 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_User_List', false ) ):
 				global $wp_roles;
 
 				if ( is_object( $wp_roles ) ) {
-					$aData['wproles'] = $wp_roles->roles;
+					$aData[ 'wproles' ] = $wp_roles->roles;
 				}
 				else {
-					$aData['wproles'] = '$wp_roles not set';
+					$aData[ 'wproles' ] = '$wp_roles not set';
 				}
 			}
 

@@ -10,6 +10,7 @@ class ICWP_APP_Api_Internal_Base extends ICWP_APP_Foundation {
 	 * @var ApiResponse
 	 */
 	protected $oActionResponse;
+
 	/**
 	 * @var RequestParameters
 	 */
@@ -24,7 +25,7 @@ class ICWP_APP_Api_Internal_Base extends ICWP_APP_Foundation {
 
 	protected function initFtp() {
 		$aFtpCred = $this->getRequestParams()->getParam( 'ftpcred', null );
-		if ( ! empty( $aFtpCred ) && is_array( $aFtpCred ) ) {
+		if ( !empty( $aFtpCred ) && is_array( $aFtpCred ) ) {
 			$aRequestToWpMappingFtp = array(
 				'hostname'        => 'ftp_host',
 				'username'        => 'ftp_user',
@@ -38,22 +39,23 @@ class ICWP_APP_Api_Internal_Base extends ICWP_APP_Foundation {
 			}
 
 			$bUseFtp = false;
-			if ( ! empty( $aFtpCred[ 'ftp_user' ] ) ) {
-				if ( ! defined( 'FTP_USER' ) ) {
+			if ( !empty( $aFtpCred[ 'ftp_user' ] ) ) {
+				if ( !defined( 'FTP_USER' ) ) {
 					$bUseFtp = true;
 					define( 'FTP_USER', $aFtpCred[ 'ftp_user' ] );
 				}
 			}
-			if ( ! empty( $aFtpCred[ 'ftp_pass' ] ) ) {
-				if ( ! defined( 'FTP_PASS' ) ) {
+			if ( !empty( $aFtpCred[ 'ftp_pass' ] ) ) {
+				if ( !defined( 'FTP_PASS' ) ) {
 					$bUseFtp = true;
 					define( 'FTP_PASS', $aFtpCred[ 'ftp_pass' ] );
 				}
 			}
 
-			if ( ! empty( $_POST[ 'public_key' ] ) && ! empty( $_POST[ 'private_key' ] ) && ! defined( 'FS_METHOD' ) ) {
+			if ( !empty( $_POST[ 'public_key' ] ) && !empty( $_POST[ 'private_key' ] ) && !defined( 'FS_METHOD' ) ) {
 				define( 'FS_METHOD', 'ssh' );
-			} else if ( $bUseFtp ) {
+			}
+			else if ( $bUseFtp ) {
 				define( 'FS_METHOD', 'ftpext' );
 			}
 		}
@@ -67,7 +69,7 @@ class ICWP_APP_Api_Internal_Base extends ICWP_APP_Foundation {
 	 */
 	public function getStandardResponse() {
 		if ( is_null( $this->oActionResponse ) ) {
-			require_once( dirname( dirname( __FILE__ ) ) . DIRECTORY_SEPARATOR . 'ApiResponse.php' );
+			require_once( dirname( dirname( __FILE__ ) ).'/ApiResponse.php' );
 			$this->oActionResponse = new ApiResponse();
 		}
 
@@ -90,10 +92,10 @@ class ICWP_APP_Api_Internal_Base extends ICWP_APP_Foundation {
 	 */
 	protected function success( $aExecutionData = array(), $sMessage = '' ) {
 		return $this->getStandardResponse()
-		            ->setSuccess( true )
-		            ->setData( empty( $aExecutionData ) ? array( 'success' => 1 ) : $aExecutionData )
-		            ->setMessage( sprintf( 'INTERNAL Package Execution SUCCEEDED with message: "%s".', $sMessage ) )
-		            ->setCode( 0 );
+					->setSuccess( true )
+					->setData( empty( $aExecutionData ) ? array( 'success' => 1 ) : $aExecutionData )
+					->setMessage( sprintf( 'INTERNAL Package Execution SUCCEEDED with message: "%s".', $sMessage ) )
+					->setCode( 0 );
 	}
 
 	/**
@@ -102,12 +104,12 @@ class ICWP_APP_Api_Internal_Base extends ICWP_APP_Foundation {
 	 * @param mixed  $mErrorData
 	 * @return ApiResponse
 	 */
-	protected function fail( $sErrorMessage = '', $nErrorCode = - 1, $mErrorData = '' ) {
+	protected function fail( $sErrorMessage = '', $nErrorCode = -1, $mErrorData = '' ) {
 		return $this->getStandardResponse()
-		            ->setFailed()
-		            ->setErrorMessage( $sErrorMessage )
-		            ->setCode( $nErrorCode )
-		            ->setData( $mErrorData );
+					->setFailed()
+					->setErrorMessage( $sErrorMessage )
+					->setCode( $nErrorCode )
+					->setData( $mErrorData );
 	}
 
 	/**
@@ -126,7 +128,6 @@ class ICWP_APP_Api_Internal_Base extends ICWP_APP_Foundation {
 
 	/**
 	 * @param RequestParameters $oRequestParams
-	 *
 	 * @return $this
 	 */
 	public function setRequestParams( $oRequestParams ) {
@@ -139,7 +140,7 @@ class ICWP_APP_Api_Internal_Base extends ICWP_APP_Foundation {
 	 * @return ICWP_APP_WpCollectInfo
 	 */
 	protected function getWpCollector() {
-		require_once( dirname( __FILE__ ) . '/../../common/icwp-wpcollectinfo.php' );
+		require_once( dirname( __FILE__ ).'/../../common/icwp-wpcollectinfo.php' );
 
 		return ICWP_APP_WpCollectInfo::GetInstance();
 	}
@@ -148,27 +149,27 @@ class ICWP_APP_Api_Internal_Base extends ICWP_APP_Foundation {
 	 * @return array
 	 */
 	protected function collectPlugins() {
-		require_once( dirname( __FILE__ ) . ICWP_DS . 'collect/plugins.php' );
+		require_once( dirname( __FILE__ ).'/collect/plugins.php' );
 		$oCollector = new ICWP_APP_Api_Internal_Collect_Plugins();
 		return $oCollector->setRequestParams( $this->getRequestParams() )
-		                  ->collect();
+						  ->collect();
 	}
 
 	/**
 	 * @return array
 	 */
 	protected function collectThemes() {
-		require_once( dirname( __FILE__ ) . ICWP_DS . 'collect/themes.php' );
+		require_once( dirname( __FILE__ ).'/collect/themes.php' );
 		$oCollector = new ICWP_APP_Api_Internal_Collect_Themes();
 		return $oCollector->setRequestParams( $this->getRequestParams() )
-		                  ->collect();
+						  ->collect();
 	}
 
 	/**
 	 * @param string $sLibName
 	 */
 	protected function importCommonLib( $sLibName ) {
-		require_once( dirname( __FILE__ ) . sprintf( '/common/%s.php', $sLibName ) );
+		require_once( dirname( __FILE__ ).sprintf( '/common/%s.php', $sLibName ) );
 	}
 
 	/**
@@ -176,7 +177,7 @@ class ICWP_APP_Api_Internal_Base extends ICWP_APP_Foundation {
 	 */
 	protected function isForceUpdateCheck() {
 		$aActionParams = $this->getActionParams();
-		return isset( $aActionParams[ 'force_update_check' ] ) ? (bool) $aActionParams[ 'force_update_check' ] : true;
+		return isset( $aActionParams[ 'force_update_check' ] ) ? (bool)$aActionParams[ 'force_update_check' ] : true;
 	}
 
 	/**
@@ -184,6 +185,6 @@ class ICWP_APP_Api_Internal_Base extends ICWP_APP_Foundation {
 	 */
 	protected function isIgnoreUserAbort() {
 		$aActionParams = $this->getActionParams();
-		return isset( $aActionParams[ 'ignore_user_abort' ] ) ? (bool) $aActionParams[ 'ignore_user_abort' ] : false;
+		return isset( $aActionParams[ 'ignore_user_abort' ] ) ? (bool)$aActionParams[ 'ignore_user_abort' ] : false;
 	}
 }

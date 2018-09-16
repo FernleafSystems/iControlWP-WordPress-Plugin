@@ -2,7 +2,7 @@
 
 if ( !class_exists( 'ICWP_APP_Processor_Statistics', false ) ):
 
-	require_once( dirname(__FILE__).ICWP_DS.'basedb.php' );
+	require_once( dirname(__FILE__).'/basedb.php' );
 
 	class ICWP_APP_Processor_Statistics extends ICWP_APP_BaseDbProcessor {
 

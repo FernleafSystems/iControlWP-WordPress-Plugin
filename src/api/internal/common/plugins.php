@@ -15,7 +15,7 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Common_Plugins', false ) ):
 			$sPluginDirName = dirname( $sFile );
 			$sPluginDirPath = path_join( WP_PLUGIN_DIR, $sPluginDirName );
 
-			$sDestinationPath = path_join( $this->getRollbackBaseDir(), $sContext.ICWP_DS.$sPluginDirName );
+			$sDestinationPath = path_join( $this->getRollbackBaseDir(), $sContext.DIRECTORY_SEPARATOR.$sPluginDirName );
 			if ( is_dir( $sDestinationPath ) ) {
 				/** @var WP_Filesystem_Base $wp_filesystem */
 				global $wp_filesystem;
@@ -29,7 +29,7 @@ if ( !class_exists( 'ICWP_APP_Api_Internal_Common_Plugins', false ) ):
 		 * @return string
 		 */
 		protected function getRollbackBaseDir() {
-			return path_join( WP_CONTENT_DIR, 'icwp'.'/rollback'.ICWP_DS );
+			return path_join( WP_CONTENT_DIR, 'icwp/rollback/' );
 		}
 	}
 

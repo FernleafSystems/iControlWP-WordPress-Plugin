@@ -1,7 +1,7 @@
 <?php
-$sBaseDirName = dirname(__FILE__).ICWP_DS;
+$sBaseDirName = dirname(__FILE__).DIRECTORY_SEPARATOR;
 include_once( $sBaseDirName.'icwp_options_helper.php' );
-include_once( $sBaseDirName.'widgets'.ICWP_DS.'icwp_widgets.php' );
+include_once( $sBaseDirName.'widgets/icwp_widgets.php' );
 
 $sPluginName = 'iControlWP';
 ?>
@@ -9,7 +9,7 @@ $sPluginName = 'iControlWP';
 	<div class="bootstrap-wpadmin <?php echo isset($icwp_sFeatureSlug) ? $icwp_sFeatureSlug : ''; ?>">
 		<div class="row">
 			<div class="span12">
-				<?php include_once( $sBaseDirName.'snippets'.ICWP_DS.'state_summary.php' ); ?>
+				<?php include_once( $sBaseDirName.'snippets/state_summary.php' ); ?>
 			</div>
 		</div>
 <?php
