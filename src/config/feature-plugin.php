@@ -129,6 +129,7 @@ definitions:
     - 'user_delete'
     - 'user_list'
     - 'user_login'
+    - 'user_logout'
   supported_modules:
     - 'security'
     - 'statistics'
