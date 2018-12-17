@@ -115,6 +115,11 @@ No. WorpDrive is available for a small monthly fee.
 
 == Changelog ==
 
+= Latest Release: 3.5.2 =
+*Released: 23rd January, 2019*
+
+* **(v.2)**	ADDED:		Integration with Shield Security 2FA.
+
 = Latest Release: 3.5.1 =
 *Released: 23rd January, 2018*
 

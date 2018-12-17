@@ -11,7 +11,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		/**
 		 * @var ICWP_APP_WpFunctions
 		 */
-		protected static $oInstance = NULL;
+		protected static $oInstance = null;
 
 		/**
 		 * @return ICWP_APP_WpFunctions
@@ -33,7 +33,8 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		 */
 		protected $bIsMultisite;
 
-		public function __construct() {}
+		public function __construct() {
+		}
 
 		/**
 		 * @return null|string
@@ -47,10 +48,10 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		 * @return null|string
 		 */
 		public function findWpCoreFile( $sFilename ) {
-			$sLoaderPath	= dirname( __FILE__ );
-			$nLimiter		= 0;
-			$nMaxLimit		= count( explode( DIRECTORY_SEPARATOR, trim( $sLoaderPath, DIRECTORY_SEPARATOR ) ) );
-			$bFound			= false;
+			$sLoaderPath = dirname( __FILE__ );
+			$nLimiter = 0;
+			$nMaxLimit = count( explode( DIRECTORY_SEPARATOR, trim( $sLoaderPath, DIRECTORY_SEPARATOR ) ) );
+			$bFound = false;
 
 			do {
 				if ( @is_file( $sLoaderPath.DIRECTORY_SEPARATOR.$sFilename ) ) {
@@ -59,8 +60,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 				}
 				$sLoaderPath = realpath( $sLoaderPath.DIRECTORY_SEPARATOR.'..' );
 				$nLimiter++;
-			}
-			while ( $nLimiter < $nMaxLimit );
+			} while ( $nLimiter < $nMaxLimit );
 
 			return $bFound ? $sLoaderPath.DIRECTORY_SEPARATOR.$sFilename : null;
 		}
@@ -74,7 +74,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 
 			$lock_name = 'auto_updater.lock'; //ref: /wp-admin/includes/class-wp-upgrader.php
 			delete_option( $lock_name );
-			if ( !defined('DOING_CRON') ) {
+			if ( !defined( 'DOING_CRON' ) ) {
 				define( 'DOING_CRON', true ); // this prevents WP from disabling plugins pre-upgrade
 			}
 
@@ -103,7 +103,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		public function doPluginUpgrade( $sPluginFile ) {
 
 			if ( !$this->getIsPluginUpdateAvailable( $sPluginFile )
-				|| ( isset( $GLOBALS['pagenow'] ) && $GLOBALS['pagenow'] == 'update.php' ) ) {
+				 || ( isset( $GLOBALS[ 'pagenow' ] ) && $GLOBALS[ 'pagenow' ] == 'update.php' ) ) {
 				return true;
 			}
 			$sUrl = $this->getPluginUpgradeLink( $sPluginFile );
@@ -117,7 +117,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		public function doBustCache() {
 			global $_wp_using_ext_object_cache, $wp_object_cache;
 			$_wp_using_ext_object_cache = false;
-			if( !empty( $wp_object_cache ) ) {
+			if ( !empty( $wp_object_cache ) ) {
 				@$wp_object_cache->flush();
 			}
 		}
@@ -141,14 +141,14 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 			}
 			else {
 				$aQueryArgs = array(
-					'version' 	=> $sCurrentVersion,
-					'locale'	=> $this->getLocale( true )
+					'version' => $sCurrentVersion,
+					'locale'  => $this->getLocale( true )
 				);
 				$sQueryUrl = add_query_arg( $aQueryArgs, 'https://api.wordpress.org/core/checksums/1.0/' );
 				$sResponse = $this->loadFS()->getUrlContent( $sQueryUrl );
 				if ( !empty( $sResponse ) ) {
 					$aDecodedResponse = json_decode( trim( $sResponse ), true );
-					if ( is_array( $aDecodedResponse ) && isset( $aDecodedResponse['checksums'] ) && is_array( $aDecodedResponse['checksums'] ) ) {
+					if ( is_array( $aDecodedResponse ) && isset( $aDecodedResponse[ 'checksums' ] ) && is_array( $aDecodedResponse[ 'checksums' ] ) ) {
 						$aChecksumData = $aDecodedResponse[ 'checksums' ];
 					}
 				}
@@ -213,7 +213,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		 */
 		public function getPlugins() {
 			if ( !function_exists( 'get_plugins' ) ) {
-				require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+				require_once( ABSPATH.'wp-admin/includes/plugin.php' );
 			}
 			return function_exists( 'get_plugins' ) ? get_plugins() : array();
 		}
@@ -224,7 +224,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		 */
 		public function getPluginData( $sRootPluginFile ) {
 			if ( !function_exists( 'get_plugin_data' ) ) {
-				require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+				require_once( ABSPATH.'wp-admin/includes/plugin.php' );
 			}
 			return function_exists( 'get_plugin_data' ) ? get_plugin_data( $sRootPluginFile, false, false ) : array();
 		}
@@ -280,8 +280,8 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 				return false;
 			}
 
-			foreach( $aPlugins as $sBaseFileName => $aPluginData ) {
-				if ( isset( $aPluginData[$sKey] ) && $sCompareString == $aPluginData[$sKey] ) {
+			foreach ( $aPlugins as $sBaseFileName => $aPluginData ) {
+				if ( isset( $aPluginData[ $sKey ] ) && $sCompareString == $aPluginData[ $sKey ] ) {
 					return $sBaseFileName;
 				}
 			}
@@ -294,7 +294,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		 */
 		public function getIsPluginInstalledByFile( $sPluginBaseFile ) {
 			$aPlugins = $this->getPlugins();
-			return isset( $aPlugins[$sPluginBaseFile] );
+			return isset( $aPlugins[ $sPluginBaseFile ] );
 		}
 
 		/**
@@ -302,11 +302,11 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		 * @return string
 		 */
 		public function getPluginActivateLink( $sPluginFile ) {
-			$sUrl = self_admin_url( 'plugins.php' ) ;
+			$sUrl = self_admin_url( 'plugins.php' );
 			$aQueryArgs = array(
-				'action' 	=> 'activate',
-				'plugin'	=> urlencode( $sPluginFile ),
-				'_wpnonce'	=> wp_create_nonce( 'activate-plugin_' . $sPluginFile )
+				'action'   => 'activate',
+				'plugin'   => urlencode( $sPluginFile ),
+				'_wpnonce' => wp_create_nonce( 'activate-plugin_'.$sPluginFile )
 			);
 			return add_query_arg( $aQueryArgs, $sUrl );
 		}
@@ -316,11 +316,11 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		 * @return string
 		 */
 		public function getPluginDeactivateLink( $sPluginFile ) {
-			$sUrl = self_admin_url( 'plugins.php' ) ;
+			$sUrl = self_admin_url( 'plugins.php' );
 			$aQueryArgs = array(
-				'action' 	=> 'deactivate',
-				'plugin'	=> urlencode( $sPluginFile ),
-				'_wpnonce'	=> wp_create_nonce( 'deactivate-plugin_' . $sPluginFile )
+				'action'   => 'deactivate',
+				'plugin'   => urlencode( $sPluginFile ),
+				'_wpnonce' => wp_create_nonce( 'deactivate-plugin_'.$sPluginFile )
 			);
 			return add_query_arg( $aQueryArgs, $sUrl );
 		}
@@ -330,11 +330,11 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		 * @return string
 		 */
 		public function getPluginUpgradeLink( $sPluginFile ) {
-			$sUrl = self_admin_url( 'update.php' ) ;
+			$sUrl = self_admin_url( 'update.php' );
 			$aQueryArgs = array(
-				'action' 	=> 'upgrade-plugin',
-				'plugin'	=> urlencode( $sPluginFile ),
-				'_wpnonce'	=> wp_create_nonce( 'upgrade-plugin_' . $sPluginFile )
+				'action'   => 'upgrade-plugin',
+				'plugin'   => urlencode( $sPluginFile ),
+				'_wpnonce' => wp_create_nonce( 'upgrade-plugin_'.$sPluginFile )
 			);
 			return add_query_arg( $aQueryArgs, $sUrl );
 		}
@@ -345,7 +345,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		 * @return string
 		 */
 		public function getFileFromAutomaticUpdateItem( $mItem, $sContext = 'plugin' ) {
-			if ( is_object( $mItem ) && isset( $mItem->{$sContext} ) )  { // WP 3.8.2+
+			if ( is_object( $mItem ) && isset( $mItem->{$sContext} ) ) { // WP 3.8.2+
 				$mItem = $mItem->{$sContext};
 			}
 			else if ( !is_string( $mItem ) ) { // WP pre-3.8.2
@@ -359,7 +359,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		 */
 		public function getThemes() {
 			if ( !function_exists( 'wp_get_themes' ) ) {
-				require_once( ABSPATH . 'wp-admin/includes/theme.php' );
+				require_once( ABSPATH.'wp-admin/includes/theme.php' );
 			}
 			return function_exists( 'wp_get_themes' ) ? wp_get_themes() : array();
 		}
@@ -403,8 +403,8 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 
 		/**
 		 * @param string $sKey
-		 * @param mixed $mValue
-		 * @param int $nExpire
+		 * @param mixed  $mValue
+		 * @param int    $nExpire
 		 */
 		public function setTransient( $sKey, $mValue, $nExpire = 0 ) {
 			set_site_transient( $sKey, $mValue, $nExpire );
@@ -436,9 +436,9 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		 * @param string $sPluginBaseFilename
 		 * @return null|stdClass
 		 */
-		public function getPluginDataAsObject( $sPluginBaseFilename ){
+		public function getPluginDataAsObject( $sPluginBaseFilename ) {
 			$aPlugins = $this->getPlugins();
-			if ( !isset( $aPlugins[$sPluginBaseFilename] ) || !is_array( $aPlugins[$sPluginBaseFilename] ) ) {
+			if ( !isset( $aPlugins[ $sPluginBaseFilename ] ) || !is_array( $aPlugins[ $sPluginBaseFilename ] ) ) {
 				return null;
 			}
 
@@ -455,7 +455,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 				$sVersionContents = file_get_contents( $sVersionFile );
 
 				if ( preg_match( '/wp_version\s=\s\'([^(\'|")]+)\'/i', $sVersionContents, $aMatches ) ) {
-					$this->sWpVersion = $aMatches[1];
+					$this->sWpVersion = $aMatches[ 1 ];
 				}
 				else {
 					global $wp_version;
@@ -502,12 +502,14 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		public function redirectToLogin( $aQueryParams = array() ) {
 			$this->doRedirect( wp_login_url(), $aQueryParams );
 		}
+
 		/**
 		 * @param array $aQueryParams
 		 */
 		public function redirectToAdmin( $aQueryParams = array() ) {
-			$this->doRedirect( is_multisite()? get_admin_url() : admin_url(), $aQueryParams );
+			$this->doRedirect( is_multisite() ? get_admin_url() : admin_url(), $aQueryParams );
 		}
+
 		/**
 		 * @param array $aQueryParams
 		 */
@@ -517,9 +519,9 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 
 		/**
 		 * @param string $sUrl
-		 * @param array $aQueryParams
-		 * @param bool $bSafe
-		 * @param bool $bProtectAgainstInfiniteLoops - if false, ignores the redirect loop protection
+		 * @param array  $aQueryParams
+		 * @param bool   $bSafe
+		 * @param bool   $bProtectAgainstInfiniteLoops - if false, ignores the redirect loop protection
 		 */
 		public function doRedirect( $sUrl, $aQueryParams = array(), $bSafe = true, $bProtectAgainstInfiniteLoops = true ) {
 			$sUrl = empty( $aQueryParams ) ? $sUrl : add_query_arg( $aQueryParams, $sUrl );
@@ -587,7 +589,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 				$sSubPage = $this->loadDataProcessor()->FetchGet( 'page' );
 				if ( !empty( $sSubPage ) ) {
 					$aQueryArgs = array(
-						'page' 	=> $sSubPage,
+						'page' => $sSubPage,
 					);
 					$sUrl = add_query_arg( $aQueryArgs, $sUrl );
 				}
@@ -641,7 +643,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		public function getIsLoginUrl() {
 			$aLoginUrlParts = @parse_url( wp_login_url() );
 			$aRequestParts = $this->loadDataProcessor()->getRequestUriParts();
-			return ( !empty( $aRequestParts['path'] ) && ( rtrim( $aRequestParts['path'], '/' ) == rtrim( $aLoginUrlParts['path'], '/' ) ) );
+			return ( !empty( $aRequestParts[ 'path' ] ) && ( rtrim( $aRequestParts[ 'path' ], '/' ) == rtrim( $aLoginUrlParts[ 'path' ], '/' ) ) );
 		}
 
 		/**
@@ -678,13 +680,14 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		 * @return string
 		 */
 		public function getSiteName() {
-			return function_exists( 'get_bloginfo' )? get_bloginfo('name') : 'WordPress Site';
+			return function_exists( 'get_bloginfo' ) ? get_bloginfo( 'name' ) : 'WordPress Site';
 		}
+
 		/**
 		 * @return string
 		 */
 		public function getSiteAdminEmail() {
-			return function_exists( 'get_bloginfo' )? get_bloginfo('admin_email') : '';
+			return function_exists( 'get_bloginfo' ) ? get_bloginfo( 'admin_email' ) : '';
 		}
 
 		/**
@@ -726,7 +729,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		 * @return boolean
 		 */
 		public function getIsMobile() {
-			return function_exists( 'wp_is_mobile' )&& wp_is_mobile();
+			return function_exists( 'wp_is_mobile' ) && wp_is_mobile();
 		}
 
 		/**
@@ -736,7 +739,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 			/** @var WP_User[] $aUsers */
 			$aUsers = get_users( array( 'fields' => array( 'user_login' ) ) );
 			$aLogins = array();
-			foreach( $aUsers as $oUser ) {
+			foreach ( $aUsers as $oUser ) {
 				$aLogins[] = $oUser->get( 'user_login' );
 			}
 			return $aLogins;
@@ -772,7 +775,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 
 		/**
 		 * @param string $sKey
-		 * @param $sValue
+		 * @param        $sValue
 		 * @return boolean
 		 */
 		public function updateOption( $sKey, $sValue ) {
@@ -781,7 +784,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 
 		/**
 		 * @param string $sKey
-		 * @param mixed $mDefault
+		 * @param mixed  $mDefault
 		 * @return mixed
 		 */
 		public function getOption( $sKey, $mDefault = false ) {
@@ -825,15 +828,17 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 
 		/**
 		 * @param string $sPluginFile
-		 * @param int $nDesiredPosition
+		 * @param int    $nDesiredPosition
 		 */
 		public function setActivePluginLoadPosition( $sPluginFile, $nDesiredPosition = 0 ) {
 
-			$aActive = $this->loadDataProcessor()->setArrayValueToPosition( $this->getOption( 'active_plugins' ), $sPluginFile, $nDesiredPosition );
+			$aActive = $this->loadDataProcessor()
+							->setArrayValueToPosition( $this->getOption( 'active_plugins' ), $sPluginFile, $nDesiredPosition );
 			$this->updateOption( 'active_plugins', $aActive );
 
 			if ( $this->isMultisite() ) {
-				$aActive = $this->loadDataProcessor()->setArrayValueToPosition( $this->getOption( 'active_sitewide_plugins' ), $sPluginFile, $nDesiredPosition );
+				$aActive = $this->loadDataProcessor()
+								->setArrayValueToPosition( $this->getOption( 'active_sitewide_plugins' ), $sPluginFile, $nDesiredPosition );
 				$this->updateOption( 'active_sitewide_plugins', $aActive );
 			}
 		}
@@ -854,8 +859,8 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 
 		/**
 		 * @param int|null $nTime
-		 * @param bool $bShowTime
-		 * @param bool $bShowDate
+		 * @param bool     $bShowTime
+		 * @param bool     $bShowDate
 		 * @return string
 		 */
 		public function getTimeStringForDisplay( $nTime = null, $bShowTime = true, $bShowDate = true ) {
@@ -866,7 +871,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 				$sFullTimeString = $bShowDate ? $this->getDateFormat() : '';
 			}
 			else {
-				$sFullTimeString = $bShowDate ? ( $sFullTimeString . ' '. $this->getDateFormat() ) : $sFullTimeString;
+				$sFullTimeString = $bShowDate ? ( $sFullTimeString.' '.$this->getDateFormat() ) : $sFullTimeString;
 			}
 			return date_i18n( $sFullTimeString, $this->getTimeAsGmtOffset( $nTime ) );
 		}
@@ -886,7 +891,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 			}
 
 			$nTime = empty( $nTime ) ? $this->loadDataProcessor()->time() : $nTime;
-			return $nTime + ( $nTimezoneOffset * HOUR_IN_SECONDS );
+			return $nTime + ( $nTimezoneOffset*HOUR_IN_SECONDS );
 		}
 
 		/**
@@ -917,7 +922,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		public function getWpAutomaticUpdater() {
 			if ( !isset( $this->oWpAutomaticUpdater ) ) {
 				if ( !class_exists( 'WP_Automatic_Updater', false ) ) {
-					include_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
+					include_once( ABSPATH.'wp-admin/includes/class-wp-upgrader.php' );
 				}
 				if ( class_exists( 'WP_Automatic_Updater', false ) ) {
 					$this->oWpAutomaticUpdater = new WP_Automatic_Updater();
@@ -955,7 +960,26 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		 */
 		public function getChosenCoreUpdate() {
 			$aUpdates = $this->updatesGather( 'core' );
-			return isset( $aUpdates[0] )? $aUpdates[0] : null;
+			return isset( $aUpdates[ 0 ] ) ? $aUpdates[ 0 ] : null;
+		}
+
+		/**
+		 * @param string $sVersion
+		 * @return false|object
+		 */
+		public function getCoreUpdateByVersion( $sVersion ) {
+			$this->updatesCheck( 'core', true );
+			require_once( ABSPATH.'wp-admin/includes/update.php' );
+			return find_core_update( $sVersion, $this->getLocale() );
+		}
+
+		/**
+		 * @param string $sVersion
+		 * @return false|object
+		 */
+		public function getIfCoreUpdateExists( $sVersion ) {
+			$oUpd = $this->getCoreUpdateByVersion( $sVersion );
+			return is_object( $oUpd ) && $oUpd->current == $sVersion;
 		}
 
 		/**
@@ -963,7 +987,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		 */
 		public function getCoreUpdateType() {
 			$aUpdates = $this->updatesGather( 'core' );
-			return isset( $aUpdates[0]->response )? $aUpdates[0]->response : '';
+			return isset( $aUpdates[ 0 ]->response ) ? $aUpdates[ 0 ]->response : '';
 		}
 
 		/**
@@ -973,7 +997,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		public function getHasCoreUpdatesAvailable( $fForceUpdateCheck = false ) {
 			$aUpdates = $this->updatesGather( 'core', $fForceUpdateCheck );
 			$fUpdateAvailable = true;
-			if ( $aUpdates === false || count( $aUpdates ) == 0 || !isset( $aUpdates[0]->response ) || 'latest' == $aUpdates[0]->response ) {
+			if ( $aUpdates === false || count( $aUpdates ) == 0 || !isset( $aUpdates[ 0 ]->response ) || 'latest' == $aUpdates[ 0 ]->response ) {
 				$fUpdateAvailable = false;
 			}
 			return $fUpdateAvailable;
@@ -992,6 +1016,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 			if ( $bForceRecheck ) {
 				$this->updatesCheck( $sContext, $bForceRecheck );
 			}
+			require_once( ABSPATH.'wp-admin/includes/update.php' );
 			return ( $sContext == 'core' ) ? get_core_updates() : $this->getTransient( 'update_'.$sContext );
 		}
 
@@ -1032,7 +1057,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		/**
 		 * @param string $sMessage
 		 * @param string $sTitle
-		 * @param bool $bTurnOffCachePage
+		 * @param bool   $bTurnOffCachePage
 		 */
 		public function wpDie( $sMessage, $sTitle = '', $bTurnOffCachePage = true ) {
 			if ( $bTurnOffCachePage ) {
