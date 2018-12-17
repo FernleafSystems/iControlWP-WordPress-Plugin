@@ -1020,6 +1020,11 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 			return ( $sContext == 'core' ) ? get_core_updates() : $this->getTransient( 'update_'.$sContext );
 		}
 
+		public function doWpUpgrade() {
+			require_once( ABSPATH.'wp-admin/includes/upgrade.php' );
+			wp_upgrade();
+		}
+
 		/**
 		 * @param string  $sContext - plugins, themes, core
 		 * @param boolean $bForceRecheck

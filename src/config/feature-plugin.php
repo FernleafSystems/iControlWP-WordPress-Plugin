@@ -110,6 +110,7 @@ definitions:
     - 'comments_retrieve'
     - 'comments_status'
     - 'core_update'
+    - 'core_dbupgrade'
     - 'core_reinstall'
     - 'db_status'
     - 'db_optimise'
