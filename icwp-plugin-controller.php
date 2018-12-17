@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2018 iControlWP <support@icontrolwp.com>
+ * Copyright (c) 2019 iControlWP <support@icontrolwp.com>
  * All rights reserved.
  *
  * "iControlWP" is distributed under the GNU General Public License, Version 2,

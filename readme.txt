@@ -4,7 +4,7 @@ Donate link: http://www.icontrolwp.com/
 Tags: manage wordpress, backup, security, restore, bulk, icontrolwp, managewp, worpit, automatic updates
 Requires at least: 3.2.0
 Tested up to: 5.0
-Stable tag: 3.5.1
+Stable tag: 3.6.0
 
 == Description ==
 
@@ -115,15 +115,17 @@ No. WorpDrive is available for a small monthly fee.
 
 == Changelog ==
 
-= Latest Release: 3.5.2 =
-*Released: 23rd January, 2019*
+= Latest Release: 3.6.0 =
+*Released: 19th December, 2018*
 
-* **(v.2)**	ADDED:		Integration with Shield Security 2FA.
+* **(v.0)**	ADDED:		Support for upgrading minor WP version.
+* **(v.0)**	IMPROVED:	Some code refactoring and improvements.
 
-= Latest Release: 3.5.1 =
-*Released: 23rd January, 2018*
+= 3.6 Series =
+*Released: 19th December, 2018*
 
-* **(v.1)**	FIXED:		Fix where unable to dismiss admin notice
+* **(v.0)**	ADDED:		Support for upgrading minor WP version.
+* **(v.0)**	IMPROVED:	Some code refactoring and improvements.
 
 = 3.5 Series =
 *Released: 29th August, 2017*
