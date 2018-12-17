@@ -23,24 +23,25 @@ class ICWP_APP_Api_Internal_Collect_Wordpress extends ICWP_APP_Api_Internal_Coll
 		$oWp = $this->loadWpFunctions();
 
 		$aInfo = array(
-			'is_multisite'          => is_multisite() ? 1 : 0,
-			'type'                  => is_multisite() ? 'wpms' : 'wordpress',
-			'admin_path'            => network_admin_url(),
-			'admin_url'             => network_admin_url(), // TODO: DELETE
-			'core_update_available' => $oWp->getHasCoreUpdatesAvailable( $this->isForceUpdateCheck() ) ? 1 : 0,
-			'wordpress_version'     => $oWp->getWordPressVersion(),
-			'wordpress_title'       => get_bloginfo( 'name' ),
-			'wordpress_tagline'     => get_bloginfo( 'description' ),
+			'is_multisite'            => is_multisite() ? 1 : 0,
+			'type'                    => is_multisite() ? 'wpms' : 'wordpress',
+			'admin_path'              => network_admin_url(),
+			'admin_url'               => network_admin_url(), // TODO: DELETE
+			'core_update_available'   => $oWp->getHasCoreUpdatesAvailable( $this->isForceUpdateCheck() ) ? 1 : 0,
+			'available_core_upgrades' => $this->getAvailableCoreUpdates(),
+			'wordpress_version'       => $oWp->getWordPressVersion(),
+			'wordpress_title'         => get_bloginfo( 'name' ),
+			'wordpress_tagline'       => get_bloginfo( 'description' ),
 			// moved from collect_sync
-			'platform'              => $oDp->isWindows() ? 'Windows' : 'Linux',
-			'windows'               => $oDp->isWindows() ? 1 : 0,
-			'server_ip'             => $this->getServerAddress(),
-			'php_version'           => $oDp->getPhpVersion(),
-			'can_write'             => $this->getCollector_Capabilities()->canWrite() ? 1 : 0,
-			'is_wpe'                => ( @getenv( 'IS_WPE' ) == '1' ) ? 1 : 0,
-			'wordpress_url'         => $oWp->getHomeUrl(),
-			'wordpress_wpurl'       => get_bloginfo( 'wpurl' ),
-			'debug'                 => array(
+			'platform'                => $oDp->isWindows() ? 'Windows' : 'Linux',
+			'windows'                 => $oDp->isWindows() ? 1 : 0,
+			'server_ip'               => $this->getServerAddress(),
+			'php_version'             => $oDp->getPhpVersion(),
+			'can_write'               => $this->getCollector_Capabilities()->canWrite() ? 1 : 0,
+			'is_wpe'                  => ( @getenv( 'IS_WPE' ) == '1' ) ? 1 : 0,
+			'wordpress_url'           => $oWp->getHomeUrl(),
+			'wordpress_wpurl'         => get_bloginfo( 'wpurl' ),
+			'debug'                   => array(
 				'url_rewritten'   => $oDp->isUrlRewritten() ? 1 : 0,
 				'database_server' => isset( $_ENV[ 'DATABASE_SERVER' ] ) ? $_ENV[ 'DATABASE_SERVER' ] : '-1',
 				'ds'              => DIRECTORY_SEPARATOR,
@@ -115,5 +116,21 @@ class ICWP_APP_Api_Internal_Collect_Wordpress extends ICWP_APP_Api_Internal_Coll
 	 */
 	private function isPrivateIp( $sIp ) {
 		return !filter_var( $sIp, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function getAvailableCoreUpdates() {
+		$aVersions = array();
+
+		$this->loadWpFunctions()->updatesCheck( 'core', true );
+		$oUpds = get_site_transient( 'update_core' );
+		if ( is_object( $oUpds ) && !empty( $oUpds->updates ) && is_array( $oUpds->updates ) ) {
+			foreach ( $oUpds->updates as $oUpd ) {
+				$aVersions[] = empty( $oUpd->current ) ? $oUpd->version : $oUpd->current;
+			}
+		}
+		return array_unique( $aVersions );
 	}
 }
