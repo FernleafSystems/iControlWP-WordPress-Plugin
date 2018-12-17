@@ -2,7 +2,7 @@
 
 if ( !class_exists( 'ICWP_APP_BaseDbProcessor', false ) ):
 
-	require_once( dirname(__FILE__).ICWP_DS.'base_app.php' );
+	require_once( dirname(__FILE__).'/base_app.php' );
 
 	abstract class ICWP_APP_BaseDbProcessor extends ICWP_APP_Processor_BaseApp {
 

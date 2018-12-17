@@ -2,7 +2,7 @@
 
 if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Index', false ) ):
 
-	require_once( dirname(__FILE__).ICWP_DS.'plugin_api.php' );
+	require_once( dirname(__FILE__).'/plugin_api.php' );
 
 	/**
 	 * Class ICWP_APP_Processor_Plugin_Api_Index

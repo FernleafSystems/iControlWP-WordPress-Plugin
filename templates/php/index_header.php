@@ -1,6 +1,6 @@
 <?php
-$sBaseDirName = dirname(__FILE__).ICWP_DS;
-include_once( $sBaseDirName.'widgets'.ICWP_DS.'icwp_widgets.php' ); ?>
+$sBaseDirName = dirname(__FILE__).DIRECTORY_SEPARATOR;
+include_once( $sBaseDirName.'widgets/icwp_widgets.php' ); ?>
 
 <div class="wrap">
 	<div class="bootstrap-wpadmin <?php echo isset($sFeatureSlug) ? $sFeatureSlug : ''; ?> icwp-options-page">
@@ -16,7 +16,7 @@ include_once( $sBaseDirName.'widgets'.ICWP_DS.'icwp_widgets.php' ); ?>
 		<?php if ( isset( $bShowStateSummary ) && $bShowStateSummary ) : ?>
 			<div class="row">
 				<div class="span12">
-					<?php include_once( $sBaseDirName.'snippets'.ICWP_DS.'state_summary.php' ); ?>
+					<?php include_once( $sBaseDirName.'snippets/state_summary.php' ); ?>
 				</div>
 			</div>
 		<?php endif; ?>

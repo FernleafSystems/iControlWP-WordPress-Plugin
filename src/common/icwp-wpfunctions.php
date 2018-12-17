@@ -761,7 +761,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		 * @return bool
 		 */
 		public function isWpConfigRelocated( $sAbsWpConfigPath, $sAbsSitePath ) {
-			return ( strpos( rtrim( $sAbsWpConfigPath, ICWP_DS ), rtrim( $sAbsSitePath, ICWP_DS ) ) === false );
+			return ( strpos( rtrim( $sAbsWpConfigPath, DIRECTORY_SEPARATOR ), rtrim( $sAbsSitePath, DIRECTORY_SEPARATOR ) ) === false );
 		}
 
 		/**

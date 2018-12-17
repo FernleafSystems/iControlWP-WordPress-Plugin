@@ -223,7 +223,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 		 */
 		protected function loadFeatureProcessor() {
 			if ( !isset( $this->oFeatureProcessor ) ) {
-				include_once( $this->getController()->getPath_SourceFile( sprintf( 'processors%s%s.php', ICWP_DS, $this->getFeatureSlug() ) ) );
+				include_once( $this->getController()->getPath_SourceFile( sprintf( 'processors%s%s.php', DIRECTORY_SEPARATOR, $this->getFeatureSlug() ) ) );
 				$sClassName = $this->getProcessorClassName();
 				if ( !class_exists( $sClassName, false ) ) {
 					return null;
@@ -247,7 +247,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 		 */
 		public function getOptionsVo() {
 			if ( !isset( $this->oOptions ) ) {
-				require_once( dirname(__FILE__).ICWP_DS.'options-vo.php' );
+				require_once( dirname(__FILE__).'/options-vo.php' );
 				$this->oOptions = new ICWP_APP_OptionsVO( $this->getFeatureSlug() );
 				$this->oOptions->setRebuildFromFile( $this->getController()->getIsRebuildOptionsFromFile() );
 				$this->oOptions->setOptionsStorageKey( $this->getOptionsStorageKey() );
@@ -386,7 +386,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 		 * @return string
 		 */
 		public function getResourcesDir( $sSourceFile = '' ) {
-			return $this->getController()->getRootDir().'resources'.ICWP_DS.ltrim( $sSourceFile, ICWP_DS );
+			return $this->getController()->getRootDir().'resources/'.ltrim( $sSourceFile, DIRECTORY_SEPARATOR );
 		}
 
 		/**
@@ -1109,7 +1109,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 			}
 			$aData[ 'notice_classes' ] = implode( ' ', $aData[ 'notice_classes' ] );
 
-			return $this->renderTemplate( 'notices'.ICWP_DS.'admin-notice-template', $aData );
+			return $this->renderTemplate( 'notices/admin-notice-template', $aData );
 		}
 
 		/**
