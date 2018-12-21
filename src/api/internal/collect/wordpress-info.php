@@ -23,12 +23,12 @@ class ICWP_APP_Api_Internal_Collect_Wordpress extends ICWP_APP_Api_Internal_Coll
 		$oWp = $this->loadWpFunctions();
 
 		$aInfo = array(
-			'is_multisite'            => is_multisite() ? 1 : 0,
-			'is_classicpress'         => function_exists( 'classicpress_version' ),
+			'is_multisite'            => (int)is_multisite(),
+			'is_classicpress'         => (int)function_exists( 'classicpress_version' ),
 			'type'                    => is_multisite() ? 'wpms' : 'wordpress',
 			'admin_path'              => network_admin_url(),
 			'admin_url'               => network_admin_url(), // TODO: DELETE
-			'core_update_available'   => $oWp->getHasCoreUpdatesAvailable( $this->isForceUpdateCheck() ) ? 1 : 0,
+//			'core_update_available'   => $oWp->getHasCoreUpdatesAvailable( $this->isForceUpdateCheck() ) ? 1 : 0,
 			'available_core_upgrades' => $this->getAvailableCoreUpdates(),
 			'wordpress_version'       => $oWp->getWordPressVersion(),
 			'wordpress_title'         => get_bloginfo( 'name' ),
