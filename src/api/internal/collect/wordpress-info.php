@@ -24,6 +24,7 @@ class ICWP_APP_Api_Internal_Collect_Wordpress extends ICWP_APP_Api_Internal_Coll
 
 		$aInfo = array(
 			'is_multisite'            => is_multisite() ? 1 : 0,
+			'is_classicpress'         => function_exists( 'classicpress_version' ),
 			'type'                    => is_multisite() ? 'wpms' : 'wordpress',
 			'admin_path'              => network_admin_url(),
 			'admin_url'               => network_admin_url(), // TODO: DELETE
