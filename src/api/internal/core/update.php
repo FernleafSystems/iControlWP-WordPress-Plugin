@@ -27,10 +27,7 @@ class ICWP_APP_Api_Internal_Core_Update extends ICWP_APP_Api_Internal_Base {
 		}
 
 		// This was added because some people's sites didn't upgrade the database
-		if ( function_exists( 'wp_upgrade' ) ) {
-			@wp_upgrade();
-			@do_action( 'after_db_upgrade' );
-		}
+		$this->loadWpFunctions()->doWpUpgrade();
 
 		return $this->success( array( 'result' => $oResult ) );
 	}
