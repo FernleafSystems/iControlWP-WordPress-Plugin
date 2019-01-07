@@ -2,7 +2,7 @@
 
 if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Login', false ) ):
 
-	require_once( dirname(__FILE__).ICWP_DS.'plugin_api.php' );
+	require_once( dirname( __FILE__ ).'/plugin_api.php' );
 
 	/**
 	 * Class ICWP_APP_Processor_Plugin_Api_Login
@@ -62,15 +62,18 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Login', false ) ):
 			$oUser = $oWpUsers->getUserByUsername( $sUsername );
 			if ( empty( $sUsername ) || empty( $oUser ) ) {
 				$aUserRecords = version_compare( $oWp->getWordpressVersion(), '3.1', '>=' ) ? get_users( 'role=administrator' ) : array();
-				if ( empty( $aUserRecords[0] ) ) {
+				if ( empty( $aUserRecords[ 0 ] ) ) {
 					$sErrorMessage = 'Failed to find an administrator user.';
 					return $this->setErrorResponse(
 						$sErrorMessage,
 						-1 //TODO: Set a code
 					);
 				}
-				$oUser = $aUserRecords[0];
+				$oUser = $aUserRecords[ 0 ];
 			}
+
+			// By-passes the 2FA process on Shield
+			add_filter( 'odp-shield-2fa_skip', '__return_true' );
 
 			$bLoginSuccess = $oWpUsers->setUserLoggedIn( $oUser->get( 'user_login' ) );
 			if ( !$bLoginSuccess ) {

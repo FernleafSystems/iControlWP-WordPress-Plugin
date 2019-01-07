@@ -1,6 +1,6 @@
 <?php
-$sBaseDirName = dirname(__FILE__).ICWP_DS;
-include_once( $sBaseDirName .'snippets'.ICWP_DS.'include_js.php' ); ?>
+$sBaseDirName = dirname(__FILE__).DIRECTORY_SEPARATOR;
+include_once( $sBaseDirName .'snippets/include_js.php' ); ?>
 
 	</div><!-- / bootstrap-wpadmin -->
 </div><!-- / wrap -->

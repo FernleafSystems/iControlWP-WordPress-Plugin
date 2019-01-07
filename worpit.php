@@ -3,13 +3,13 @@
 Plugin Name: iControlWP
 Plugin URI: http://icwp.io/home
 Description: Pro WordPress Management - Backups, Security, Updates, and Uptime Monitoring
-Version: 3.5.1
+Version: 3.6.0
 Author: iControlWP
 Author URI: http://www.icontrolwp.com/
 */
 
 /**
- * Copyright (c) 2018 iControlWP <support@icontrolwp.com>
+ * Copyright (c) 2019 iControlWP <support@icontrolwp.com>
  * All rights reserved.
  *
  * "iControlWP" (previously "Worpit") is distributed under the GNU General Public License, Version 2,
@@ -40,7 +40,7 @@ if ( class_exists( 'Worpit_Plugin', false ) ) {
 }
 
 // By requiring this file here, we assume we wont need to require it anywhere else.
-require_once( dirname(__FILE__).ICWP_DS.'src'.ICWP_DS.'common'.ICWP_DS.'icwp-foundation.php' );
+require_once( dirname(__FILE__).'/src/common/icwp-foundation.php' );
 
 class Worpit_Plugin extends ICWP_APP_Foundation {
 
@@ -167,7 +167,7 @@ if ( !class_exists( 'ICWP_Plugin' ) ) {
 	class ICWP_Plugin extends Worpit_Plugin {}
 }
 
-require_once( dirname(__FILE__).ICWP_DS.'icwp-plugin-controller.php' );
+require_once( dirname(__FILE__).'/icwp-plugin-controller.php' );
 
 $oICWP_App_Controller = ICWP_APP_Plugin_Controller::GetInstance( __FILE__ );
 if ( !is_null( $oICWP_App_Controller ) ) {

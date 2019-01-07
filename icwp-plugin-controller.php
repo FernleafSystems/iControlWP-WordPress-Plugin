@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2018 iControlWP <support@icontrolwp.com>
+ * Copyright (c) 2019 iControlWP <support@icontrolwp.com>
  * All rights reserved.
  *
  * "iControlWP" is distributed under the GNU General Public License, Version 2,
@@ -19,7 +19,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-if ( !class_exists( 'ICWP_APP_Plugin_Controller', false ) ) :
+if ( class_exists( 'ICWP_APP_Plugin_Controller', false ) ) {
+	return;
+}
 
 class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 
@@ -116,7 +118,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	private function __construct( $sRootFile ) {
 		self::$sRootFile = $sRootFile;
 		$this->checkMinimumRequirements();
-		add_action( 'plugins_loaded', array( $this, 'onWpPluginsLoaded' ), 0 ); // this hook then registers everything
+		add_action( 'plugins_loaded', array( $this, 'onWpPluginsLoaded' ), 0 );
 		$this->loadWpTrack();
 	}
 
@@ -190,9 +192,9 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 			);
 
 			$this->loadRenderer( $this->getPath_Templates() )
-			     ->setTemplate( 'notices/does-not-meet-requirements' )
-			     ->setRenderVars( $aDisplayData )
-			     ->display();
+				 ->setTemplate( 'notices/does-not-meet-requirements' )
+				 ->setRenderVars( $aDisplayData )
+				 ->display();
 		}
 	}
 
@@ -444,7 +446,8 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * Displaying all views now goes through this central function and we work out
 	 * what to display based on the name of current hook/filter being processed.
 	 */
-	public function onDisplayTopMenu() { }
+	public function onDisplayTopMenu() {
+	}
 
 	/**
 	 * @param array  $aPluginMeta
@@ -505,7 +508,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 		if ( isset( $aFrontendIncludes[ 'css' ] ) && !empty( $aFrontendIncludes[ 'css' ] ) && is_array( $aFrontendIncludes[ 'css' ] ) ) {
 			foreach ( $aFrontendIncludes[ 'css' ] as $sCssAsset ) {
 				$sUnique = $this->doPluginPrefix( $sCssAsset );
-				wp_register_style( $sUnique, $this->getPluginUrl_Css( $sCssAsset . '.css' ), ( empty( $sDependent ) ? false : $sDependent ), $this->getVersion() );
+				wp_register_style( $sUnique, $this->getPluginUrl_Css( $sCssAsset.'.css' ), ( empty( $sDependent ) ? false : $sDependent ), $this->getVersion() );
 				wp_enqueue_style( $sUnique );
 				$sDependent = $sUnique;
 			}
@@ -519,10 +522,10 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 			if ( isset( $aAdminJs[ 'js' ] ) && !empty( $aAdminJs[ 'js' ] ) && is_array( $aAdminJs[ 'js' ] ) ) {
 				$sDependent = false;
 				foreach ( $aAdminJs[ 'css' ] as $sAsset ) {
-					$sUrl = $this->getPluginUrl_Js( $sAsset . '.js' );
+					$sUrl = $this->getPluginUrl_Js( $sAsset.'.js' );
 					if ( !empty( $sUrl ) ) {
 						$sUnique = $this->doPluginPrefix( $sAsset );
-						wp_register_script( $sUnique, $sUrl, $sDependent, $this->getVersion() . rand() );
+						wp_register_script( $sUnique, $sUrl, $sDependent, $this->getVersion().rand() );
 						wp_enqueue_script( $sUnique );
 						$sDependent = $sUnique;
 					}
@@ -535,7 +538,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 			if ( isset( $aAdminJs[ 'js' ] ) && !empty( $aAdminJs[ 'js' ] ) && is_array( $aAdminJs[ 'js' ] ) ) {
 				$sDependent = false;
 				foreach ( $aAdminJs[ 'js' ] as $sJsAsset ) {
-					$sUrl = $this->getPluginUrl_Js( $sJsAsset . '.js' );
+					$sUrl = $this->getPluginUrl_Js( $sJsAsset.'.js' );
 					if ( !empty( $sUrl ) ) {
 						$sUnique = $this->doPluginPrefix( $sJsAsset );
 						wp_register_script( $sUnique, $sUrl, $sDependent, $this->getVersion() );
@@ -554,10 +557,10 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 			if ( isset( $aAdminCss[ 'css' ] ) && !empty( $aAdminCss[ 'css' ] ) && is_array( $aAdminCss[ 'css' ] ) ) {
 				$sDependent = false;
 				foreach ( $aAdminCss[ 'css' ] as $sCssAsset ) {
-					$sUrl = $this->getPluginUrl_Css( $sCssAsset . '.css' );
+					$sUrl = $this->getPluginUrl_Css( $sCssAsset.'.css' );
 					if ( !empty( $sUrl ) ) {
 						$sUnique = $this->doPluginPrefix( $sCssAsset );
-						wp_register_style( $sUnique, $sUrl, $sDependent, $this->getVersion() . rand() );
+						wp_register_style( $sUnique, $sUrl, $sDependent, $this->getVersion().rand() );
 						wp_enqueue_style( $sUnique );
 						$sDependent = $sUnique;
 					}
@@ -570,10 +573,10 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 			if ( isset( $aAdminCss[ 'css' ] ) && !empty( $aAdminCss[ 'css' ] ) && is_array( $aAdminCss[ 'css' ] ) ) {
 				$sDependent = false;
 				foreach ( $aAdminCss[ 'css' ] as $sCssAsset ) {
-					$sUrl = $this->getPluginUrl_Css( $sCssAsset . '.css' );
+					$sUrl = $this->getPluginUrl_Css( $sCssAsset.'.css' );
 					if ( !empty( $sUrl ) ) {
 						$sUnique = $this->doPluginPrefix( $sCssAsset );
-						wp_register_style( $sUnique, $sUrl, $sDependent, $this->getVersion() . rand() );
+						wp_register_style( $sUnique, $sUrl, $sDependent, $this->getVersion().rand() );
 						wp_enqueue_style( $sUnique );
 						$sDependent = $sUnique;
 					}
@@ -610,7 +613,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	public function setUpdateFirstDetectedAt( $oPluginUpdateData ) {
 
 		if ( !empty( $oPluginUpdateData ) && !empty( $oPluginUpdateData->response )
-		     && isset( $oPluginUpdateData->response[ $this->getPluginBaseFile() ] ) ) {
+			 && isset( $oPluginUpdateData->response[ $this->getPluginBaseFile() ] ) ) {
 			// i.e. there's an update available
 			$sNewVersion = $this->loadWpFunctions()->getPluginUpdateNewVersion( $this->getPluginBaseFile() );
 			if ( !empty( $sNewVersion ) ) {
@@ -821,7 +824,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	public function doPluginPrefix( $sSuffix = '', $sGlue = '-' ) {
 		$sPrefix = $this->getPluginPrefix( $sGlue );
 
-		if ( $sSuffix == $sPrefix || strpos( $sSuffix, $sPrefix . $sGlue ) === 0 ) { //it already has the full prefix
+		if ( $sSuffix == $sPrefix || strpos( $sSuffix, $sPrefix.$sGlue ) === 0 ) { //it already has the full prefix
 			return $sSuffix;
 		}
 
@@ -933,7 +936,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 */
 	public function getIsValidAdminArea( $bCheckUserPermissions = true ) {
 		if ( $bCheckUserPermissions && $this->loadWpTrack()
-		                                    ->getWpActionHasFired( 'init' ) && !current_user_can( $this->getBasePermissions() ) ) {
+											->getWpActionHasFired( 'init' ) && !current_user_can( $this->getBasePermissions() ) ) {
 			return false;
 		}
 
@@ -952,7 +955,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return string
 	 */
 	public function getOptionStoragePrefix() {
-		return $this->getPluginPrefix( '_' ) . '_';
+		return $this->getPluginPrefix( '_' ).'_';
 	}
 
 	/**
@@ -1095,7 +1098,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 		if ( empty( $this->sPluginUrl ) ) {
 			$this->sPluginUrl = plugins_url( '/', $this->getRootFile() );
 		}
-		return add_query_arg( array( 'ver' => $this->getVersion() ), $this->sPluginUrl . $sPath );
+		return add_query_arg( array( 'ver' => $this->getVersion() ), $this->sPluginUrl.$sPath );
 	}
 
 	/**
@@ -1104,7 +1107,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 */
 	public function getPluginUrl_Asset( $sAsset ) {
 		if ( $this->loadFS()->exists( $this->getPath_Assets( $sAsset ) ) ) {
-			return $this->getPluginUrl( $this->getPluginSpec_Path( 'assets' ) . '/' . $sAsset );
+			return $this->getPluginUrl( $this->getPluginSpec_Path( 'assets' ).'/'.$sAsset );
 		}
 		return '';
 	}
@@ -1114,7 +1117,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return string
 	 */
 	public function getPluginUrl_Css( $sAsset ) {
-		return $this->getPluginUrl_Asset( 'css/' . $sAsset );
+		return $this->getPluginUrl_Asset( 'css/'.$sAsset );
 	}
 
 	/**
@@ -1122,7 +1125,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return string
 	 */
 	public function getPluginUrl_Image( $sAsset ) {
-		return $this->getPluginUrl_Asset( 'images/' . $sAsset );
+		return $this->getPluginUrl_Asset( 'images/'.$sAsset );
 	}
 
 	/**
@@ -1130,7 +1133,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return string
 	 */
 	public function getPluginUrl_Js( $sAsset ) {
-		return $this->getPluginUrl_Asset( 'js/' . $sAsset );
+		return $this->getPluginUrl_Asset( 'js/'.$sAsset );
 	}
 
 	/**
@@ -1145,7 +1148,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return string
 	 */
 	public function getPath_Assets( $sAsset = '' ) {
-		return $this->getRootDir() . $this->getPluginSpec_Path( 'assets' ) . DIRECTORY_SEPARATOR . $sAsset;
+		return $this->getRootDir().$this->getPluginSpec_Path( 'assets' ).DIRECTORY_SEPARATOR.$sAsset;
 	}
 
 	/**
@@ -1153,7 +1156,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return string
 	 */
 	public function getPath_Flags( $sFlag = '' ) {
-		return $this->getRootDir() . $this->getPluginSpec_Path( 'flags' ) . DIRECTORY_SEPARATOR . $sFlag;
+		return $this->getRootDir().$this->getPluginSpec_Path( 'flags' ).DIRECTORY_SEPARATOR.$sFlag;
 	}
 
 	/**
@@ -1162,9 +1165,9 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 */
 	public function getPath_Temp( $sTmpFile = '' ) {
 		$oFs = $this->loadFS();
-		$sTempPath = $this->getRootDir() . $this->getPluginSpec_Path( 'temp' ) . DIRECTORY_SEPARATOR;
+		$sTempPath = $this->getRootDir().$this->getPluginSpec_Path( 'temp' ).DIRECTORY_SEPARATOR;
 		if ( $oFs->mkdir( $sTempPath ) ) {
-			return $this->getRootDir() . $this->getPluginSpec_Path( 'temp' ) . DIRECTORY_SEPARATOR . $sTmpFile;
+			return $this->getRootDir().$this->getPluginSpec_Path( 'temp' ).DIRECTORY_SEPARATOR.$sTmpFile;
 		}
 		return null;
 	}
@@ -1174,7 +1177,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return string
 	 */
 	public function getPath_AssetCss( $sAsset = '' ) {
-		return $this->getPath_Assets( 'css' . DIRECTORY_SEPARATOR . $sAsset );
+		return $this->getPath_Assets( 'css/'.$sAsset );
 	}
 
 	/**
@@ -1182,7 +1185,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return string
 	 */
 	public function getPath_AssetJs( $sAsset = '' ) {
-		return $this->getPath_Assets( 'js' . DIRECTORY_SEPARATOR . $sAsset );
+		return $this->getPath_Assets( 'js/'.$sAsset );
 	}
 
 	/**
@@ -1190,7 +1193,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return string
 	 */
 	public function getPath_AssetImage( $sAsset = '' ) {
-		return $this->getPath_Assets( 'images' . DIRECTORY_SEPARATOR . $sAsset );
+		return $this->getPath_Assets( 'images/'.$sAsset );
 	}
 
 	/**
@@ -1198,7 +1201,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return string
 	 */
 	public function getPath_Languages() {
-		return $this->getRootDir() . $this->getPluginSpec_Path( 'languages' ) . DIRECTORY_SEPARATOR;
+		return $this->getRootDir().$this->getPluginSpec_Path( 'languages' ).DIRECTORY_SEPARATOR;
 	}
 
 	/**
@@ -1206,7 +1209,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return string
 	 */
 	public function getPath_Source() {
-		return $this->getRootDir() . $this->getPluginSpec_Path( 'source' ) . DIRECTORY_SEPARATOR;
+		return $this->getRootDir().$this->getPluginSpec_Path( 'source' ).DIRECTORY_SEPARATOR;
 	}
 
 	/**
@@ -1215,7 +1218,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return string
 	 */
 	public function getPath_SourceFile( $sSourceFile = '' ) {
-		return $this->getPath_Source() . $sSourceFile;
+		return $this->getPath_Source().$sSourceFile;
 	}
 
 	/**
@@ -1224,14 +1227,14 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return string
 	 */
 	public function getPath_LibFile( $sLibFile = '' ) {
-		return $this->getPath_Source() . 'lib' . DIRECTORY_SEPARATOR . $sLibFile;
+		return $this->getPath_Source().'lib/'.$sLibFile;
 	}
 
 	/**
 	 * @return string
 	 */
 	public function getPath_Templates() {
-		return $this->getRootDir() . $this->getPluginSpec_Path( 'templates' ) . DIRECTORY_SEPARATOR;
+		return $this->getRootDir().$this->getPluginSpec_Path( 'templates' ).DIRECTORY_SEPARATOR;
 	}
 
 	/**
@@ -1239,14 +1242,14 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return string
 	 */
 	public function getPath_TemplatesFile( $sTemplate ) {
-		return $this->getPath_Templates() . $sTemplate;
+		return $this->getPath_Templates().$sTemplate;
 	}
 
 	/**
 	 * @return string
 	 */
 	private function getPathPluginSpec() {
-		return $this->getRootDir() . 'plugin-spec.php';
+		return $this->getRootDir().'plugin-spec.php';
 	}
 
 	/**
@@ -1254,7 +1257,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return string
 	 */
 	public function getRootDir() {
-		return dirname( $this->getRootFile() ) . DIRECTORY_SEPARATOR;
+		return dirname( $this->getRootFile() ).DIRECTORY_SEPARATOR;
 	}
 
 	/**
@@ -1287,7 +1290,8 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	protected function getPluginControllerOptions() {
 		if ( !isset( self::$oControllerOptions ) ) {
 
-			self::$oControllerOptions = $this->loadWpFunctions()->getOption( $this->getPluginControllerOptionsKey() );
+			self::$oControllerOptions = $this->loadWpFunctions()
+											 ->getOption( $this->getPluginControllerOptionsKey() );
 			if ( !is_object( self::$oControllerOptions ) ) {
 				self::$oControllerOptions = new stdClass();
 			}
@@ -1393,7 +1397,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	public function getUniqueRequestId() {
 		if ( !isset( self::$sRequestId ) ) {
 			$oDp = $this->loadDataProcessor();
-			self::$sRequestId = md5( $this->getSessionId( false ) . $oDp->getVisitorIpAddress() . $oDp->time() );
+			self::$sRequestId = md5( $this->getSessionId( false ).$oDp->getVisitorIpAddress().$oDp->time() );
 		}
 		return self::$sRequestId;
 	}
@@ -1413,7 +1417,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 		$this->loadDataProcessor()->setCookie(
 			$this->getPluginPrefix(),
 			$this->getSessionId(),
-			$this->loadDataProcessor()->time() + DAY_IN_SECONDS * 30,
+			$this->loadDataProcessor()->time() + DAY_IN_SECONDS*30,
 			$oWp->getCookiePath(),
 			$oWp->getCookieDomain(),
 			false
@@ -1501,4 +1505,3 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 		return $this->{$sOptionsVarName};
 	}
 }
-endif;

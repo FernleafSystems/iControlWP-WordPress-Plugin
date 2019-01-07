@@ -34,7 +34,7 @@ if ( !class_exists( 'ICWP_APP_WpFilesystem', false ) ):
 		 * @return string
 		 */
 		public function pathJoin( $sBase, $sPath ) {
-			return rtrim( $sBase, ICWP_DS ).ICWP_DS.ltrim( $sPath, ICWP_DS );
+			return rtrim( $sBase, DIRECTORY_SEPARATOR ).DIRECTORY_SEPARATOR.ltrim( $sPath, DIRECTORY_SEPARATOR );
 		}
 
 		/**
@@ -134,7 +134,7 @@ if ( !class_exists( 'ICWP_APP_WpFilesystem', false ) ):
 		protected function setWpConfigPath() {
 			$this->sWpConfigPath = ABSPATH.'wp-config.php';
 			if ( !$this->exists($this->sWpConfigPath)  ) {
-				$this->sWpConfigPath = ABSPATH.'..'.ICWP_DS.'wp-config.php';
+				$this->sWpConfigPath = ABSPATH.'../wp-config.php';
 				if ( !$this->exists($this->sWpConfigPath)  ) {
 					$this->sWpConfigPath = false;
 				}
@@ -500,7 +500,7 @@ if ( !class_exists( 'ICWP_APP_WpFilesystem', false ) ):
 		private function initFileSystem() {
 			if ( is_null( $this->oWpfs ) ) {
 				$this->oWpfs = false;
-				require_once( ABSPATH . 'wp-admin'.ICWP_DS.'includes'.ICWP_DS.'file.php' );
+				require_once( ABSPATH . 'wp-admin/includes/file.php' );
 				if ( WP_Filesystem() ) {
 					global $wp_filesystem;
 					if ( isset( $wp_filesystem ) && is_object( $wp_filesystem ) ) {
