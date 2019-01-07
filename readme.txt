@@ -3,7 +3,7 @@ Contributors: paultgoodchild
 Donate link: http://www.icontrolwp.com/
 Tags: manage wordpress, backup, security, restore, bulk, icontrolwp, managewp, worpit, automatic updates
 Requires at least: 3.2.0
-Tested up to: 5.0
+Tested up to: 5.1
 Stable tag: 3.6.0
 
 == Description ==
@@ -115,17 +115,11 @@ No. WorpDrive is available for a small monthly fee.
 
 == Changelog ==
 
-= Latest Release: 3.6.0 =
-*Released: 19th December, 2018*
-
-* **(v.0)**	ADDED:		Support for upgrading minor WP version.
-* **(v.0)**	IMPROVED:	Some code refactoring and improvements.
-
 = 3.6 Series =
-*Released: 19th December, 2018*
+*Released: 8th January, 2019*
 
 * **(v.0)**	ADDED:		Support for upgrading minor WP version.
-* **(v.0)**	IMPROVED:	Some code refactoring and improvements.
+* **(v.0)**	IMPROVED:	Code refactoring and improvements.
 
 = 3.5 Series =
 *Released: 29th August, 2017*
@@ -220,249 +214,125 @@ No. WorpDrive is available for a small monthly fee.
 * ADDED:	Support for 'Ultimate Coming Soon Maintenance Mode' plugin.
 * FIXED:	PHP require() for relative paths is broken in certain environments.
 
-= 2.9.5 =
-*Released: 6th January 2015*
-
-* ADDED:	UI indicators for plugin automatic updates.
-* ADDED:	Further compatibility with maintenance mode plugins.
-* CHANGED:	Tweaks to the white labelling system.
-* CHANGED:	Refactored files for better organisation.
-
-= 2.9.4 =
-*Released: 23th December 2014*
-
-* ADDED:	Option to clear all statistics.
-* FIX:	    Small bug where statistics weren't enabled when requested to do so.
-
-= 2.9.3 =
-*Released: 19th December 2014*
-
-* CHANGED:  Added work-arounds for some maintenance mode plugins.
-* CHANGED:  Removed background plugin update.
-
-= 2.9.2 =
-*Released: 11th December 2014*
-
-* CHANGED:  Significant plugin refactoring to improve performance, security, and reliability of the iControlWP service.
-
-= 2.8.4 =
-*Released: 19th November 2014*
-
-* IMPROVED: Compatibility with WordPress Simple Firewall user sessions and the Login-As feature.
-
-= 2.8.3 =
-
-* FIX:	    Temporarily disable automatic whitelist for wordfence.
-
-= 2.8.2 =
-
-* FIX:	    Quick-fix to get around fatal error with poor Jetpack coding.
-
-= 2.8.1 =
-
-* ADDED:	Option to set "DISALLOW_FILE_EDIT" from iControlWP App
-* ADDED:	Option to set "FORCE_SSL_ADMIN" from iControlWP App
-* ADDED:	Option to set [CloudFlare Flexible SSL](https://www.icontrolwp.com/2014/10/enabling-cloudflares-universal-flexible-ssl-wordpress-without-infinite-redirect-loops/) from within the iControlWP App
-* ADDED:	Option to set Hide WordPress Version (WP Generator Meta tag) from iControlWP App
-* ADDED:	Option to set Hide RSD Link from iControlWP App
-* ADDED:	Option to set Hide Windows Live link from iControlWP App
-* UPDATED:  White-listing IPs
-
-= 2.7.13 =
-
-* FIX:	    Error with automatic whitelisting in some cases.
-
-= 2.7.12 =
-
-* FIX:	    A few PHP notices, and update to WordPress 4.0 compatibility.
-
-= 2.7.11 =
-
-* CHANGE:	To avoid PHP strict warnings.
-
-= 2.7.10 =
-
-* ENHANCED:	Automatically adds to the Bad Behaviour IP white lists.
-
-= 2.7.9 =
-
-* CHANGE:	Improved compatibility with hosts that restrict certain methods of file includes.
-
-= 2.7.8 =
-
-* FIX:      WordPress 3.8.2 breaks automatic updates code. This update addresses that change.
-
-= 2.7.7 =
-
-* FIX:      for cron error code and google analytics js code
-
-= 2.7.5 =
-
-* CHANGED:	auto-updates system is now integrated directly into plugin instead of using a separate plugin.
-
-= 2.7.4 =
-
-* CHANGED:	tweak to white labelling and stats with more options.
-
-= 2.7.3 =
-
-* FIX:      for google analytics logic
-
-= 2.7.2 =
-
-* CHANGED:	Improved white labelling and options for google analytics.
-
-= 2.7.0 =
-
-* ADDED:	Google Analytics Integration.
-
-= 2.6.4 =
-
-* CHANGED:	some code refactoring, fixes, and improvements to the [new stats features](http://icwp.io/46)
-
-= 2.6.2 =
-
-* ADDED:	[Site Statistics Module](http://icwp.io/46)
-
-= 2.5.2 =
-
-* CHANGED:	Now ready for white labelling
-
-= 2.5.1 =
-
-* CHANGED:	Now uses WordPress wp_remote_get() by default to make its HTTP calls
-
-= 2.5.0 =
-
-* CHANGED:	Changed the URL of the App.
-
-= 2.4.4 =
-
-* ADDED:	Support for Elegant themes maintenance mode plugin.
-* ADDED:	New Service WhiteList IPs.
-* CHANGED:  Small fix to the remote site add feature.
-
-= 2.4.2 =
-
-* ADDED:	Verified works with WordPress 3.8 admin.
-* CHANGED:	Improved IP white listing method with 3rd party plugins.
-
-= 2.4.0 =
-
-* ADDED:	Now works around the WP Maintenance plugin so you can add and manage the site.
-* ADDED:	Support for the new automatic [WordPress Background Updates features in iControlWP](http://www.icontrolwp.com/2013/11/manage-wordpress-automatic-background-updates-icontrolwp/).
-
-= 2.3.10 =
-
-* ADDED:	New IP address to IP address pool for the service.
-
-= 2.3.8 =
-
-* ADDED:	Improved support for Maintenance Mode plugins while linking your site to iControlWP.
-
-= 2.3.7 =
-
-* ADDED:	Support for All In One WP Security plugin.
-
-= 2.3.6 =
-
-* IMPROVE:	W3 Total Cache compatibility.
-
-= 2.3.5 =
-
-* FIX:		WPMS notices.
-
-= 2.3.4 =
-
-* ADDED:	Full support for WP Engine.
-
-= 2.3.3 =
-
-* ADDED: Support for automatically adding whitelisted IP addresses for the WordPress Simple Firewall plugin.
-
-= 2.3.2 =
-
-* ADDED: Direct support for WordPress Firewall 2 plugin by automatically whitelist iControlWP IPs.
-* ADDED: Support for the Ultimate Maintenance Mode plugin.
-
-= 2.2 =
-
-* ADDED: Ability to add a site to an iControlWP account from within the WordPress site itself
-* ADDED: Support for the underConstruction plugin to ensure we by-pass any redirection.
-
-= 2.1 =
+= 2.9 Series =
+
+* **(v.5)**	ADDED:		UI indicators for plugin automatic updates.
+* **(v.5)**	ADDED:		Further compatibility with maintenance mode plugins.
+* **(v.5)**	CHANGED:	Tweaks to the white labelling system.
+* **(v.5)**	CHANGED:	Refactored files for better organisation.
+* **(v.4)**	ADDED:		Option to clear all statistics.
+* **(v.4)**	FIX:		Small bug where statistics weren't enabled when requested to do so.
+* **(v.3)**	CHANGED:	Added work-arounds for some maintenance mode plugins.
+* **(v.3)**	CHANGED:	Removed background plugin update.
+* **(v.2)**	CHANGED:	Significant plugin refactoring to improve performance, security, and reliability of the iControlWP service.
+
+= 2.8 Series =
+
+* **(v.4)**	IMPROVED:	Compatibility with Shield Security user sessions and the Login-As feature.
+* **(v.3)**	FIX:		Temporarily disable automatic whitelist for wordfence.
+* **(v.2)**	IMPROVED:	Quick-fix to get around fatal error with poor Jetpack coding.
+* **(v.1)**	ADDED:		Option to set "DISALLOW_FILE_EDIT" from iControlWP App.
+* **(v.1)**	ADDED:		Option to set "FORCE_SSL_ADMIN" from iControlWP App.
+* **(v.1)**	ADDED:		Option to set [CloudFlare Flexible SSL](https://www.icontrolwp.com/2014/10/enabling-cloudflares-universal-flexible-ssl-wordpress-without-infinite-redirect-loops/) from within the iControlWP App.
+* **(v.1)**	ADDED:		Option to set Hide WordPress Version (WP Generator Meta tag) from iControlWP App.
+* **(v.1)**	ADDED:		Option to set Hide RSD Link from iControlWP App.
+* **(v.1)**	ADDED:		Option to set Hide Windows Live link from iControlWP App.
+* **(v.1)**	UPDATED:	White-listing IPs.
+
+= 2.7 Series =
+
+* **(v.13)**	FIX:	Error with automatic whitelisting in some cases.
+* **(v.12)**	FIX:	A few PHP notices, and update to WordPress 4.0 compatibility.
+* **(v.11)**	CHANGE:	To avoid PHP strict warnings.
+* **(v.10)**	ENHANCED:	Automatically adds to the Bad Behaviour IP white lists.
+* **(v.9)**	CHANGE:		Improved compatibility with hosts that restrict certain methods of file includes.
+* **(v.8)**	FIX:		WordPress 3.8.2 breaks automatic updates code. This update addresses that change.
+* **(v.7)**	FIX:		for cron error code and google analytics js code.
+* **(v.5)**	FIX:		auto-updates system is now integrated directly into plugin instead of using a separate plugin.
+* **(v.4)**	CHANGE:		tweak to white labelling and stats with more options
+* **(v.3)**	FIX:		for google analytics logic
+* **(v.2)**	CHANGED:	Improved white labelling and options for google analytics
+* **(v.0)**	ADDED:		Google Analytics Integration
+
+= 2.6 Series =
+
+* **(v.4)**	CHANGE:		some code refactoring, fixes, and improvements to the [new stats features](http://icwp.io/46)
+* **(v.2)**	ADDED:		[Site Statistics Module](http://icwp.io/46)
+
+= 2.5 Series =
+
+* **(v.2)**	CHANGED:	Now ready for white labelling
+* **(v.1)**	CHANGED:	Now uses WordPress wp_remote_get() by default to make its HTTP calls
+* **(v.0)**	CHANGED:	Changed the URL of the App
+
+= 2.4 Series =
+
+* **(v.4)**	ADDED:		Support for Elegant themes maintenance mode plugin
+* **(v.4)**	ADDED:		New Service WhiteList IPs
+* **(v.4)**	CHANGED:	Small fix to the remote site add feature
+* **(v.2)**	ADDED:		Verified works with WordPress 3.8 admin
+* **(v.2)**	CHANGED:	Improved IP white listing method with 3rd party plugins
+* **(v.0)**	CHANGED:	Now works around the WP Maintenance plugin so you can add and manage the site
+* **(v.0)**	CHANGED:	Support for the new automatic [WordPress Background Updates features in iControlWP](http://www.icontrolwp.com/2013/11/manage-wordpress-automatic-background-updates-icontrolwp/).
+
+= 2.3 Series =
+* **(v.10)**	ADDED:	New IP address to IP address pool for the service
+* **(v.8)**	ADDED:		Improved support for Maintenance Mode plugins while linking your site to iControlWP
+* **(v.7)**	ADDED:		Support for All In One WP Security plugin
+* **(v.6)**	IMPROVED:	W3 Total Cache compatibility
+* **(v.5)**	FIX:		WPMS notices
+* **(v.4)**	ADDED:		Full support for WP Engine
+* **(v.3)**	FIX:		Support for automatically adding whitelisted IP addresses for the Shield Security plugin
+* **(v.2)**	ADDED:		Support for WordPress Firewall 2 plugin by automatically whitelist iControlWP IPs
+* **(v.2)**	ADDED:		Support for the Ultimate Maintenance Mode plugin
+
+= 2.2 Series =
+* **(v.0)**	ADDED:		Ability to add a site to an iControlWP account from within the WordPress site itself
+* **(v.0)**	ADDED:		Support for the underConstruction plugin to ensure we by-pass any redirection
+
+= 2.1 Series =
 
 * ADDED: support for initial plugin white labelling options
 * ADDED: login-as redirect options and support for WPMS login as
 * ADDED: Automatic Better WP Security IP Whitelisting for the iControlWP service
 * ADDED: Automatic Wordfence IP Whitelisting for the iControlWP service
 
-= 2.0 =
+= 2.0 Series =
 
 * NAME CHANGE: Was Worpit, now iControlWP.com
 * ADDED: support for logging in as any user, not just admin.
 * FIX: preventing the plugin from disconnecting from the service in some cases.
 
-= 1.3.1 =
+= 1.3 Series =
 
 * FIX: Improved security
-
-= 1.3.0 =
-
 * CHANGED: Plugin communication with iControlWP App changed to help avoid security restrictions that impact direct access to PHP files.
 
-= 1.2.3 =
+= 1.2 Series =
 
 * TWEAKED: Plugin's custom access rules.
-
-= 1.2.2 =
-
 * ADDED: a fix for whe na site changes its underlying file structure and the location of the plugin moves.
-
-= 1.2.1 =
-
 * Plugin now redirects to the iControlWP settings page upon activation.
 * FIX: a bug with the code in the plugin option to mask WP version.
-
-= 1.2.0 =
-
 * Plugin re-architecture to use HTTP GET instead of POST to receive directives from worpitapp.com
 * Tested with WordPress 3.5
 
-= 1.1.3 =
+= 1.1 Series =
 
 * Adds custom options for setting various security related WordPress settings.
 * Now easier to find the plugin URL when adding a site.
-
-= 1.1.2 =
-
 * Adds a .htaccess to the plugin root folder to cater for people who don't have their own .htaccess to prevent directory listing
 * Fixes compatibility with other plugins who have the same function names in some cases.
 * Work around Maintenance Mode plugin so iControlWP commands still work even in maintenance mode.
-
-= 1.1.1 =
-
 * Fix for handshaking features.
-
-= 1.1.0 =
-
 * Minimum required version to support [WorpDrive WordPress Backup and Recovery Service](http://worpdrive.com/?src=wpt_readme)
 * Better stability features that also allow for better handling of errors and unexpected plugin output.
 
-= 1.0.15 =
+= 1.0 Series =
 
 * Removes interference from the 'Secure WordPess' plugin when the iControlWP plugin initialises due to a request from the iControlWP service.
-
-= 1.0.14 =
-
 * No functional change, just some wording on plugin.
-
-= 1.0.13 =
-
 * Latest stable release.
-
-= 1.0 =
-
 * Worpit - Manage WordPress Better Initial Release.
 
 == Upgrade Notice ==
