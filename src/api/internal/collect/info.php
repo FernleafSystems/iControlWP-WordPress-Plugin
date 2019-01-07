@@ -16,9 +16,6 @@ class ICWP_APP_Api_Internal_Collect_Info extends ICWP_APP_Api_Internal_Collect_B
 			'capabilities'       => $this->getCollector_Capabilities()->collect(),
 			'wordpress-info'     => $this->getCollector_WordPressInfo()->collect(),
 			'wordpress-paths'    => $this->getCollector_Paths()->collect(),
-			'wordpress-extras'   => array(
-				'preferred-core-update' => get_preferred_from_update_core()
-			),
 			'wordpress-plugins'  => $this->collectPlugins(),
 			'wordpress-themes'   => $this->collectThemes(),
 			'force_update_check' => $this->isForceUpdateCheck() ? 1 : 0,
