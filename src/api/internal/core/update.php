@@ -16,8 +16,9 @@ class ICWP_APP_Api_Internal_Core_Update extends ICWP_APP_Api_Internal_Base {
 		$oWp = $this->loadWpFunctions();
 		$aActionParams = $this->getActionParams();
 		$sVersion = $aActionParams[ 'version' ];
+
 		if ( !$oWp->getIfCoreUpdateExists( $sVersion ) ) {
-			return $this->success( array(), 'The requested version is not currently available to install' );
+			return $this->success( array(), 'The requested version is not currently available to install.' );
 		}
 
 		$oUpgrader = new Core_Upgrader( new ICWP_Upgrader_Skin() );
