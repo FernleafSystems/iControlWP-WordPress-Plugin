@@ -23,7 +23,7 @@ class ICWP_APP_Processor_Plugin extends ICWP_APP_Processor_BaseApp {
 		add_filter( $oFO->doPluginPrefix( 'filter_hidePluginMenu' ), array( $oFO, 'getIfHidePlugin' ) );
 
 		if ( $this->loadDataProcessor()->FetchRequest( 'geticwppluginurl', false ) == 1 ) {
-			add_action( 'init', array( $this, 'getPluginUrl' ), 0 );
+			add_action( 'init', array( $this, 'getPluginUrl' ), -1000 );
 		}
 
 		if ( $oReqParams->getIsApiCall() ) {
