@@ -293,7 +293,7 @@ class ICWP_APP_Foundation {
 	 */
 	static public function loadWpUsersProcessor() {
 		if ( !isset( self::$oWpUsers ) ) {
-			require_once( dirname( __FILE__ ).'/wp-users.php' );
+			require_once( dirname( __FILE__ ).'/icwp-users.php' );
 			self::$oWpUsers = ICWP_APP_WpUsers::GetInstance();
 		}
 
