@@ -263,7 +263,6 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 	 */
 	public function getOptionsVo() {
 		if ( !isset( $this->oOptions ) ) {
-			require_once( dirname( __FILE__ ).'/options-vo.php' );
 			$this->oOptions = new ICWP_APP_OptionsVO( $this->getFeatureSlug() );
 			$this->oOptions->setRebuildFromFile( $this->getController()->getIsRebuildOptionsFromFile() );
 			$this->oOptions->setOptionsStorageKey( $this->getOptionsStorageKey() );

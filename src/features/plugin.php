@@ -341,7 +341,6 @@ class ICWP_APP_FeatureHandler_Plugin extends ICWP_APP_FeatureHandler_Base {
 	 */
 	public function getRequestParams() {
 		if ( !isset( $this->oRequestParams ) ) {
-			require_once( dirname( dirname( __FILE__ ) ).DIRECTORY_SEPARATOR.'api'.DIRECTORY_SEPARATOR.'RequestParameters.php' );
 			$oDp = $this->loadDataProcessor();
 			$this->oRequestParams = new RequestParameters( $oDp->FetchGet( 'reqpars', '' ), $oDp->FetchPost( 'reqpars', '' ) );
 		}

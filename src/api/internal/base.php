@@ -65,7 +65,6 @@ class ICWP_APP_Api_Internal_Base extends ICWP_APP_Foundation {
 	 */
 	public function getStandardResponse() {
 		if ( is_null( $this->oActionResponse ) ) {
-			require_once( dirname( dirname( __FILE__ ) ).'/ApiResponse.php' );
 			$this->oActionResponse = new ApiResponse();
 		}
 
@@ -136,8 +135,6 @@ class ICWP_APP_Api_Internal_Base extends ICWP_APP_Foundation {
 	 * @return ICWP_APP_WpCollectInfo
 	 */
 	protected function getWpCollector() {
-		require_once( dirname( __FILE__ ).'/../../common/icwp-wpcollectinfo.php' );
-
 		return ICWP_APP_WpCollectInfo::GetInstance();
 	}
 
@@ -145,7 +142,6 @@ class ICWP_APP_Api_Internal_Base extends ICWP_APP_Foundation {
 	 * @return array
 	 */
 	protected function collectPlugins() {
-		require_once( dirname( __FILE__ ).'/collect/plugins.php' );
 		$oCollector = new ICWP_APP_Api_Internal_Collect_Plugins();
 		return $oCollector->setRequestParams( $this->getRequestParams() )
 						  ->collect();
@@ -155,17 +151,9 @@ class ICWP_APP_Api_Internal_Base extends ICWP_APP_Foundation {
 	 * @return array
 	 */
 	protected function collectThemes() {
-		require_once( dirname( __FILE__ ).'/collect/themes.php' );
 		$oCollector = new ICWP_APP_Api_Internal_Collect_Themes();
 		return $oCollector->setRequestParams( $this->getRequestParams() )
 						  ->collect();
-	}
-
-	/**
-	 * @param string $sLibName
-	 */
-	protected function importCommonLib( $sLibName ) {
-		require_once( dirname( __FILE__ ).sprintf( '/common/%s.php', $sLibName ) );
 	}
 
 	/**

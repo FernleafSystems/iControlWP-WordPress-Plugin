@@ -15,7 +15,6 @@ class ICWP_APP_Api_Internal_Collect_Plugins extends ICWP_APP_Api_Internal_Collec
 	 * @return array                                associative: PluginFile => PluginData
 	 */
 	public function collect() {
-		$this->importCommonLib( 'plugins' );
 
 //			$this->prepThirdPartyPlugins(); TODO
 		$aPlugins = $this->getInstalledPlugins( $this->getDesiredPluginAttributes() );

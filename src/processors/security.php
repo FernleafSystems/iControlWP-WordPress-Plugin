@@ -41,7 +41,6 @@ class ICWP_APP_Processor_Security extends ICWP_APP_Processor_BaseApp {
 	 * Does nothing if the site already "knows" it's SSL.
 	 */
 	protected function doCloudflareFlexibleSslCompatibility() {
-		error_log( 'cloudflare' );
 		if ( is_ssl() ) {
 			return;
 		}

@@ -413,7 +413,6 @@ abstract class ICWP_APP_Processor_Plugin_Api extends ICWP_APP_Processor_BaseApp 
 	 */
 	static public function getStandardResponse() {
 		if ( is_null( self::$oActionResponse ) ) {
-			require_once( dirname( dirname( __FILE__ ) ).DIRECTORY_SEPARATOR.'api'.DIRECTORY_SEPARATOR.'ApiResponse.php' );
 			self::$oActionResponse = new ApiResponse();
 		}
 		return self::$oActionResponse;

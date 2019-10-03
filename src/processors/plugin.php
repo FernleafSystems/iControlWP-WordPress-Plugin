@@ -110,7 +110,6 @@ class ICWP_APP_Processor_Plugin extends ICWP_APP_Processor_BaseApp {
 	 */
 	public function doApiLinkSite() {
 		require_once( ABSPATH.'wp-admin/includes/upgrade.php' );
-		require_once( dirname( __FILE__ ).'/plugin_api_link.php' );
 		$oLinkProcessor = new ICWP_APP_Processor_Plugin_SiteLink( $this->getFeatureOptions() );
 		$this->sendApiResponse( $oLinkProcessor->run() );
 		die();
@@ -128,7 +127,6 @@ class ICWP_APP_Processor_Plugin extends ICWP_APP_Processor_BaseApp {
 		require_once( ABSPATH.'wp-admin/includes/upgrade.php' );
 
 		$sApiChannel = $this->getApiChannel(); // also verifies it's a valid channel
-		require_once( dirname( __FILE__ ).sprintf( '/plugin_api_%s.php', $sApiChannel ) );
 
 		switch ( $sApiChannel ) {
 
@@ -158,7 +156,6 @@ class ICWP_APP_Processor_Plugin extends ICWP_APP_Processor_BaseApp {
 
 			default: // case 'index':
 				echo $sApiChannel;
-				require_once( dirname( __FILE__ ).sprintf( '/plugin_api_index.php', $sApiChannel ) );
 				$oApiProcessor = new ICWP_APP_Processor_Plugin_Api_Index( $oFO );
 				break;
 		}

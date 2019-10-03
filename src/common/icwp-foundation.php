@@ -97,7 +97,6 @@ class ICWP_APP_Foundation {
 	 */
 	static public function loadDataProcessor() {
 		if ( !isset( self::$oDp ) ) {
-			require_once( dirname( __FILE__ ).'/icwp-data.php' );
 			self::$oDp = ICWP_APP_DataProcessor::GetInstance();
 		}
 
