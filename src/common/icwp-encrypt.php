@@ -1,9 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_APP_Encrypt', false ) ) {
-	return;
-}
-
 class ICWP_APP_Encrypt extends ICWP_APP_Foundation {
 
 	/**

@@ -1,27 +1,25 @@
 <?php
-if ( !class_exists( 'ICWP_APP_WpUpgrades', false ) ):
 
-	class ICWP_APP_WpUpgrades extends ICWP_APP_Foundation {
+class ICWP_APP_WpUpgrades extends ICWP_APP_Foundation {
 
-		/**
-		 * @var ICWP_APP_WpUpgrades
-		 */
-		protected static $oInstance = NULL;
+	/**
+	 * @var ICWP_APP_WpUpgrades
+	 */
+	protected static $oInstance = null;
 
-		/**
-		 * @return ICWP_APP_WpUpgrades
-		 */
-		public static function GetInstance() {
-			if ( is_null( self::$oInstance ) ) {
-				self::$oInstance = new self();
-			}
-			return self::$oInstance;
+	/**
+	 * @return ICWP_APP_WpUpgrades
+	 */
+	public static function GetInstance() {
+		if ( is_null( self::$oInstance ) ) {
+			self::$oInstance = new self();
 		}
+		return self::$oInstance;
 	}
-endif;
+}
 
-require_once ( ABSPATH . 'wp-admin/includes/upgrade.php' );
-require_once ( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
+require_once( ABSPATH.'wp-admin/includes/upgrade.php' );
+require_once( ABSPATH.'wp-admin/includes/class-wp-upgrader.php' );
 
 if ( !class_exists( 'WP_Upgrader_Skin', false ) ) {
 	$sWordPressWpUpgraderClass = ABSPATH.'wp-admin/includes/class-wp-upgrader.php';
@@ -31,7 +29,7 @@ if ( !class_exists( 'WP_Upgrader_Skin', false ) ) {
 	include_once( $sWordPressWpUpgraderClass );
 }
 
-if ( !class_exists( 'ICWP_Upgrader_Skin', false ) && class_exists( 'WP_Upgrader_Skin', false ) ) {
+if ( class_exists( 'WP_Upgrader_Skin', false ) ) {
 
 	/**
 	 * Class ICWP_Upgrader_Skin
@@ -39,6 +37,7 @@ if ( !class_exists( 'ICWP_Upgrader_Skin', false ) && class_exists( 'WP_Upgrader_
 	class ICWP_Upgrader_Skin extends WP_Upgrader_Skin {
 
 		public $m_aErrors;
+
 		public $aFeedback;
 
 		public function __construct() {
@@ -53,13 +52,17 @@ if ( !class_exists( 'ICWP_Upgrader_Skin', false ) && class_exists( 'WP_Upgrader_
 			return $this->aFeedback;
 		}
 
-		function error( $errors ) { }
-		function feedback( $string ) { }
+		function error( $errors ) {
+		}
+
+		function feedback( $string ) {
+		}
 	}
 }
 
 if ( !class_exists( 'ICWP_Plugin_Upgrader', false ) && class_exists( 'Plugin_Upgrader' ) ) {
 	class ICWP_Plugin_Upgrader extends Plugin_Upgrader {
+
 		protected $fModeOverwrite = true;
 
 		public function install( $package, $args = array() ) {
@@ -72,26 +75,28 @@ if ( !class_exists( 'ICWP_Plugin_Upgrader', false ) && class_exists( 'Plugin_Upg
 			$this->init();
 			$this->install_strings();
 
-			add_filter('upgrader_source_selection', array($this, 'check_package') );
+			add_filter( 'upgrader_source_selection', array( $this, 'check_package' ) );
 
 			$this->run( array(
-				'package' => $package,
-				'destination' => WP_PLUGIN_DIR,
-				'clear_destination' => $this->getOverwriteMode(), // this is the key to overwrite and why we're extending the native wordpress class
-				'clear_working' => true,
-				'hook_extra' => array(
-					'type' => 'plugin',
+				'package'           => $package,
+				'destination'       => WP_PLUGIN_DIR,
+				'clear_destination' => $this->getOverwriteMode(),
+				// this is the key to overwrite and why we're extending the native wordpress class
+				'clear_working'     => true,
+				'hook_extra'        => array(
+					'type'   => 'plugin',
 					'action' => 'install',
 				)
 			) );
 
-			remove_filter('upgrader_source_selection', array($this, 'check_package') );
+			remove_filter( 'upgrader_source_selection', array( $this, 'check_package' ) );
 
-			if ( ! $this->result || is_wp_error($this->result) )
+			if ( !$this->result || is_wp_error( $this->result ) ) {
 				return $this->result;
+			}
 
 			// Force refresh of plugin update information
-			wp_clean_plugins_cache( $parsed_args['clear_update_cache'] );
+			wp_clean_plugins_cache( $parsed_args[ 'clear_update_cache' ] );
 
 			return true;
 		}
@@ -106,7 +111,7 @@ if ( !class_exists( 'ICWP_Plugin_Upgrader', false ) && class_exists( 'Plugin_Upg
 	}
 }
 
-if ( !class_exists( 'ICWP_Bulk_Plugin_Upgrader_Skin', false ) && class_exists( 'Bulk_Plugin_Upgrader_Skin', false ) ) {
+if ( class_exists( 'Bulk_Plugin_Upgrader_Skin', false ) ) {
 	/**
 	 * Class ICWP_Bulk_Plugin_Upgrader_Skin
 	 */
@@ -143,7 +148,7 @@ if ( !class_exists( 'ICWP_Bulk_Plugin_Upgrader_Skin', false ) && class_exists( '
 			else if ( is_wp_error( $errors ) && $errors->get_error_code() ) {
 				foreach ( $errors->get_error_messages() as $message ) {
 					if ( $errors->get_error_data() ) {
-						$this->feedback( $message . ' ' . $errors->get_error_data() );
+						$this->feedback( $message.' '.$errors->get_error_data() );
 					}
 					else {
 						$this->feedback( $message );
@@ -163,8 +168,9 @@ if ( !class_exists( 'ICWP_Bulk_Plugin_Upgrader_Skin', false ) && class_exists( '
 		 * @param string $string
 		 */
 		function feedback( $string ) {
-			if ( isset( $this->upgrader->strings[$string] ) )
-				$string = $this->upgrader->strings[$string];
+			if ( isset( $this->upgrader->strings[ $string ] ) ) {
+				$string = $this->upgrader->strings[ $string ];
+			}
 
 			if ( strpos( $string, '%' ) !== false ) {
 				$args = func_get_args();
@@ -179,10 +185,14 @@ if ( !class_exists( 'ICWP_Bulk_Plugin_Upgrader_Skin', false ) && class_exists( '
 			$this->aFeedback[] = $string;
 		}
 
-		function before( $title = '' ) {}
-		function after( $title = '' ) {}
-		function flush_output() {}
+		function before( $title = '' ) {
+		}
 
+		function after( $title = '' ) {
+		}
+
+		function flush_output() {
+		}
 		/*
 		function footer() {
 			var_dump(debug_backtrace());
@@ -192,10 +202,11 @@ if ( !class_exists( 'ICWP_Bulk_Plugin_Upgrader_Skin', false ) && class_exists( '
 	}
 }
 
-if ( !class_exists( 'ICWP_Theme_Upgrader', false ) && class_exists( 'Theme_Upgrader' ) ) {
+if ( class_exists( 'Theme_Upgrader' ) ) {
 
-	require_once ABSPATH . 'wp-admin/includes/theme.php'; // to get themes_api
+	require_once ABSPATH.'wp-admin/includes/theme.php'; // to get themes_api
 	class ICWP_Theme_Upgrader extends Theme_Upgrader {
+
 		protected $fModeOverwrite = true;
 
 		public function install( $package, $args = array() ) {
@@ -208,28 +219,29 @@ if ( !class_exists( 'ICWP_Theme_Upgrader', false ) && class_exists( 'Theme_Upgra
 			$this->init();
 			$this->install_strings();
 
-			add_filter('upgrader_source_selection', array($this, 'check_package') );
-			add_filter('upgrader_post_install', array($this, 'check_parent_theme_filter'), 10, 3);
+			add_filter( 'upgrader_source_selection', array( $this, 'check_package' ) );
+			add_filter( 'upgrader_post_install', array( $this, 'check_parent_theme_filter' ), 10, 3 );
 
 			$this->run( array(
-				'package' => $package,
-				'destination' => get_theme_root(),
+				'package'           => $package,
+				'destination'       => get_theme_root(),
 				'clear_destination' => $this->getOverwriteMode(),
-				'clear_working' => true,
-				'hook_extra' => array(
-					'type' => 'theme',
+				'clear_working'     => true,
+				'hook_extra'        => array(
+					'type'   => 'theme',
 					'action' => 'install',
 				),
 			) );
 
-			remove_filter('upgrader_source_selection', array($this, 'check_package') );
-			remove_filter('upgrader_post_install', array($this, 'check_parent_theme_filter'));
+			remove_filter( 'upgrader_source_selection', array( $this, 'check_package' ) );
+			remove_filter( 'upgrader_post_install', array( $this, 'check_parent_theme_filter' ) );
 
-			if ( ! $this->result || is_wp_error($this->result) )
+			if ( !$this->result || is_wp_error( $this->result ) ) {
 				return $this->result;
+			}
 
 			// Refresh the Theme Update information
-			wp_clean_themes_cache( $parsed_args['clear_update_cache'] );
+			wp_clean_themes_cache( $parsed_args[ 'clear_update_cache' ] );
 
 			return true;
 		}
@@ -244,7 +256,7 @@ if ( !class_exists( 'ICWP_Theme_Upgrader', false ) && class_exists( 'Theme_Upgra
 	}
 }
 
-if ( !class_exists( 'ICWP_Bulk_Theme_Upgrader_Skin', false ) && class_exists( 'Bulk_Theme_Upgrader_Skin', false ) ) {
+if ( class_exists( 'Bulk_Theme_Upgrader_Skin', false ) ) {
 
 	/**
 	 * Class Worpit_Bulk_Theme_Upgrader_Skin
@@ -264,7 +276,7 @@ if ( !class_exists( 'ICWP_Bulk_Theme_Upgrader_Skin', false ) && class_exists( 'B
 		/**
 		 */
 		public function __construct() {
-			parent::__construct( compact('title', 'nonce', 'url', 'theme') );
+			parent::__construct( compact( 'title', 'nonce', 'url', 'theme' ) );
 			$this->m_aErrors = array();
 			$this->aFeedback = array();
 		}
@@ -281,7 +293,7 @@ if ( !class_exists( 'ICWP_Bulk_Theme_Upgrader_Skin', false ) && class_exists( 'B
 			else if ( is_wp_error( $errors ) && $errors->get_error_code() ) {
 				foreach ( $errors->get_error_messages() as $message ) {
 					if ( $errors->get_error_data() ) {
-						$this->feedback( $message . ' ' . $errors->get_error_data() );
+						$this->feedback( $message.' '.$errors->get_error_data() );
 					}
 					else {
 						$this->feedback( $message );
@@ -301,8 +313,9 @@ if ( !class_exists( 'ICWP_Bulk_Theme_Upgrader_Skin', false ) && class_exists( 'B
 		 * @param string $string
 		 */
 		function feedback( $string ) {
-			if ( isset( $this->upgrader->strings[$string] ) )
-				$string = $this->upgrader->strings[$string];
+			if ( isset( $this->upgrader->strings[ $string ] ) ) {
+				$string = $this->upgrader->strings[ $string ];
+			}
 
 			if ( strpos( $string, '%' ) !== false ) {
 				$args = func_get_args();
@@ -317,8 +330,13 @@ if ( !class_exists( 'ICWP_Bulk_Theme_Upgrader_Skin', false ) && class_exists( 'B
 			$this->aFeedback[] = $string;
 		}
 
-		function before( $title = '' ) {}
-		function after( $title = '' ) {}
-		function flush_output() {}
+		function before( $title = '' ) {
+		}
+
+		function after( $title = '' ) {
+		}
+
+		function flush_output() {
+		}
 	}
 }

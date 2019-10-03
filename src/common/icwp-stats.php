@@ -1,5 +1,4 @@
 <?php
-if ( !class_exists('ICWP_Stats_APP') ):
 
 class ICWP_Stats_APP {
 
@@ -10,14 +9,15 @@ class ICWP_Stats_APP {
 	 */
 	private static $aStats;
 
-	public function __construct() { }
+	public function __construct() {
+	}
 
 	/**
 	 * @param $sKey
 	 */
 	public static function DoStatIncrement( $sKey ) {
 		self::LoadStats();
-		self::$aStats[$sKey] = isset( self::$aStats[$sKey] )? self::$aStats[$sKey] + 1 : 1;
+		self::$aStats[ $sKey ] = isset( self::$aStats[ $sKey ] ) ? self::$aStats[ $sKey ] + 1 : 1;
 		self::SaveStats();
 	}
 
@@ -29,10 +29,10 @@ class ICWP_Stats_APP {
 	 */
 	public static function DoStatIncrementKeyValue( $sKey, $sValueToCount ) {
 		self::LoadStats();
-		if ( !isset( self::$aStats[$sKey] ) || !is_array( self::$aStats[$sKey] ) ) {
-			self::$aStats[$sKey] = array();
+		if ( !isset( self::$aStats[ $sKey ] ) || !is_array( self::$aStats[ $sKey ] ) ) {
+			self::$aStats[ $sKey ] = array();
 		}
-		self::$aStats[$sKey][$sValueToCount] = isset( self::$aStats[$sKey][$sValueToCount] )? self::$aStats[$sKey][$sValueToCount] + 1 : 1;
+		self::$aStats[ $sKey ][ $sValueToCount ] = isset( self::$aStats[ $sKey ][ $sValueToCount ] ) ? self::$aStats[ $sKey ][ $sValueToCount ] + 1 : 1;
 		self::SaveStats();
 	}
 
@@ -60,10 +60,8 @@ class ICWP_Stats_APP {
 	/**
 	 */
 	public static function SaveStats() {
-		if ( !empty(self::$aStats) ) {
+		if ( !empty( self::$aStats ) ) {
 			update_option( self::Stats_Key, self::$aStats );
 		}
 	}
 }
-
-endif;

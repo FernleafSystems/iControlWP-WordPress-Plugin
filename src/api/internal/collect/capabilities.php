@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_APP_Api_Internal_Collect_Capabilities', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/base.php' );
-
 class ICWP_APP_Api_Internal_Collect_Capabilities extends ICWP_APP_Api_Internal_Collect_Base {
 
 	/**
@@ -133,7 +127,7 @@ class ICWP_APP_Api_Internal_Collect_Capabilities extends ICWP_APP_Api_Internal_C
 	 * @return boolean
 	 */
 	protected function isHandshakeEnabled() {
-		if ( class_exists( 'ICWP_Plugin', false ) && method_exists( 'ICWP_Plugin', 'GetHandshakingEnabled' ) ) {
+		if ( method_exists( 'ICWP_Plugin', 'GetHandshakingEnabled' ) ) {
 			return ICWP_Plugin::GetHandshakingEnabled();
 		}
 		return apply_filters( 'icwp-app-CanHandshake', false );

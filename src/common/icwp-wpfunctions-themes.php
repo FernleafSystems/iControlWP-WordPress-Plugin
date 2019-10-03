@@ -1,9 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_APP_WpFunctions_Themes', false ) ) {
-	return;
-}
-
 class ICWP_APP_WpFunctions_Themes extends ICWP_APP_Foundation {
 
 	/**

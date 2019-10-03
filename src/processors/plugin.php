@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_APP_Processor_Plugin', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/base_app.php' );
-
 class ICWP_APP_Processor_Plugin extends ICWP_APP_Processor_BaseApp {
 
 	/**

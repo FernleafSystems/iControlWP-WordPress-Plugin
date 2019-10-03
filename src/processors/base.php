@@ -1,9 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_APP_Processor_Base', false ) ) {
-	return;
-}
-
 abstract class ICWP_APP_Processor_Base extends ICWP_APP_Foundation {
 
 	/**

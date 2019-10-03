@@ -1,9 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_APP_Foundation', false ) ) {
-	return;
-}
-
 class ICWP_APP_Foundation {
 
 	/**
@@ -113,7 +109,6 @@ class ICWP_APP_Foundation {
 	 */
 	static public function loadFS() {
 		if ( !isset( self::$oFs ) ) {
-			require_once( dirname( __FILE__ ).'/icwp-wpfilesystem.php' );
 			self::$oFs = ICWP_APP_WpFilesystem::GetInstance();
 		}
 
@@ -125,7 +120,6 @@ class ICWP_APP_Foundation {
 	 */
 	static public function loadWpFunctions() {
 		if ( !isset( self::$oWp ) ) {
-			require_once( dirname( __FILE__ ).'/icwp-wpfunctions.php' );
 			self::$oWp = ICWP_APP_WpFunctions::GetInstance();
 		}
 
@@ -137,7 +131,6 @@ class ICWP_APP_Foundation {
 	 */
 	static public function loadWpCronProcessor() {
 		if ( !isset( self::$oWpCron ) ) {
-			require_once( dirname( __FILE__ ).'/icwp-wpcron.php' );
 			self::$oWpCron = ICWP_APP_WpCron::GetInstance();
 		}
 
@@ -148,7 +141,6 @@ class ICWP_APP_Foundation {
 	 * @return void
 	 */
 	static public function loadWpWidgets() {
-		require_once( dirname( __FILE__ ).'/wp-widget.php' );
 	}
 
 	/**
@@ -156,7 +148,6 @@ class ICWP_APP_Foundation {
 	 */
 	public function loadWpFunctionsPlugins() {
 		if ( !isset( self::$oWpPlugins ) ) {
-			require_once( dirname( __FILE__ ).'/icwp-wpfunctions-plugins.php' );
 			self::$oWpPlugins = ICWP_APP_WpFunctions_Plugins::GetInstance();
 		}
 
@@ -168,7 +159,6 @@ class ICWP_APP_Foundation {
 	 */
 	public function loadWpFunctionsThemes() {
 		if ( !isset( self::$oWpThemes ) ) {
-			require_once( dirname( __FILE__ ).'/icwp-wpfunctions-themes.php' );
 			self::$oWpThemes = ICWP_APP_WpFunctions_Themes::GetInstance();
 		}
 
@@ -180,7 +170,6 @@ class ICWP_APP_Foundation {
 	 */
 	public function loadEncryptProcessor() {
 		if ( !isset( self::$oEncrypt ) ) {
-			require_once( dirname( __FILE__ ).'/icwp-encrypt.php' );
 			self::$oEncrypt = ICWP_APP_Encrypt::GetInstance();
 		}
 
@@ -192,7 +181,6 @@ class ICWP_APP_Foundation {
 	 */
 	static public function loadDbProcessor() {
 		if ( !isset( self::$oWpDb ) ) {
-			require_once( dirname( __FILE__ ).'/icwp-wpdb.php' );
 			self::$oWpDb = ICWP_APP_WpDb::GetInstance();
 		}
 
@@ -204,7 +192,6 @@ class ICWP_APP_Foundation {
 	 */
 	static public function loadIpProcessor() {
 		if ( !isset( self::$oIp ) ) {
-			require_once( dirname( __FILE__ ).'/icwp-ip.php' );
 			self::$oIp = ICWP_APP_Ip::GetInstance();
 		}
 
@@ -216,7 +203,6 @@ class ICWP_APP_Foundation {
 	 */
 	static public function loadGoogleAuthenticatorProcessor() {
 		if ( !isset( self::$oGA ) ) {
-			require_once( dirname( __FILE__ ).'/icwp-googleauthenticator.php' );
 			self::$oGA = ICWP_APP_GoogleAuthenticator::GetInstance();
 		}
 
@@ -228,7 +214,6 @@ class ICWP_APP_Foundation {
 	 */
 	static public function loadGoogleRecaptcha() {
 		if ( !isset( self::$oGR ) ) {
-			require_once( dirname( __FILE__ ).'/icwp-googlearecaptcha.php' );
 			self::$oGR = ICWP_APP_GoogleRecaptcha::GetInstance();
 		}
 
@@ -240,7 +225,6 @@ class ICWP_APP_Foundation {
 	 */
 	static public function loadWpTrack() {
 		if ( !isset( self::$oTrack ) ) {
-			require_once( dirname( __FILE__ ).'/wp-track.php' );
 			self::$oTrack = ICWP_APP_WpTrack::GetInstance();
 		}
 
@@ -253,7 +237,6 @@ class ICWP_APP_Foundation {
 	 */
 	static public function loadRenderer( $sTemplatePath = '' ) {
 		if ( !isset( self::$oRender ) ) {
-			require_once( dirname( __FILE__ ).'/icwp-render.php' );
 			self::$oRender = ICWP_APP_Render::GetInstance()
 											->setAutoloaderPath( dirname( __FILE__ ).'/Twig/Autoloader.php' );
 		}
@@ -269,7 +252,6 @@ class ICWP_APP_Foundation {
 	 */
 	static public function loadYamlProcessor() {
 		if ( !isset( self::$oYaml ) ) {
-			require_once( dirname( __FILE__ ).'/icwp-yaml.php' );
 			self::$oYaml = ICWP_APP_YamlProcessor::GetInstance();
 		}
 
@@ -281,7 +263,6 @@ class ICWP_APP_Foundation {
 	 */
 	static public function loadAdminNoticesProcessor() {
 		if ( !isset( self::$oAdminNotices ) ) {
-			require_once( dirname( __FILE__ ).'/wp-admin-notices.php' );
 			self::$oAdminNotices = ICWP_APP_WpAdminNotices::GetInstance();
 		}
 
@@ -293,7 +274,6 @@ class ICWP_APP_Foundation {
 	 */
 	static public function loadWpUsersProcessor() {
 		if ( !isset( self::$oWpUsers ) ) {
-			require_once( dirname( __FILE__ ).'/icwpusers.php' );
 			self::$oWpUsers = ICWP_APP_WpUsers::GetInstance();
 		}
 
@@ -305,7 +285,6 @@ class ICWP_APP_Foundation {
 	 */
 	static public function loadWpUpgrades() {
 		if ( !isset( self::$oUpgrades ) ) {
-			require_once( dirname( __FILE__ ).'/icwp-wpupgrades.php' );
 			self::$oUpgrades = ICWP_APP_WpUpgrades::GetInstance();
 		}
 
@@ -317,7 +296,6 @@ class ICWP_APP_Foundation {
 	 */
 	static public function loadWpCommentsProcessor() {
 		if ( !isset( self::$oWpComments ) ) {
-			require_once( dirname( __FILE__ ).'/wp-comments.php' );
 			self::$oWpComments = ICWP_APP_WpComments::GetInstance();
 		}
 
@@ -328,6 +306,5 @@ class ICWP_APP_Foundation {
 	 * @return ICWP_Stats_APP
 	 */
 	public function loadStatsProcessor() {
-		require_once( dirname( __FILE__ ).'/icwp-stats.php' );
 	}
 }

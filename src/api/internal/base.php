@@ -1,9 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_APP_Api_Internal_Base', false ) ) {
-	return;
-}
-
 class ICWP_APP_Api_Internal_Base extends ICWP_APP_Foundation {
 
 	/**

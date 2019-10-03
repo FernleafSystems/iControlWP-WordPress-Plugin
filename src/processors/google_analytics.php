@@ -1,62 +1,58 @@
 <?php
 
-if ( !class_exists( 'ICWP_APP_Processor_GoogleAnalytics', false ) ):
+class ICWP_APP_Processor_GoogleAnalytics extends ICWP_APP_Processor_BaseApp {
 
-	require_once( dirname(__FILE__).'/base_app.php' );
+	/**
+	 * @var array
+	 */
+	private $aGaOptions;
 
-	class ICWP_APP_Processor_GoogleAnalytics extends ICWP_APP_Processor_BaseApp {
+	/**
+	 */
+	public function run() {
+		$oFO = $this->getFeatureOptions();
+		$this->aGaOptions = array(
+			'tracking_id'                => $oFO->getOpt( 'tracking_id' ),
+			'enable_google_analytics'    => $oFO->getOpt( 'enable_google_analytics' ),
+			'enable_universal_analytics' => $oFO->getOpt( 'enable_universal_analytics' ),
+			'ignore_logged_in_user'      => $oFO->getOpt( 'ignore_logged_in_user' ),
+			'ignore_from_user_level'     => $oFO->getOpt( 'ignore_from_user_level', 11 ),
+			'in_footer'                  => $oFO->getOpt( 'in_footer' ),
+		);
+		add_action( $this->getWpHook(), array( $this, 'doPrintGoogleAnalytics' ), 100 );
+	}
 
-		/**
-		 * @var array
-		 */
-		private $aGaOptions;
+	/**
+	 * @return void|string
+	 */
+	public function doPrintGoogleAnalytics() {
 
-		/**
-		 */
-		public function run() {
-			$oFO = $this->getFeatureOptions();
-			$this->aGaOptions = array(
-				'tracking_id' => $oFO->getOpt( 'tracking_id' ),
-				'enable_google_analytics' => $oFO->getOpt( 'enable_google_analytics' ),
-				'enable_universal_analytics' => $oFO->getOpt( 'enable_universal_analytics' ),
-				'ignore_logged_in_user' => $oFO->getOpt( 'ignore_logged_in_user' ),
-				'ignore_from_user_level' => $oFO->getOpt( 'ignore_from_user_level', 11 ),
-				'in_footer' => $oFO->getOpt( 'in_footer' ),
-			);
-			add_action( $this->getWpHook(), array( $this, 'doPrintGoogleAnalytics' ), 100 );
+		if ( $this->getIfIgnoreUser() || strlen( $this->aGaOptions[ 'tracking_id' ] ) <= 0 ) {
+			return;
 		}
+		echo ( $this->aGaOptions[ 'enable_universal_analytics' ] == 'Y' ) ? $this->getAnalyticsCode_Universal() : $this->getAnalyticsCode();
+	}
 
-		/**
-		 * @return void|string
-		 */
-		public function doPrintGoogleAnalytics() {
-
-			if ( $this->getIfIgnoreUser() || strlen( $this->aGaOptions[ 'tracking_id' ] ) <= 0 ) {
-				return;
+	/**
+	 * @return bool
+	 */
+	protected function getIfIgnoreUser() {
+		$bIgnoreLoggedInUser = $this->aGaOptions[ 'ignore_logged_in_user' ] == 'Y';
+		$nCurrentUserLevel = $this->loadWpUsersProcessor()->getCurrentUserLevel();
+		if ( $bIgnoreLoggedInUser && $nCurrentUserLevel >= 0 ) { // logged in
+			$nIgnoreFromUserLevel = $this->aGaOptions[ 'ignore_from_user_level' ];
+			if ( $nCurrentUserLevel >= $nIgnoreFromUserLevel ) {
+				return true;
 			}
-			echo ( $this->aGaOptions[ 'enable_universal_analytics' ] == 'Y' ) ? $this->getAnalyticsCode_Universal() : $this->getAnalyticsCode();
 		}
+		return false;
+	}
 
-		/**
-		 * @return bool
-		 */
-		protected function getIfIgnoreUser() {
-			$bIgnoreLoggedInUser = $this->aGaOptions[ 'ignore_logged_in_user' ] == 'Y';
-			$nCurrentUserLevel = $this->loadWpUsersProcessor()->getCurrentUserLevel();
-			if ( $bIgnoreLoggedInUser && $nCurrentUserLevel >= 0 ) { // logged in
-				$nIgnoreFromUserLevel = $this->aGaOptions[ 'ignore_from_user_level' ];
-				if ( $nCurrentUserLevel >= $nIgnoreFromUserLevel ) {
-					return true;
-				}
-			}
-			return false;
-		}
-
-		/**
-		 * @return string
-		 */
-		public function getAnalyticsCode() {
-			$sRaw = "
+	/**
+	 * @return string
+	 */
+	public function getAnalyticsCode() {
+		$sRaw = "
 				<!-- Google Analytics Tracking by iControlWP -->
 				<script type=\"text/javascript\">//<![CDATA[
 					var _gaq=_gaq||[];
@@ -72,14 +68,14 @@ if ( !class_exists( 'ICWP_APP_Processor_GoogleAnalytics', false ) ):
 					})();
 				 //]]></script>
 			";
-			return sprintf( $sRaw, $this->aGaOptions[ 'tracking_id' ] );
-		}
+		return sprintf( $sRaw, $this->aGaOptions[ 'tracking_id' ] );
+	}
 
-		/**
-		 * @return string
-		 */
-		public function getAnalyticsCode_Universal() {
-			$sRaw = "
+	/**
+	 * @return string
+	 */
+	public function getAnalyticsCode_Universal() {
+		$sRaw = "
 				<!-- Google Analytics Tracking by iControlWP -->
 				<script type=\"text/javascript\">//<![CDATA[
 				  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -92,18 +88,16 @@ if ( !class_exists( 'ICWP_APP_Processor_GoogleAnalytics', false ) ):
 				  ga('send', 'pageview');
 				 //]]></script>
 			";
-			return sprintf( $sRaw, $this->aGaOptions[ 'tracking_id' ] );
-		}
-
-		/**
-		 * @return string
-		 */
-		protected function getWpHook() {
-			if ( $this->aGaOptions[ 'in_footer' ] == 'Y' ) {
-				return 'wp_print_footer_scripts';
-			}
-			return 'wp_head';
-		}
+		return sprintf( $sRaw, $this->aGaOptions[ 'tracking_id' ] );
 	}
 
-endif;
+	/**
+	 * @return string
+	 */
+	protected function getWpHook() {
+		if ( $this->aGaOptions[ 'in_footer' ] == 'Y' ) {
+			return 'wp_print_footer_scripts';
+		}
+		return 'wp_head';
+	}
+}

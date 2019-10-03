@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_APP_Api_Internal_User_Create', false ) ) {
-	return;
-}
-
-require_once( dirname( dirname( __FILE__ ) ).'/base.php' );
-
 /* http://codex.wordpress.org/Function_Reference/wp_insert_user
  * When performing an update operation, user_pass should be the hashed password and not the plain text password
  'ID' - if updating

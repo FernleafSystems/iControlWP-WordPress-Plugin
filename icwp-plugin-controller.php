@@ -19,10 +19,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-if ( class_exists( 'ICWP_APP_Plugin_Controller', false ) ) {
-	return;
-}
-
 class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 
 	/**

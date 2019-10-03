@@ -1,5 +1,4 @@
 <?php
-if ( !class_exists( 'ICWP_APP_WpComments', false ) ):
 
 	class ICWP_APP_WpComments extends ICWP_APP_Foundation {
 
@@ -150,5 +149,3 @@ if ( !class_exists( 'ICWP_APP_WpComments', false ) ):
 			);
 		}
 	}
-
-endif;

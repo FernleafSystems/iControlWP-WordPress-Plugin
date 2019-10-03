@@ -1,5 +1,4 @@
 <?php
-if ( !class_exists( 'ICWP_APP_WpTrack', false ) ):
 
 	class ICWP_APP_WpTrack extends ICWP_APP_Foundation {
 
@@ -58,5 +57,3 @@ if ( !class_exists( 'ICWP_APP_WpTrack', false ) ):
 			$this->setWpActionHasFired( current_filter() );
 		}
 	}
-
-endif;

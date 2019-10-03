@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_APP_Processor_Plugin_Api_Auth', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/plugin_api.php' );
-
 /**
  * Class ICWP_APP_Processor_Plugin_Api_Index
  */
