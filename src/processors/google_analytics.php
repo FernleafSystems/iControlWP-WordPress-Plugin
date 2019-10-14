@@ -20,8 +20,10 @@ class ICWP_APP_Processor_GoogleAnalytics extends ICWP_APP_Processor_BaseApp {
 	private function migrateOptions() {
 		$oMod = $this->getFeatureOptions();
 		if ( $oMod->getOpt( 'analytics_mode' ) == 'unset' ) {
-			$sMode = ( $oMod->getOpt( 'enable_universal_analytics' ) == 'Y' ) ? 'universal' : 'classic';
-			$oMod->setOpt( 'analytics_mode', $sMode );
+			$oMod->setOpt(
+				'analytics_mode',
+				( $oMod->getOpt( 'enable_universal_analytics' ) == 'Y' ) ? 'universal' : 'classic'
+			);
 		}
 	}
 
