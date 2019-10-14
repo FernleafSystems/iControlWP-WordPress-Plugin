@@ -22,6 +22,10 @@ options:
     section: 'section_non_ui'
     default: 'N'
   -
+    key: 'analytics_mode'
+    section: 'section_non_ui'
+    default: 'unset'
+  -
     key: 'enable_universal_analytics'
     section: 'section_non_ui'
     default: 'N'
