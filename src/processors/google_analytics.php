@@ -14,10 +14,10 @@ class ICWP_APP_Processor_GoogleAnalytics extends ICWP_APP_Processor_BaseApp {
 	public function onWp() {
 		$this->migrateOptions();
 
-		$aOpts = $this->getGaOpts();
-		if ( !empty( $aOpts[ 'tracking_id' ] ) && !$this->getIfIgnoreUser() ) {
+		$sID = $this->getTrackingId();
+		if ( !empty( $sID ) && !$this->getIfIgnoreUser() ) {
 			add_action( $this->getWpHook(), array( $this, 'doPrintGoogleAnalytics' ), 100 );
-			if ( $this->getAnalyticsMode() == 'tags' ) {
+			if ( $this->getAnalyticsMode() == 'tagman' ) {
 				add_action( 'wp_body_open', array( $this, 'printTagsBody' ) );
 			}
 		}
@@ -44,8 +44,11 @@ class ICWP_APP_Processor_GoogleAnalytics extends ICWP_APP_Processor_BaseApp {
 			case 'universal':
 				$sGA = $this->getAnalyticsCode_Universal();
 				break;
-			case 'tags':
-				$sGA = $this->getAnalyticsCode_Tags();
+			case 'tagman':
+				$sGA = $this->getAnalyticsCode_TagManager();
+				break;
+			case 'sitetag':
+				$sGA = $this->getAnalyticsCode_SiteTag();
 				break;
 			default:
 			case 'classic':
@@ -61,6 +64,14 @@ class ICWP_APP_Processor_GoogleAnalytics extends ICWP_APP_Processor_BaseApp {
 	private function getAnalyticsMode() {
 		$aOpts = $this->getGaOpts();
 		return $aOpts[ 'analytics_mode' ];
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getTrackingId() {
+		$aOpts = $this->getGaOpts();
+		return $aOpts[ 'tracking_id' ];
 	}
 
 	/**
@@ -102,7 +113,6 @@ class ICWP_APP_Processor_GoogleAnalytics extends ICWP_APP_Processor_BaseApp {
 	 * @return string
 	 */
 	private function getAnalyticsCode_Classic() {
-		$aOpts = $this->getGaOpts();
 		$sRaw = "
 				<!-- Google Analytics by iControlWP -->
 				<script type=\"text/javascript\">//<![CDATA[
@@ -117,16 +127,14 @@ class ICWP_APP_Processor_GoogleAnalytics extends ICWP_APP_Processor_BaseApp {
 						var s=document.getElementsByTagName('script')[0];
 						s.parentNode.insertBefore(ga,s);
 					})();
-				 //]]></script>
-			";
-		return str_replace( '{{TRACKING_ID}}', $aOpts[ 'tracking_id' ], $sRaw );
+				 //]]></script>\n";
+		return str_replace( '{{TRACKING_ID}}', $this->getTrackingId(), $sRaw );
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getAnalyticsCode_Tags() {
-		$aOpts = $this->getGaOpts();
+	public function getAnalyticsCode_TagManager() {
 		$sRaw = "
 			<!-- Google Tag Manager by iControlWP -->
 			<script>(function(w,d,s,l,i){
@@ -136,29 +144,42 @@ class ICWP_APP_Processor_GoogleAnalytics extends ICWP_APP_Processor_BaseApp {
 				j.async=true;
 				j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 			})(window,document,'script','dataLayer','{{TRACKING_ID}}');</script>
-			<!-- End Google Tag Manager -->
-		";
-		return str_replace( '{{TRACKING_ID}}', $aOpts[ 'tracking_id' ], $sRaw );
+			<!-- End Google Tag Manager -->\n";
+		return str_replace( '{{TRACKING_ID}}', $this->getTrackingId(), $sRaw );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getAnalyticsCode_SiteTag() {
+		$sRaw = "
+		<!-- Global site tag (gtag.js) by iControlWP  -->
+		<script async src=\"https://www.googletagmanager.com/gtag/js?id={{TRACKING_ID}}\"></script>
+		<script>
+			window.dataLayer = window.dataLayer || [];
+			function gtag(){dataLayer.push(arguments);}
+			gtag('js', new Date());
+			gtag('config', '{{TRACKING_ID}}');
+		</script>\n";
+		return str_replace( '{{TRACKING_ID}}', $this->getTrackingId(), $sRaw );
 	}
 
 	/**
 	 */
 	public function printTagsBody() {
-		$aOpts = $this->getGaOpts();
 		$sRaw = '
 			<!-- Google Tag Manager (noscript) by iControlWP -->
 			<noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{TRACKING_ID}}"
 			height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 			<!-- End Google Tag Manager (noscript) -->
 		';
-		echo str_replace( '{{TRACKING_ID}}', $aOpts[ 'tracking_id' ], $sRaw );
+		echo str_replace( '{{TRACKING_ID}}', $this->getTrackingId(), $sRaw );
 	}
 
 	/**
 	 * @return string
 	 */
 	public function getAnalyticsCode_Universal() {
-		$aOpts = $this->getGaOpts();
 		$sRaw = "
 				<!-- Google Analytics (Universal) by iControlWP -->
 				<script type=\"text/javascript\">//<![CDATA[
@@ -170,9 +191,8 @@ class ICWP_APP_Processor_GoogleAnalytics extends ICWP_APP_Processor_BaseApp {
 				  ga('create', '{{TRACKING_ID}}', 'auto');
 				  ga('require', 'displayfeatures');
 				  ga('send', 'pageview');
-				 //]]></script>
-			";
-		return str_replace( '{{TRACKING_ID}}', $aOpts[ 'tracking_id' ], $sRaw );
+				 //]]></script>\n";
+		return str_replace( '{{TRACKING_ID}}', $this->getTrackingId(), $sRaw );
 	}
 
 	/**
@@ -181,7 +201,7 @@ class ICWP_APP_Processor_GoogleAnalytics extends ICWP_APP_Processor_BaseApp {
 	private function getWpHook() {
 		$aOpts = $this->getGaOpts();
 		$sHook = 'wp_head';
-		if ( $this->getAnalyticsMode() != 'tags' && $aOpts[ 'in_footer' ] == 'Y' ) {
+		if ( $this->getAnalyticsMode() != 'tagman' && $aOpts[ 'in_footer' ] == 'Y' ) {
 			$sHook = 'wp_print_footer_scripts';
 		}
 		return $sHook;
