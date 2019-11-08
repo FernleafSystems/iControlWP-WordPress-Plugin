@@ -124,11 +124,11 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 */
 	private function readPluginSpecification() {
 		$aSpec = array();
-		$sContents = include( $this->getPathPluginSpec() );
+		$sContents = $this->loadDataProcessor()->readFileContentsUsingInclude( $this->getPathPluginSpec() );
 		if ( !empty( $sContents ) ) {
-			$aSpec = $this->loadYamlProcessor()->parseYamlString( $sContents );
-			if ( is_null( $aSpec ) ) {
-				throw new Exception( 'YAML parser could not load to process the plugin spec configuration.' );
+			$aSpec = json_decode( $sContents, true );
+			if ( empty( $aSpec ) ) {
+				throw new Exception( 'Could not json_decode the plugin spec configuration.' );
 			}
 		}
 		return $aSpec;
@@ -248,10 +248,10 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 
 		add_filter( 'all_plugins', array( $this, 'filter_hidePluginFromTableList' ) );
 		add_filter( 'all_plugins', array( $this, 'doPluginLabels' ) );
-		add_filter( 'plugin_action_links_' . $this->getPluginBaseFile(), array( $this, 'onWpPluginActionLinks' ), 50, 1 );
+		add_filter( 'plugin_action_links_'.$this->getPluginBaseFile(), array( $this, 'onWpPluginActionLinks' ), 50, 1 );
 		add_filter( 'plugin_row_meta', array( $this, 'onPluginRowMeta' ), 50, 2 );
 		add_filter( 'site_transient_update_plugins', array( $this, 'filter_hidePluginUpdatesFromUI' ) );
-		add_action( 'in_plugin_update_message-' . $this->getPluginBaseFile(), array( $this, 'onWpPluginUpdateMessage' ) );
+		add_action( 'in_plugin_update_message-'.$this->getPluginBaseFile(), array( $this, 'onWpPluginUpdateMessage' ) );
 
 		add_filter( 'auto_update_plugin', array( $this, 'onWpAutoUpdate' ), 500, 2 );
 		add_filter( 'set_site_transient_update_plugins', array( $this, 'setUpdateFirstDetectedAt' ) );
@@ -766,9 +766,9 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * from the WordPress Admin UI.
 	 * In order to ensure that WordPress still checks for plugin updates it will not remove this plugin from
 	 * the list of plugins if DOING_CRON is set to true.
-	 * @uses $this->fHeadless if the plugin is headless, it is hidden
 	 * @param StdClass $oPlugins
 	 * @return StdClass
+	 * @uses $this->fHeadless if the plugin is headless, it is hidden
 	 */
 	public function filter_hidePluginUpdatesFromUI( $oPlugins ) {
 
@@ -1245,7 +1245,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return string
 	 */
 	private function getPathPluginSpec() {
-		return $this->getRootDir().'plugin-spec.php';
+		return path_join( $this->getRootDir(), 'plugin-spec.php' );
 	}
 
 	/**
