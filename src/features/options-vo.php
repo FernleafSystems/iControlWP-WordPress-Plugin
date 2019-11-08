@@ -340,7 +340,7 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 	 */
 	public function getRawData_FullFeatureConfig() {
 		if ( empty( $this->aRawOptionsConfigData ) ) {
-			$this->aRawOptionsConfigData = $this->readYamlConfiguration();
+			$this->aRawOptionsConfigData = $this->readConfiguration();
 		}
 		return $this->aRawOptionsConfigData;
 	}
@@ -555,24 +555,53 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 
 	/**
 	 * @return array
-	 * @throws Exception
 	 */
-	private function readYamlConfiguration() {
+	private function readConfiguration() {
 		$oWp = $this->loadWpFunctions();
 
-		$sTransientKey = $this->getSpecTransientStorageKey();
-		$aConfig = $oWp->getTransient( $sTransientKey );
+		$aConfig = $oWp->getOption( $this->getConfigStorageKey() );
 
-		if ( $this->getRebuildFromFile() || empty( $aConfig ) ) {
-			$sConfigFile = $this->getConfigFilePath();
-			$sContents = include( $sConfigFile );
-			if ( !empty( $sContents ) ) {
-				$aConfig = $this->loadYamlProcessor()->parseYamlString( $sContents );
-				if ( is_null( $aConfig ) ) {
-					throw new Exception( 'YAML parser could not load to process the options configuration.' );
-				}
-				$oWp->setTransient( $sTransientKey, $aConfig, DAY_IN_SECONDS );
+		$bRebuild = $this->getRebuildFromFile() || empty( $aConfig );
+		if ( !$bRebuild && !empty( $aConfig ) && is_array( $aConfig ) ) {
+
+			if ( !isset( $aConfig[ 'meta_modts' ] ) ) {
+				$aConfig[ 'meta_modts' ] = 0;
 			}
+			$bRebuild = $this->getConfigModTime() > $aConfig[ 'meta_modts' ];
+		}
+
+		if ( $bRebuild ) {
+			try {
+				$aConfig = $this->readConfigurationJson();
+			}
+			catch ( Exception $oE ) {
+				if ( $oWp->isDebug() ) {
+					trigger_error( $oE->getMessage() );
+				}
+				$aConfig = array();
+			}
+			$aConfig[ 'meta_modts' ] = $this->getConfigModTime();
+			$oWp->updateOption( $this->getConfigStorageKey(), $aConfig );
+		}
+
+		$this->setRebuildFromFile( $bRebuild );
+		return $aConfig;
+	}
+
+	/**
+	 * @return array
+	 * @throws Exception
+	 */
+	private function readConfigurationJson() {
+		$sPath = $this->getPathToConfig();
+		if ( empty( $sPath ) || !$this->loadFS()->isFile( $sPath ) ) {
+			throw new Exception( sprintf( 'Configuration file "%s" does not exist.', $this->getPathToConfig() ) );
+		}
+
+		$aConfig = json_decode( $this->loadDataProcessor()->readFileContentsUsingInclude( $sPath ), true );
+
+		if ( empty( $aConfig ) ) {
+			throw new Exception( sprintf( 'Reading JSON configuration from file "%s" failed.', $this->getOptionsName() ) );
 		}
 		return $aConfig;
 	}
@@ -580,14 +609,37 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 	/**
 	 * @return string
 	 */
-	private function getSpecTransientStorageKey() {
-		return 'icwp_'.md5( $this->getConfigFilePath() );
+	private function getConfigStorageKey() {
+		return 'icwp_app_'.md5( $this->getPathToConfig() );
 	}
 
 	/**
 	 * @return string
 	 */
-	private function getConfigFilePath() {
+	protected function getConfigModTime() {
+		return $this->loadFS()->getModifiedTime( $this->getPathToConfig() );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getPathToConfig() {
 		return dirname( __FILE__ ).'/../'.sprintf( 'config/feature-%s.php', $this->getOptionsName() );
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 3.7
+	 */
+	private function getSpecTransientStorageKey() {
+		return $this->getConfigStorageKey();
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 3.7
+	 */
+	private function getConfigFilePath() {
+		return $this->getPathToConfig();
 	}
 }
