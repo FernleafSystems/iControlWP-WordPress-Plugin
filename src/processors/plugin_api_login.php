@@ -21,7 +21,7 @@ class ICWP_APP_Processor_Plugin_Api_Login extends ICWP_APP_Processor_Plugin_Api 
 	 */
 	protected function processAction() {
 		$oReqParams = $this->getRequestParams();
-		$oWp = $this->loadWpFunctions();
+		$oWp = $this->loadWP();
 
 		$this->getStandardResponse()->setDie( true );
 
@@ -52,7 +52,7 @@ class ICWP_APP_Processor_Plugin_Api_Login extends ICWP_APP_Processor_Plugin_Api 
 			);
 		}
 
-		$oWpUsers = $this->loadWpUsersProcessor();
+		$oWpUsers = $this->loadWpUsers();
 
 		$sUsername = $oReqParams->getStringParam( 'username' );
 		$oUser = $oWpUsers->getUserByUsername( $sUsername );

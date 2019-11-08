@@ -156,12 +156,12 @@ class ICWP_APP_WpFunctions_Plugins extends ICWP_APP_Foundation {
 	 */
 	protected function clearUpdates() {
 		$sKey = 'update_plugins';
-		$oResponse = $this->loadWpFunctions()->getTransient( $sKey );
+		$oResponse = $this->loadWP()->getTransient( $sKey );
 		if ( !is_object( $oResponse ) ) {
 			$oResponse = new stdClass();
 		}
 		$oResponse->last_checked = 0;
-		$this->loadWpFunctions()->setTransient( $sKey, $oResponse );
+		$this->loadWP()->setTransient( $sKey, $oResponse );
 	}
 
 	/**
@@ -212,6 +212,6 @@ class ICWP_APP_WpFunctions_Plugins extends ICWP_APP_Foundation {
 			$this->clearUpdates();
 			$this->checkForUpdates();
 		}
-		return $this->loadWpFunctions()->getTransient( 'update_plugins' );
+		return $this->loadWP()->getTransient( 'update_plugins' );
 	}
 }

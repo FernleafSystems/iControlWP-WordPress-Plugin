@@ -28,7 +28,7 @@ class ICWP_APP_Processor_Autoupdates extends ICWP_APP_Processor_BaseApp {
 
 		$nFilterPriority = $this->getHookPriority();
 
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 		if ( $oDp->FetchGet( 'forcerun' ) == 1 ) {
 			$this->setForceRunAutoupdates( true );
 		}
@@ -76,7 +76,7 @@ class ICWP_APP_Processor_Autoupdates extends ICWP_APP_Processor_BaseApp {
 		if ( !$this->getIfForceRunAutoupdates() ) {
 			return true;
 		}
-		return $this->loadWpFunctions()->doForceRunAutomaticUpdates();
+		return $this->loadWP()->doForceRunAutomaticUpdates();
 	}
 
 	/**
@@ -255,7 +255,7 @@ class ICWP_APP_Processor_Autoupdates extends ICWP_APP_Processor_BaseApp {
 				return $aPluginMeta;
 			}
 		}
-		$bUpdate = $this->loadWpFunctions()->getIsPluginAutomaticallyUpdated( $sPluginBaseFileName );
+		$bUpdate = $this->loadWP()->getIsPluginAutomaticallyUpdated( $sPluginBaseFileName );
 		$sHtml = $this->getPluginAutoupdateIconHtml( $bUpdate );
 		array_unshift( $aPluginMeta, sprintf( '%s', $sHtml ) );
 		return $aPluginMeta;
@@ -287,7 +287,7 @@ class ICWP_APP_Processor_Autoupdates extends ICWP_APP_Processor_BaseApp {
 		if ( $sColumnName != 'icwp_autoupdate' ) {
 			return;
 		}
-		$bUpdate = $this->loadWpFunctions()->getIsPluginAutomaticallyUpdated( $sPluginBaseFileName );
+		$bUpdate = $this->loadWP()->getIsPluginAutomaticallyUpdated( $sPluginBaseFileName );
 		echo $this->getPluginAutoupdateIconHtml( $bUpdate );
 	}
 

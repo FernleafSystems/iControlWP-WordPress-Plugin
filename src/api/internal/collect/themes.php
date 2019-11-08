@@ -16,7 +16,7 @@ class ICWP_APP_Api_Internal_Collect_Themes extends ICWP_APP_Api_Internal_Collect
 
 //			$this->prepThirdPartyThemes(); TODO
 		$aThemes = $this->getInstalledThemes();
-		$oUpdates = $this->loadWpFunctions()
+		$oUpdates = $this->loadWP()
 						 ->updatesGather( 'themes', $this->isForceUpdateCheck() ); // option to do another update check? force it?
 		$aAutoUpdates = $this->getAutoUpdates( 'themes' );
 
@@ -48,7 +48,7 @@ class ICWP_APP_Api_Internal_Collect_Themes extends ICWP_APP_Api_Internal_Collect
 
 		$aThemes = array();
 
-		if ( $this->loadWpFunctions()->getWordpressIsAtLeastVersion( '3.4' ) ) {
+		if ( $this->loadWP()->getWordpressIsAtLeastVersion( '3.4' ) ) {
 
 			/** @var WP_Theme[] $aThemeObjects */
 			$aThemeObjects = $this->loadWpFunctionsThemes()->getThemes();

@@ -6,7 +6,7 @@ class ICWP_APP_Api_Internal_Collect_Environment extends ICWP_APP_Api_Internal_Co
 	 * @return array
 	 */
 	public function collect() {
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 		if ( $oDp->suhosinFunctionExists( 'set_time_limit' ) ) {
 			@set_time_limit( 15 );
 		}

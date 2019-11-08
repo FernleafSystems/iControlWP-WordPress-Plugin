@@ -115,7 +115,6 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 		self::$sRootFile = $sRootFile;
 		$this->checkMinimumRequirements();
 		add_action( 'plugins_loaded', array( $this, 'onWpPluginsLoaded' ), 0 );
-		$this->loadWpTrack();
 	}
 
 	/**
@@ -124,7 +123,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 */
 	private function readPluginSpecification() {
 		$aSpec = array();
-		$sContents = $this->loadDataProcessor()->readFileContentsUsingInclude( $this->getPathPluginSpec() );
+		$sContents = $this->loadDP()->readFileContentsUsingInclude( $this->getPathPluginSpec() );
 		if ( !empty( $sContents ) ) {
 			$aSpec = json_decode( $sContents, true );
 			if ( empty( $aSpec ) ) {
@@ -156,7 +155,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 
 		$sMinimumWp = $this->getPluginSpec_Requirement( 'wordpress' );
 		if ( !empty( $sMinimumWp ) ) {
-			$sWpVersion = $this->loadWpFunctions()->getWordpressVersion();
+			$sWpVersion = $this->loadWP()->getWordpressVersion();
 			if ( version_compare( $sWpVersion, $sMinimumWp, '<' ) ) {
 				$aRequirementsMessages[] = sprintf( 'WordPress does not meet minimum version. Your version: %s.  Required Version: %s.', $sWpVersion, $sMinimumWp );
 				$bMeetsRequirements = false;
@@ -347,30 +346,6 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	public function getOptionsEncoding() {
 		$sEncoding = $this->getPluginSpec_Property( 'options_encoding' );
 		return in_array( $sEncoding, array( 'yaml', 'json' ) ) ? $sEncoding : 'yaml';
-	}
-
-	/**
-	 * @uses die()
-	 */
-	public function getOptionsImportFromFile() {
-
-		if ( !isset( $this->aImportedOptions ) ) {
-			$this->aImportedOptions = array();
-
-			$sFile = path_join( $this->getRootDir(), 'shield_options_export.txt' );
-			$oFS = $this->loadFS();
-			if ( $oFS->isFile( $sFile ) ) {
-				$sOptionsString = $oFS->getFileContent( $sFile );
-				if ( !empty( $sOptionsString ) && is_string( $sOptionsString ) ) {
-					$aOptions = $this->loadYamlProcessor()->parseYamlString( $sOptionsString );
-					if ( !empty( $aOptions ) && is_array( $aOptions ) ) {
-						$this->aImportedOptions = $aOptions;
-					}
-				}
-				$oFS->deleteFile( $sFile );
-			}
-		}
-		return $this->aImportedOptions;
 	}
 
 	/**
@@ -611,14 +586,14 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 		if ( !empty( $oPluginUpdateData ) && !empty( $oPluginUpdateData->response )
 			 && isset( $oPluginUpdateData->response[ $this->getPluginBaseFile() ] ) ) {
 			// i.e. there's an update available
-			$sNewVersion = $this->loadWpFunctions()->getPluginUpdateNewVersion( $this->getPluginBaseFile() );
+			$sNewVersion = $this->loadWP()->getPluginUpdateNewVersion( $this->getPluginBaseFile() );
 			if ( !empty( $sNewVersion ) ) {
 				$oConOptions = $this->getPluginControllerOptions();
 				if ( !isset( $oConOptions->update_first_detected ) || ( count( $oConOptions->update_first_detected ) > 3 ) ) {
 					$oConOptions->update_first_detected = array();
 				}
 				if ( !isset( $oConOptions->update_first_detected[ $sNewVersion ] ) ) {
-					$oConOptions->update_first_detected[ $sNewVersion ] = $this->loadDataProcessor()->time();
+					$oConOptions->update_first_detected[ $sNewVersion ] = $this->loadDP()->time();
 				}
 
 				// a bit of cleanup to remove the old-style entries which would gather foreva-eva
@@ -641,7 +616,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return boolean
 	 */
 	public function onWpAutoUpdate( $bDoAutoUpdate, $mItem ) {
-		$oWp = $this->loadWpFunctions();
+		$oWp = $this->loadWP();
 
 		$sItemFile = $oWp->getFileFromAutomaticUpdateItem( $mItem );
 
@@ -670,7 +645,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 					$sNewVersion = $oWp->getPluginUpdateNewVersion( $this->getPluginBaseFile() );
 					if ( !empty( $sNewVersion ) ) {
 						$nFirstDetected = isset( $oConOptions->update_first_detected[ $sNewVersion ] ) ? $oConOptions->update_first_detected[ $sNewVersion ] : 0;
-						$nTimeUpdateAvailable = $this->loadDataProcessor()->time() - $nFirstDetected;
+						$nTimeUpdateAvailable = $this->loadDP()->time() - $nFirstDetected;
 						$bDoAutoUpdate = ( $nFirstDetected > 0 && ( $nTimeUpdateAvailable > WEEK_IN_SECONDS ) );
 					}
 					break;
@@ -772,7 +747,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 */
 	public function filter_hidePluginUpdatesFromUI( $oPlugins ) {
 
-		if ( $this->loadWpFunctions()->getIsCron() ) {
+		if ( $this->loadWP()->getIsCron() ) {
 			return $oPlugins;
 		}
 		if ( !apply_filters( $this->doPluginPrefix( 'hide_plugin_updates' ), false ) ) {
@@ -806,7 +781,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 		do_action( $this->doPluginPrefix( 'form_submit' ) );
 
 		if ( $this->getIsPage_PluginAdmin() ) {
-			$oWp = $this->loadWpFunctions();
+			$oWp = $this->loadWP();
 			$oWp->doRedirect( $oWp->getUrl_CurrentAdminPage() );
 		}
 		return true;
@@ -931,12 +906,11 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return bool
 	 */
 	public function getIsValidAdminArea( $bCheckUserPermissions = true ) {
-		if ( $bCheckUserPermissions && $this->loadWpTrack()
-											->getWpActionHasFired( 'init' ) && !current_user_can( $this->getBasePermissions() ) ) {
+		if ( $bCheckUserPermissions && did_action( 'init' ) && !current_user_can( $this->getBasePermissions() ) ) {
 			return false;
 		}
 
-		$oWp = $this->loadWpFunctions();
+		$oWp = $this->loadWP();
 		if ( !$oWp->isMultisite() && is_admin() ) {
 			return true;
 		}
@@ -982,14 +956,14 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return bool
 	 */
 	public function getIsPage_PluginAdmin() {
-		return ( strpos( $this->loadWpFunctions()->getCurrentWpAdminPage(), $this->getPluginPrefix() ) === 0 );
+		return ( strpos( $this->loadWP()->getCurrentWpAdminPage(), $this->getPluginPrefix() ) === 0 );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function getIsPage_PluginMainDashboard() {
-		return ( $this->loadWpFunctions()->getCurrentWpAdminPage() == $this->getPluginPrefix() );
+		return ( $this->loadWP()->getCurrentWpAdminPage() == $this->getPluginPrefix() );
 	}
 
 	/**
@@ -1005,7 +979,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 			'icwp_link_action'
 		);
 
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 		foreach ( $aFormSubmitOptions as $sOption ) {
 			if ( !is_null( $oDp->FetchRequest( $sOption, false ) ) ) {
 				return true;
@@ -1286,7 +1260,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	protected function getPluginControllerOptions() {
 		if ( !isset( self::$oControllerOptions ) ) {
 
-			self::$oControllerOptions = $this->loadWpFunctions()
+			self::$oControllerOptions = $this->loadWP()
 											 ->getOption( $this->getPluginControllerOptionsKey() );
 			if ( !is_object( self::$oControllerOptions ) ) {
 				self::$oControllerOptions = new stdClass();
@@ -1317,7 +1291,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 		$oOptions = $this->getPluginControllerOptions();
 		if ( $this->sConfigOptionsHashWhenLoaded != md5( serialize( $oOptions ) ) ) {
 			add_filter( $this->doPluginPrefix( 'bypass_permission_to_manage' ), '__return_true' );
-			$this->loadWpFunctions()->updateOption( $this->getPluginControllerOptionsKey(), $oOptions );
+			$this->loadWP()->updateOption( $this->getPluginControllerOptionsKey(), $oOptions );
 			remove_filter( $this->doPluginPrefix( 'bypass_permission_to_manage' ), '__return_true' );
 		}
 	}
@@ -1358,7 +1332,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	/**
 	 */
 	public function clearSession() {
-		$this->loadDataProcessor()->setDeleteCookie( $this->getPluginPrefix() );
+		$this->loadDP()->setDeleteCookie( $this->getPluginPrefix() );
 		self::$sSessionId = null;
 	}
 
@@ -1378,7 +1352,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 */
 	public function getSessionId( $bSetIfNeeded = true ) {
 		if ( empty( self::$sSessionId ) ) {
-			self::$sSessionId = $this->loadDataProcessor()->FetchCookie( $this->getPluginPrefix(), '' );
+			self::$sSessionId = $this->loadDP()->FetchCookie( $this->getPluginPrefix(), '' );
 			if ( empty( self::$sSessionId ) && $bSetIfNeeded ) {
 				self::$sSessionId = md5( uniqid( $this->getPluginPrefix() ) );
 				$this->setSessionCookie();
@@ -1392,7 +1366,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 */
 	public function getUniqueRequestId() {
 		if ( !isset( self::$sRequestId ) ) {
-			$oDp = $this->loadDataProcessor();
+			$oDp = $this->loadDP();
 			self::$sRequestId = md5( $this->getSessionId( false ).$oDp->getVisitorIpAddress().$oDp->time() );
 		}
 		return self::$sRequestId;
@@ -1409,11 +1383,11 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	/**
 	 */
 	protected function setSessionCookie() {
-		$oWp = $this->loadWpFunctions();
-		$this->loadDataProcessor()->setCookie(
+		$oWp = $this->loadWP();
+		$this->loadDP()->setCookie(
 			$this->getPluginPrefix(),
 			$this->getSessionId(),
-			$this->loadDataProcessor()->time() + DAY_IN_SECONDS*30,
+			$this->loadDP()->time() + DAY_IN_SECONDS*30,
 			$oWp->getCookiePath(),
 			$oWp->getCookieDomain(),
 			false
@@ -1452,7 +1426,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 				$bSuccess = true;
 			}
 			catch ( Exception $oE ) {
-				$this->loadWpFunctions()->wpDie( $oE->getMessage() );
+				$this->loadWP()->wpDie( $oE->getMessage() );
 			}
 		}
 		return $bSuccess;

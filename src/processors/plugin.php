@@ -16,7 +16,7 @@ class ICWP_APP_Processor_Plugin extends ICWP_APP_Processor_BaseApp {
 		add_filter( $oFO->doPluginPrefix( 'hide_plugin' ), array( $oFO, 'getIfHidePlugin' ) );
 		add_filter( $oFO->doPluginPrefix( 'filter_hidePluginMenu' ), array( $oFO, 'getIfHidePlugin' ) );
 
-		if ( $this->loadDataProcessor()->FetchRequest( 'geticwppluginurl', false ) == 1 ) {
+		if ( $this->loadDP()->FetchRequest( 'geticwppluginurl', false ) == 1 ) {
 			add_action( 'init', array( $this, 'getPluginUrl' ), -1000 );
 		}
 
@@ -42,7 +42,7 @@ class ICWP_APP_Processor_Plugin extends ICWP_APP_Processor_BaseApp {
 	}
 
 	public function getPluginUrl() {
-		if ( $this->loadDataProcessor()->FetchRequest( 'geticwppluginurl', false ) == 1 ) {
+		if ( $this->loadDP()->FetchRequest( 'geticwppluginurl', false ) == 1 ) {
 			$this->returnIcwpPluginUrl();
 		}
 	}
@@ -80,7 +80,7 @@ class ICWP_APP_Processor_Plugin extends ICWP_APP_Processor_BaseApp {
 	public function doVerifyCanHandshake( $bCanHandshake ) {
 		/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeatureOptions();
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 
 		$oFO->setOpt( 'time_last_check_can_handshake', $oDp->time() );
 
@@ -199,7 +199,7 @@ class ICWP_APP_Processor_Plugin extends ICWP_APP_Processor_BaseApp {
 			return;
 		}
 
-		$oResponse->setAuthenticated( $this->loadWpUsersProcessor()->isUserLoggedIn() );
+		$oResponse->setAuthenticated( $this->loadWpUsers()->isUserLoggedIn() );
 
 		/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeatureOptions();
@@ -224,7 +224,7 @@ class ICWP_APP_Processor_Plugin extends ICWP_APP_Processor_BaseApp {
 
 		$sResponseBody = $oResponse->getResponsePackage();
 		if ( $bDoBinaryEncode ) {
-			$sResponseBody = base64_encode( $this->loadDataProcessor()
+			$sResponseBody = base64_encode( $this->loadDP()
 												 ->encodeJson( $oResponse->getResponsePackage() ) );
 		}
 		$this->flushResponse( $sResponseBody, $bDoBinaryEncode ? 'json' : 'none', $bDoBinaryEncode );

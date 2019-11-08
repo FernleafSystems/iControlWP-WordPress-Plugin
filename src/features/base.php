@@ -154,7 +154,7 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 		if ( !empty( $aPhpReqs ) ) {
 
 			if ( !empty( $aPhpReqs[ 'version' ] ) ) {
-				$bMeetsReqs = $bMeetsReqs && $this->loadDataProcessor()
+				$bMeetsReqs = $bMeetsReqs && $this->loadDP()
 												  ->getPhpVersionIsAtLeast( $aPhpReqs[ 'version' ] );
 			}
 
@@ -181,8 +181,6 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 	 */
 	public function onWpPluginsLoaded() {
 
-		$this->importOptions();
-
 		if ( $this->getIsMainFeatureEnabled() ) {
 			if ( $this->doExecutePreProcessor() && !$this->getController()->getIfOverrideOff() ) {
 				$this->doExecuteProcessor();
@@ -195,20 +193,6 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 	 */
 	public function actionSetOptions( $aOptions ) {
 		$this->getOptionsVo()->setMultipleOptions( $aOptions )->doOptionsSave();
-	}
-
-	/**
-	 * for now only import by file is supported
-	 */
-	protected function importOptions() {
-		// So we don't poll for the file every page load.
-		if ( $this->loadDataProcessor()->FetchGet( 'icwp_shield_import' ) == 1 ) {
-			$aOptions = $this->getController()->getOptionsImportFromFile();
-			if ( !empty( $aOptions ) && is_array( $aOptions ) && array_key_exists( $this->getOptionsStorageKey(), $aOptions ) ) {
-				$this->getOptionsVo()->setMultipleOptions( $aOptions[ $this->getOptionsStorageKey() ] );
-				$this->doSaveByPassAdminProtection();
-			}
-		}
 	}
 
 	/**
@@ -486,7 +470,7 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 			return false;
 		}
 
-		$oWpFunc = $this->loadWpFunctions();
+		$oWpFunc = $this->loadWP();
 		if ( is_admin() && !$oWpFunc->isMultisite() ) {
 			return true;
 		}
@@ -577,7 +561,7 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 	}
 
 	protected function setupAjaxHandlers() {
-		if ( $this->loadWpFunctions()->getIsAjax() ) {
+		if ( $this->loadWP()->getIsAjax() ) {
 			if ( is_admin() || is_network_admin() ) {
 				$this->adminAjaxHandlers();
 			}
@@ -597,7 +581,7 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 	 */
 	protected function checkAjaxNonce() {
 
-		$sNonce = $this->loadDataProcessor()->FetchRequest( '_ajax_nonce', '' );
+		$sNonce = $this->loadDP()->FetchRequest( '_ajax_nonce', '' );
 		if ( empty( $sNonce ) ) {
 			$sMessage = $this->getTranslatedString( 'nonce_failed_empty', 'Nonce security checking failed - the nonce value was empty.' );
 		}
@@ -835,7 +819,7 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 	 * @return mixed|null|string
 	 */
 	protected function getFormInput( $sKey, $bTrim = true ) {
-		$sData = $this->loadDataProcessor()->FetchPost( $this->prefixOptionKey( $sKey ) );
+		$sData = $this->loadDP()->FetchPost( $this->prefixOptionKey( $sKey ) );
 		return ( $bTrim && !empty( $sData ) && is_string( $sData ) ) ? trim( $sData ) : $sData;
 	}
 
@@ -843,7 +827,7 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 	 * @return bool
 	 */
 	protected function doSaveStandardOptions() {
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 		$sAllOptions = $oDp->FetchPost( $this->prefixOptionKey( 'all_options_input' ) );
 
 		if ( empty( $sAllOptions ) ) {
@@ -873,7 +857,7 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 		if ( empty( $sAllOptionsInput ) ) {
 			return true;
 		}
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 
 		$aAllInputOptions = explode( self::CollateSeparator, $sAllOptionsInput );
 		foreach ( $aAllInputOptions as $sInputKey ) {
@@ -980,7 +964,7 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 	 * @return bool
 	 */
 	public function getIsCurrentPageConfig() {
-		$oWpFunctions = $this->loadWpFunctions();
+		$oWpFunctions = $this->loadWP();
 		return $oWpFunctions->getCurrentWpAdminPage() == $this->doPluginPrefix( $this->getFeatureSlug() );
 	}
 
@@ -1050,7 +1034,7 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 			$sSubView = 'feature-default';
 		}
 
-		$aData[ 'sFeatureInclude' ] = $this->loadDataProcessor()->addExtensionToFilePath( $sSubView, '.php' );
+		$aData[ 'sFeatureInclude' ] = $this->loadDP()->addExtensionToFilePath( $sSubView, '.php' );
 		$aData[ 'strings' ] = array_merge( $aData[ 'strings' ], $this->getDisplayStrings() );
 		try {
 			echo $oRndr
@@ -1162,14 +1146,6 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 	 */
 	protected function getDisplayStrings() {
 		return array();
-	}
-
-	/**
-	 * @param $sStatKey
-	 */
-	public function doStatIncrement( $sStatKey ) {
-		$this->loadStatsProcessor();
-		ICWP_Stats_APP::DoStatIncrement( $sStatKey );
 	}
 
 	/**

@@ -43,11 +43,6 @@ class ICWP_APP_Foundation {
 	private static $oRender;
 
 	/**
-	 * @var ICWP_APP_YamlProcessor
-	 */
-	private static $oYaml;
-
-	/**
 	 * @var ICWP_APP_Encrypt
 	 */
 	private static $oEncrypt;
@@ -85,7 +80,7 @@ class ICWP_APP_Foundation {
 	/**
 	 * @return ICWP_APP_DataProcessor
 	 */
-	static public function loadDataProcessor() {
+	static public function loadDP() {
 		if ( !isset( self::$oDp ) ) {
 			self::$oDp = ICWP_APP_DataProcessor::GetInstance();
 		}
@@ -107,11 +102,10 @@ class ICWP_APP_Foundation {
 	/**
 	 * @return ICWP_APP_WpFunctions
 	 */
-	static public function loadWpFunctions() {
+	static public function loadWP() {
 		if ( !isset( self::$oWp ) ) {
 			self::$oWp = ICWP_APP_WpFunctions::GetInstance();
 		}
-
 		return self::$oWp;
 	}
 
@@ -189,12 +183,12 @@ class ICWP_APP_Foundation {
 
 	/**
 	 * @return ICWP_APP_WpTrack
+	 * @deprecated 3.7
 	 */
 	static public function loadWpTrack() {
 		if ( !isset( self::$oTrack ) ) {
 			self::$oTrack = ICWP_APP_WpTrack::GetInstance();
 		}
-
 		return self::$oTrack;
 	}
 
@@ -215,17 +209,6 @@ class ICWP_APP_Foundation {
 	}
 
 	/**
-	 * @return ICWP_APP_YamlProcessor
-	 */
-	static public function loadYamlProcessor() {
-		if ( !isset( self::$oYaml ) ) {
-			self::$oYaml = ICWP_APP_YamlProcessor::GetInstance();
-		}
-
-		return self::$oYaml;
-	}
-
-	/**
 	 * @return ICWP_APP_WpAdminNotices
 	 */
 	static public function loadAdminNoticesProcessor() {
@@ -239,11 +222,10 @@ class ICWP_APP_Foundation {
 	/**
 	 * @return ICWP_APP_WpUsers
 	 */
-	static public function loadWpUsersProcessor() {
+	static public function loadWpUsers() {
 		if ( !isset( self::$oWpUsers ) ) {
 			self::$oWpUsers = ICWP_APP_WpUsers::GetInstance();
 		}
-
 		return self::$oWpUsers;
 	}
 
@@ -270,8 +252,26 @@ class ICWP_APP_Foundation {
 	}
 
 	/**
-	 * @return ICWP_Stats_APP
+	 * @return ICWP_APP_DataProcessor
+	 * @deprecated 3.7
 	 */
-	public function loadStatsProcessor() {
+	static public function loadDataProcessor() {
+		return self::loadDP();
+	}
+
+	/**
+	 * @return ICWP_APP_WpFunctions
+	 * @deprecated 3.7
+	 */
+	static public function loadWpFunctions() {
+		return self::loadWP();
+	}
+
+	/**
+	 * @return ICWP_APP_WpUsers
+	 * @deprecated 3.7
+	 */
+	static public function loadWpUsersProcessor() {
+		return self::loadWpUsers();
 	}
 }

@@ -7,7 +7,7 @@ class ICWP_APP_Api_Internal_Core_Update extends ICWP_APP_Api_Internal_Base {
 	 */
 	public function process() {
 		$this->loadWpUpgrades();
-		$oWp = $this->loadWpFunctions();
+		$oWp = $this->loadWP();
 		$aActionParams = $this->getActionParams();
 		$sVersion = $aActionParams[ 'version' ];
 
@@ -22,7 +22,7 @@ class ICWP_APP_Api_Internal_Core_Update extends ICWP_APP_Api_Internal_Base {
 		}
 
 		// This was added because some people's sites didn't upgrade the database
-		$this->loadWpFunctions()->doWpUpgrade();
+		$this->loadWP()->doWpUpgrade();
 
 		return $this->success( array( 'result' => $oResult ) );
 	}

@@ -58,7 +58,7 @@ class ICWP_APP_WpUsers extends ICWP_APP_Foundation {
 	 */
 	public function deleteUser( $nUserId, $bPermitAdminDelete = false, $nReassignUserId = null ) {
 		if ( !function_exists( 'wp_delete_user' ) ) {
-			include( ABS_PATH.'wp-admin/includes/user.php' );
+			include( ABSPATH.'wp-admin/includes/user.php' );
 			if ( !function_exists( 'wp_delete_user' ) ) {
 				throw new Exception( 'Could not find the function wp_delete_user()' );
 			}
@@ -102,7 +102,7 @@ class ICWP_APP_WpUsers extends ICWP_APP_Foundation {
 	 */
 	public function forceUserRelogin( $aLoginUrlParams = array() ) {
 		$this->logoutUser();
-		$this->loadWpFunctions()->redirectToLogin( $aLoginUrlParams );
+		$this->loadWP()->redirectToLogin( $aLoginUrlParams );
 	}
 
 	/**
@@ -166,7 +166,7 @@ class ICWP_APP_WpUsers extends ICWP_APP_Foundation {
 			return false;
 		}
 
-		if ( version_compare( $this->loadWpFunctions()->getWordpressVersion(), '2.8.0', '<' ) ) {
+		if ( version_compare( $this->loadWP()->getWordpressVersion(), '2.8.0', '<' ) ) {
 			$oUser = get_userdatabylogin( $sUsername );
 		}
 		else {
@@ -181,7 +181,7 @@ class ICWP_APP_WpUsers extends ICWP_APP_Foundation {
 	 * @return WP_User|null
 	 */
 	public function getUserById( $nId ) {
-		if ( version_compare( $this->loadWpFunctions()
+		if ( version_compare( $this->loadWP()
 								   ->getWordpressVersion(), '2.8.0', '<' ) || !function_exists( 'get_user_by' ) ) {
 			return null;
 		}

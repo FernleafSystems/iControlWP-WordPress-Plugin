@@ -28,7 +28,7 @@ class ICWP_APP_Api_Internal_User_Create extends ICWP_APP_Api_Internal_Base {
 			$aUser[ 'role' ] = get_option( 'default_role' );
 		}
 
-		$mNewUserId = $this->loadWpUsersProcessor()->createUser(
+		$mNewUserId = $this->loadWpUsers()->createUser(
 			$aUser,
 			isset( $aActionParams[ 'send_notification' ] ) && $aActionParams[ 'send_notification' ]
 		);

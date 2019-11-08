@@ -7,7 +7,7 @@ class ICWP_APP_Api_Internal_User_List extends ICWP_APP_Api_Internal_Base {
 	 */
 	public function process() {
 		if ( !function_exists( 'get_users' ) ) {
-			include( ABS_PATH.'wp-includes/user.php' );
+			include( ABSPATH.'wp-includes/user.php' );
 		}
 
 		$aData = array();

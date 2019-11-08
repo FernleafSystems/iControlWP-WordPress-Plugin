@@ -62,7 +62,7 @@ class ICWP_APP_Encrypt extends ICWP_APP_Foundation {
 		}
 
 		if ( !is_string( $mDataToEncrypt ) ) {
-			$mDataToEncrypt = $this->loadDataProcessor()->encodeJson( $mDataToEncrypt );
+			$mDataToEncrypt = $this->loadDP()->encodeJson( $mDataToEncrypt );
 			$oEncryptResponse->serialized = true;
 		}
 		else {

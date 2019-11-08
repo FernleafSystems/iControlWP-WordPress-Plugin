@@ -79,7 +79,7 @@
 		 * @return bool
 		 */
 		public function getIfCommentsMustBePreviouslyApproved() {
-			return ( $this->loadWpFunctions()->getOption( 'comment_whitelist' ) == 1 );
+			return ( $this->loadWP()->getOption( 'comment_whitelist' ) == 1 );
 		}
 
 		/**
@@ -98,7 +98,7 @@
 		 * @return bool
 		 */
 		public function isCommentsOpenByDefault() {
-			return ( $this->loadWpFunctions()->getOption( 'default_comment_status' ) == 'open' );
+			return ( $this->loadWP()->getOption( 'default_comment_status' ) == 'open' );
 		}
 
 		/**
@@ -133,7 +133,7 @@
 		 * @return bool
 		 */
 		public function isCommentPost() {
-			return $this->loadDataProcessor()->GetIsRequestPost() && $this->loadWpFunctions()->getIsCurrentPage( 'wp-comments-post.php' );
+			return $this->loadDP()->GetIsRequestPost() && $this->loadWP()->getIsCurrentPage( 'wp-comments-post.php' );
 		}
 
 		/**

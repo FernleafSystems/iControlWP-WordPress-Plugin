@@ -98,7 +98,7 @@ class ICWP_APP_Processor_GoogleAnalytics extends ICWP_APP_Processor_BaseApp {
 		$bIgnore = false;
 
 		$aOpts = $this->getGaOpts();
-		$nCurrentUserLevel = $this->loadWpUsersProcessor()->getCurrentUserLevel();
+		$nCurrentUserLevel = $this->loadWpUsers()->getCurrentUserLevel();
 		if ( ( $aOpts[ 'ignore_logged_in_user' ] == 'Y' ) && $nCurrentUserLevel >= 0 ) { // logged in
 			$nIgnoreFromUserLevel = $aOpts[ 'ignore_from_user_level' ];
 			if ( $nCurrentUserLevel >= $nIgnoreFromUserLevel ) {

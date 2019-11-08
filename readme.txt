@@ -3,8 +3,8 @@ Contributors: paultgoodchild
 Donate link: http://www.icontrolwp.com/
 Tags: manage wordpress, backup, security, restore, bulk, icontrolwp, managewp, worpit, automatic updates
 Requires at least: 3.2.0
-Tested up to: 5.1
-Stable tag: 3.6.0
+Tested up to: 5.3
+Stable tag: 3.7.0
 
 == Description ==
 
@@ -114,6 +114,13 @@ No. WorpDrive is available for a small monthly fee.
 4. Get a view of all your plugins and how each one is distributed across each site.
 
 == Changelog ==
+
+= 3.7 Series =
+*Released: 11th January, 2019*
+
+* **(v.0)**	ADDED:		Support for Google Tag Manager and Global Site Tags.
+* **(v.0)**	IMPROVED:	Large refactoring with a preference on autoloading using Composer.
+* **(v.0)**	IMPROVED:	Moved module configuration to JSON, away from YAML.
 
 = 3.6 Series =
 *Released: 8th January, 2019*

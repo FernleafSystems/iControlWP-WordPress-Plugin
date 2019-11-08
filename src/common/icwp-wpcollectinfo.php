@@ -116,7 +116,7 @@ class ICWP_APP_WpCollectInfo extends ICWP_APP_Foundation {
 
 		$aNormalizedThemes = array();
 
-		if ( $this->loadWpFunctions()->getWordpressIsAtLeastVersion( '3.4' ) ) {
+		if ( $this->loadWP()->getWordpressIsAtLeastVersion( '3.4' ) ) {
 
 			/** @var WP_Theme[] $aThemes */
 			foreach ( $aThemes as $sStylesheet => $oTheme ) {

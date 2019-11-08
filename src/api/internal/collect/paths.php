@@ -46,7 +46,7 @@ class ICWP_APP_Api_Internal_Collect_Paths extends ICWP_APP_Api_Internal_Collect_
 	 */
 	protected function getWpPaths() {
 
-		$oWp = $this->loadWpFunctions();
+		$oWp = $this->loadWP();
 		$sHomeUrl = $oWp->getHomeUrl();
 		$sSiteUrl = $oWp->getSiteUrl();
 

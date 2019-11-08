@@ -3,11 +3,6 @@
 class ICWP_APP_FeatureHandler_Plugin extends ICWP_APP_FeatureHandler_Base {
 
 	/**
-	 * @var array
-	 */
-	protected $aRequestParams;
-
-	/**
 	 * @var RequestParameters
 	 */
 	protected $oRequestParams;
@@ -40,8 +35,8 @@ class ICWP_APP_FeatureHandler_Plugin extends ICWP_APP_FeatureHandler_Base {
 	}
 
 	/**
-	 * @param $aActions
-	 * @return $aActions
+	 * @param array $aActions
+	 * @return array
 	 */
 	public function onWpPluginActionLinks( $aActions ) {
 		if ( $this->getIsSiteLinked() && isset( $aActions[ 'deactivate' ] ) ) {
@@ -67,8 +62,7 @@ class ICWP_APP_FeatureHandler_Plugin extends ICWP_APP_FeatureHandler_Base {
 	}
 
 	/**
-	 * @param boolean $bDoHidePlugin
-	 *
+	 * @param bool $bDoHidePlugin
 	 * @return bool
 	 */
 	public function getIfHidePlugin( $bDoHidePlugin ) {
@@ -82,7 +76,7 @@ class ICWP_APP_FeatureHandler_Plugin extends ICWP_APP_FeatureHandler_Base {
 	public function getCanHandshake( $bDoVerify = false ) {
 
 		if ( !$bDoVerify ) { // we always verify can handshake at least once every 24hrs
-			$nSinceLastHandshakeCheck = $this->loadDataProcessor()
+			$nSinceLastHandshakeCheck = $this->loadDP()
 											 ->time() - $this->getOpt( 'time_last_check_can_handshake', 0 );
 			if ( $nSinceLastHandshakeCheck > DAY_IN_SECONDS ) {
 				$bDoVerify = true;
@@ -112,7 +106,7 @@ class ICWP_APP_FeatureHandler_Plugin extends ICWP_APP_FeatureHandler_Base {
 	}
 
 	public function doExtraSubmitProcessing() {
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 
 		if ( $oDp->FetchPost( $this->getController()->doPluginOptionPrefix( 'reset_plugin' ) ) ) {
 			$sTo = $this->getAssignedTo();
@@ -167,11 +161,11 @@ class ICWP_APP_FeatureHandler_Plugin extends ICWP_APP_FeatureHandler_Base {
 
 			//looks good. Now attempt remote link.
 			$aPostVars = array(
-				'wordpress_url' => home_url(),
-				'plugin_url' => $this->getController()->getPluginUrl(),
+				'wordpress_url'         => home_url(),
+				'plugin_url'            => $this->getController()->getPluginUrl(),
 				'account_email_address' => $sEmailAddress,
-				'account_auth_key' => $sAuthKey,
-				'plugin_key' => $this->getPluginAuthKey()
+				'account_auth_key'      => $sAuthKey,
+				'plugin_key'            => $this->getPluginAuthKey()
 			);
 			$aArgs = array(
 				'body' => $aPostVars
@@ -189,7 +183,7 @@ class ICWP_APP_FeatureHandler_Plugin extends ICWP_APP_FeatureHandler_Base {
 		if ( $this->getIsSiteLinked() || !$this->loadFS()->isFile( $sAutoAddFilePath ) ) {
 			return;
 		}
-		$sContent = $this->loadDataProcessor()
+		$sContent = $this->loadDP()
 						 ->readFileContentsUsingInclude( $sAutoAddFilePath );
 		$this->loadFS()->deleteFile( $sAutoAddFilePath );
 		if ( !empty( $sContent ) ) {
@@ -255,7 +249,7 @@ class ICWP_APP_FeatureHandler_Plugin extends ICWP_APP_FeatureHandler_Base {
 		$sOptionKey = 'key';
 		$sAuthKey = $this->getOpt( $sOptionKey );
 		if ( empty( $sAuthKey ) ) {
-			$sAuthKey = $this->loadDataProcessor()->GenerateRandomString( 24, 7 );
+			$sAuthKey = $this->loadDP()->GenerateRandomString( 24, 7 );
 			$this->setOpt( $sOptionKey, $sAuthKey );
 		}
 		return $sAuthKey;
@@ -341,7 +335,7 @@ class ICWP_APP_FeatureHandler_Plugin extends ICWP_APP_FeatureHandler_Base {
 	 */
 	public function getRequestParams() {
 		if ( !isset( $this->oRequestParams ) ) {
-			$oDp = $this->loadDataProcessor();
+			$oDp = $this->loadDP();
 			$this->oRequestParams = new RequestParameters( $oDp->FetchGet( 'reqpars', '' ), $oDp->FetchPost( 'reqpars', '' ) );
 		}
 		return $this->oRequestParams;
@@ -359,7 +353,7 @@ class ICWP_APP_FeatureHandler_Plugin extends ICWP_APP_FeatureHandler_Base {
 	 * This is the point where you would want to do any options verification
 	 */
 	protected function doPrePluginOptionsSave() {
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 
 		if ( $this->getOpt( 'activated_at', 0 ) <= 0 ) {
 			$this->setOpt( 'activated_at', $oDp->time() );

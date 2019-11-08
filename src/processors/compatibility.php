@@ -29,7 +29,7 @@ class ICWP_APP_Processor_Compatibility extends ICWP_APP_Processor_BaseApp {
 	 * @return bool
 	 */
 	protected function getIsRequestFromServiceIp() {
-		$sIp = $this->loadDataProcessor()->getVisitorIpAddress( true );
+		$sIp = $this->loadDP()->getVisitorIpAddress( true );
 		return ( in_array( $sIp, $this->getServiceIps( 4 ) ) || in_array( $sIp, $this->getServiceIps( 6 ) ) );
 	}
 
@@ -96,7 +96,7 @@ class ICWP_APP_Processor_Compatibility extends ICWP_APP_Processor_BaseApp {
 	 */
 	protected function addToWpMaintenanceMode() {
 		if ( class_exists( 'WP_Maintenance_Mode', false ) ) {
-			$aWpmmOptions = $this->loadWpFunctions()->getOption( 'wpmm_settings' );
+			$aWpmmOptions = $this->loadWP()->getOption( 'wpmm_settings' );
 			$aExcludes = empty( $aWpmmOptions[ 'general' ][ 'exclude' ] ) ? array() : array_unique( $aWpmmOptions[ 'general' ][ 'exclude' ] );
 			$bAdded = false;
 			foreach ( $this->getServiceIps( 4 ) as $sIp ) {
@@ -107,7 +107,7 @@ class ICWP_APP_Processor_Compatibility extends ICWP_APP_Processor_BaseApp {
 			}
 			if ( $bAdded ) {
 				$aWpmmOptions[ 'general' ][ 'exclude' ] = $aExcludes;
-				$this->loadWpFunctions()->updateOption( 'wpmm_settings', $aWpmmOptions );
+				$this->loadWP()->updateOption( 'wpmm_settings', $aWpmmOptions );
 			}
 		}
 	}
