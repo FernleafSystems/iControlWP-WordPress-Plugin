@@ -1,5 +1,5 @@
 <?php
-
+/** @var string $sIcwpPluginRootFile */
 require_once( dirname( __FILE__ ).'/lib/vendor/autoload.php' );
 
 class ICWP_Plugin extends ICWP_APP_Foundation {
@@ -26,7 +26,7 @@ class ICWP_Plugin extends ICWP_APP_Foundation {
 
 	/**
 	 * @param string $sKey
-	 * @param mixed $mDefault
+	 * @param mixed  $mDefault
 	 *
 	 * @return mixed
 	 */
@@ -36,7 +36,7 @@ class ICWP_Plugin extends ICWP_APP_Foundation {
 
 	/**
 	 * @param string $sKey
-	 * @param bool $mValue
+	 * @param bool   $mValue
 	 * @return mixed
 	 */
 	static public function updateOption( $sKey, $mValue ) {
@@ -101,6 +101,7 @@ class ICWP_Plugin extends ICWP_APP_Foundation {
 	public static function GetPluginSystem() {
 		return self::getController()->loadCorePluginFeatureHandler();
 	}
+
 	/**
 	 * @return ICWP_APP_FeatureHandler_Statistics
 	 */
@@ -124,10 +125,12 @@ class ICWP_Plugin extends ICWP_APP_Foundation {
 }
 
 if ( !class_exists( 'Worpit_Plugin' ) ) {
-	class Worpit_Plugin extends ICWP_Plugin {}
+	class Worpit_Plugin extends ICWP_Plugin {
+
+	}
 }
 
-$oICWP_App_Controller = ICWP_APP_Plugin_Controller::GetInstance( __FILE__ );
+$oICWP_App_Controller = ICWP_APP_Plugin_Controller::GetInstance( $sIcwpPluginRootFile );
 if ( !is_null( $oICWP_App_Controller ) ) {
 	$g_oWorpit = new ICWP_Plugin( $oICWP_App_Controller );
 }

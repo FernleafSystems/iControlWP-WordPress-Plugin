@@ -22,7 +22,8 @@
     "temp":      "tmp",
     "languages": "languages",
     "templates": "templates",
-    "flags":     "flags"
+    "flags":     "flags",
+    "cache":     "icwp"
   },
   "includes":     {
     "admin":        {

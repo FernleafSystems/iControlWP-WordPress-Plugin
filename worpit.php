@@ -36,5 +36,6 @@ if ( !defined( 'WORPIT_DS' ) ) {
 	define( 'WORPIT_DS', DIRECTORY_SEPARATOR );
 }
 if ( !@class_exists( 'ICWP_Plugin', false ) ) {
+	$sIcwpPluginRootFile = __FILE__;
 	require_once( dirname( __FILE__ ).'/init.php' );
 }

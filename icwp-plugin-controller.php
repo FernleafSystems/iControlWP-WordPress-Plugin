@@ -67,11 +67,6 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	private $aRequirementsMessages;
 
 	/**
-	 * @var array
-	 */
-	private $aImportedOptions;
-
-	/**
 	 * @var string
 	 */
 	protected static $sSessionId;
@@ -215,6 +210,13 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	/**
 	 */
 	public function onWpDeactivatePlugin() {
+		$oFS = $this->loadFS();
+
+		$sTmpDir = $this->getPath_PluginCache();
+		if ( $oFS->isDir( $sTmpDir ) ) {
+			$oFS->deleteDir( $sTmpDir );
+		}
+
 		if ( current_user_can( $this->getBasePermissions() ) && apply_filters( $this->doPluginPrefix( 'delete_on_deactivate' ), false ) ) {
 			do_action( $this->doPluginPrefix( 'delete_plugin' ) );
 			$this->deletePluginControllerOptions();
@@ -1172,6 +1174,13 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 */
 	public function getPath_Languages() {
 		return $this->getRootDir().$this->getPluginSpec_Path( 'languages' ).DIRECTORY_SEPARATOR;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getPath_PluginCache() {
+		return path_join( WP_CONTENT_DIR, $this->getPluginSpec_Path( 'cache' ) );
 	}
 
 	/**
