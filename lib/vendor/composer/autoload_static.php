@@ -22,7 +22,6 @@ class ComposerStaticInitb04ede0316c2b6b457669442dc19e064
 
     public static $classMap = array (
         'ApiResponse' => __DIR__ . '/../..' . '/../src/api/ApiResponse.php',
-        'Handshake' => __DIR__ . '/../..' . '/../src/api/Handshake.php',
         'ICWP_APP_Api_Internal_Base' => __DIR__ . '/../..' . '/../src/api/internal/base.php',
         'ICWP_APP_Api_Internal_Collect_Base' => __DIR__ . '/../..' . '/../src/api/internal/collect/base.php',
         'ICWP_APP_Api_Internal_Collect_Capabilities' => __DIR__ . '/../..' . '/../src/api/internal/collect/capabilities.php',
@@ -58,6 +57,7 @@ class ComposerStaticInitb04ede0316c2b6b457669442dc19e064
         'ICWP_APP_Api_Internal_User_List' => __DIR__ . '/../..' . '/../src/api/internal/user/list.php',
         'ICWP_APP_Api_Internal_User_Login' => __DIR__ . '/../..' . '/../src/api/internal/user/login.php',
         'ICWP_APP_Api_Internal_User_Logout' => __DIR__ . '/../..' . '/../src/api/internal/user/logout.php',
+        'ICWP_APP_Api_Internal_Worpdrive_Prepdir' => __DIR__ . '/../..' . '/../src/api/internal/worpdrive/prepdir.php',
         'ICWP_APP_BaseDbProcessor' => __DIR__ . '/../..' . '/../src/processors/basedb.php',
         'ICWP_APP_DataProcessor' => __DIR__ . '/../..' . '/../src/common/icwp-data.php',
         'ICWP_APP_Encrypt' => __DIR__ . '/../..' . '/../src/common/icwp-encrypt.php',
@@ -71,7 +71,6 @@ class ComposerStaticInitb04ede0316c2b6b457669442dc19e064
         'ICWP_APP_FeatureHandler_Statistics' => __DIR__ . '/../..' . '/../src/features/statistics.php',
         'ICWP_APP_FeatureHandler_Whitelabel' => __DIR__ . '/../..' . '/../src/features/whitelabel.php',
         'ICWP_APP_Foundation' => __DIR__ . '/../..' . '/../src/common/icwp-foundation.php',
-        'ICWP_APP_GoogleAuthenticator' => __DIR__ . '/../..' . '/../src/common/icwp-googleauthenticator.php',
         'ICWP_APP_Ip' => __DIR__ . '/../..' . '/../src/common/icwp-ip.php',
         'ICWP_APP_OptionsVO' => __DIR__ . '/../..' . '/../src/features/options-vo.php',
         'ICWP_APP_Plugin_Controller' => __DIR__ . '/../..' . '/../icwp-plugin-controller.php',
@@ -115,7 +114,6 @@ class ComposerStaticInitb04ede0316c2b6b457669442dc19e064
         'ICWP_Stats_APP' => __DIR__ . '/../..' . '/../src/common/icwp-stats.php',
         'ICWP_Theme_Upgrader' => __DIR__ . '/../..' . '/../src/common/icwp-wpupgrades.php',
         'ICWP_Upgrader_Skin' => __DIR__ . '/../..' . '/../src/common/icwp-wpupgrades.php',
-        'PHPGangsta_GoogleAuthenticator' => __DIR__ . '/../..' . '/../src/common/googleauthenticator/googleauthenticator.php',
         'RequestParameters' => __DIR__ . '/../..' . '/../src/api/RequestParameters.php',
         'Spyc' => __DIR__ . '/../..' . '/../src/common/yaml/Spyc.php',
         'sfYaml' => __DIR__ . '/../..' . '/../src/common/yaml/symfony/sfYaml.php',

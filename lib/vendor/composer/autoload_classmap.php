@@ -7,7 +7,6 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'ApiResponse' => $baseDir . '/../src/api/ApiResponse.php',
-    'Handshake' => $baseDir . '/../src/api/Handshake.php',
     'ICWP_APP_Api_Internal_Base' => $baseDir . '/../src/api/internal/base.php',
     'ICWP_APP_Api_Internal_Collect_Base' => $baseDir . '/../src/api/internal/collect/base.php',
     'ICWP_APP_Api_Internal_Collect_Capabilities' => $baseDir . '/../src/api/internal/collect/capabilities.php',
@@ -43,6 +42,7 @@ return array(
     'ICWP_APP_Api_Internal_User_List' => $baseDir . '/../src/api/internal/user/list.php',
     'ICWP_APP_Api_Internal_User_Login' => $baseDir . '/../src/api/internal/user/login.php',
     'ICWP_APP_Api_Internal_User_Logout' => $baseDir . '/../src/api/internal/user/logout.php',
+    'ICWP_APP_Api_Internal_Worpdrive_Prepdir' => $baseDir . '/../src/api/internal/worpdrive/prepdir.php',
     'ICWP_APP_BaseDbProcessor' => $baseDir . '/../src/processors/basedb.php',
     'ICWP_APP_DataProcessor' => $baseDir . '/../src/common/icwp-data.php',
     'ICWP_APP_Encrypt' => $baseDir . '/../src/common/icwp-encrypt.php',
@@ -56,7 +56,6 @@ return array(
     'ICWP_APP_FeatureHandler_Statistics' => $baseDir . '/../src/features/statistics.php',
     'ICWP_APP_FeatureHandler_Whitelabel' => $baseDir . '/../src/features/whitelabel.php',
     'ICWP_APP_Foundation' => $baseDir . '/../src/common/icwp-foundation.php',
-    'ICWP_APP_GoogleAuthenticator' => $baseDir . '/../src/common/icwp-googleauthenticator.php',
     'ICWP_APP_Ip' => $baseDir . '/../src/common/icwp-ip.php',
     'ICWP_APP_OptionsVO' => $baseDir . '/../src/features/options-vo.php',
     'ICWP_APP_Plugin_Controller' => $baseDir . '/../icwp-plugin-controller.php',
@@ -100,7 +99,6 @@ return array(
     'ICWP_Stats_APP' => $baseDir . '/../src/common/icwp-stats.php',
     'ICWP_Theme_Upgrader' => $baseDir . '/../src/common/icwp-wpupgrades.php',
     'ICWP_Upgrader_Skin' => $baseDir . '/../src/common/icwp-wpupgrades.php',
-    'PHPGangsta_GoogleAuthenticator' => $baseDir . '/../src/common/googleauthenticator/googleauthenticator.php',
     'RequestParameters' => $baseDir . '/../src/api/RequestParameters.php',
     'Spyc' => $baseDir . '/../src/common/yaml/Spyc.php',
     'sfYaml' => $baseDir . '/../src/common/yaml/symfony/sfYaml.php',
