@@ -1181,7 +1181,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return bool
 	 */
 	public function isLegacy() {
-		return true||version_compare( PHP_VERSION, '5.3', '<' );
+		return version_compare( PHP_VERSION, '5.3', '<' );
 	}
 
 	/**
