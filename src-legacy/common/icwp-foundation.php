@@ -7,64 +7,9 @@ if ( class_exists( 'ICWP_APP_Foundation', false ) ) {
 class ICWP_APP_Foundation {
 
 	/**
-	 * @var ICWP_APP_WpCron
-	 */
-	private static $oWpCron;
-
-	/**
-	 * @var ICWP_APP_WpFunctions
-	 */
-	private static $oWp;
-
-	/**
-	 * @var ICWP_APP_WpFunctions_Plugins
-	 */
-	private static $oWpPlugins;
-
-	/**
-	 * @var ICWP_APP_WpFunctions_Themes
-	 */
-	private static $oWpThemes;
-
-	/**
-	 * @var ICWP_APP_WpDb
-	 */
-	private static $oWpDb;
-
-	/**
 	 * @var ICWP_APP_Render
 	 */
 	private static $oRender;
-
-	/**
-	 * @var ICWP_APP_Encrypt
-	 */
-	private static $oEncrypt;
-
-	/**
-	 * @var ICWP_APP_Ip
-	 */
-	private static $oIp;
-
-	/**
-	 * @var ICWP_APP_WpAdminNotices
-	 */
-	private static $oAdminNotices;
-
-	/**
-	 * @var ICWP_APP_WpUsers
-	 */
-	private static $oWpUsers;
-
-	/**
-	 * @var ICWP_APP_WpComments
-	 */
-	private static $oWpComments;
-
-	/**
-	 * @var ICWP_APP_WpUpgrades
-	 */
-	private static $oUpgrades;
 
 	/**
 	 * @return ICWP_APP_DataProcessor
@@ -86,24 +31,16 @@ class ICWP_APP_Foundation {
 	 * @return ICWP_APP_WpFunctions
 	 */
 	static public function loadWP() {
-		if ( !isset( self::$oWp ) ) {
-			require_once( dirname( __FILE__ ).'/icwp-wpfunctions.php' );
-			self::$oWp = ICWP_APP_WpFunctions::GetInstance();
-		}
-
-		return self::$oWp;
+		require_once( dirname( __FILE__ ).'/icwp-wpfunctions.php' );
+		return ICWP_APP_WpFunctions::GetInstance();
 	}
 
 	/**
 	 * @return ICWP_APP_WpCron
 	 */
 	static public function loadWpCronProcessor() {
-		if ( !isset( self::$oWpCron ) ) {
-			require_once( dirname( __FILE__ ).'/icwp-wpcron.php' );
-			self::$oWpCron = ICWP_APP_WpCron::GetInstance();
-		}
-
-		return self::$oWpCron;
+		require_once( dirname( __FILE__ ).'/icwp-wpcron.php' );
+		return ICWP_APP_WpCron::GetInstance();
 	}
 
 	/**
@@ -117,59 +54,40 @@ class ICWP_APP_Foundation {
 	 * @return ICWP_APP_WpFunctions_Plugins
 	 */
 	public function loadWpFunctionsPlugins() {
-		if ( !isset( self::$oWpPlugins ) ) {
-			require_once( dirname( __FILE__ ).'/icwp-wpfunctions-plugins.php' );
-			self::$oWpPlugins = ICWP_APP_WpFunctions_Plugins::GetInstance();
-		}
-
-		return self::$oWpPlugins;
+		require_once( dirname( __FILE__ ).'/icwp-wpfunctions-plugins.php' );
+		return ICWP_APP_WpFunctions_Plugins::GetInstance();
 	}
 
 	/**
 	 * @return ICWP_APP_WpFunctions_Themes
 	 */
 	public function loadWpFunctionsThemes() {
-		if ( !isset( self::$oWpThemes ) ) {
-			require_once( dirname( __FILE__ ).'/icwp-wpfunctions-themes.php' );
-			self::$oWpThemes = ICWP_APP_WpFunctions_Themes::GetInstance();
-		}
-
-		return self::$oWpThemes;
+		require_once( dirname( __FILE__ ).'/icwp-wpfunctions-themes.php' );
+		return ICWP_APP_WpFunctions_Themes::GetInstance();
 	}
 
 	/**
 	 * @return ICWP_APP_Encrypt
 	 */
 	public function loadEncryptProcessor() {
-		if ( !isset( self::$oEncrypt ) ) {
-			require_once( dirname( __FILE__ ).'/icwp-encrypt.php' );
-			self::$oEncrypt = ICWP_APP_Encrypt::GetInstance();
-		}
-
-		return self::$oEncrypt;
+		require_once( dirname( __FILE__ ).'/icwp-encrypt.php' );
+		return ICWP_APP_Encrypt::GetInstance();
 	}
 
 	/**
 	 * @return ICWP_APP_WpDb
 	 */
 	static public function loadDbProcessor() {
-		if ( !isset( self::$oWpDb ) ) {
-			require_once( dirname( __FILE__ ).'/icwp-wpdb.php' );
-			self::$oWpDb = ICWP_APP_WpDb::GetInstance();
-		}
-
-		return self::$oWpDb;
+		require_once( dirname( __FILE__ ).'/icwp-wpdb.php' );
+		return ICWP_APP_WpDb::GetInstance();
 	}
 
 	/**
 	 * @return ICWP_APP_Ip
 	 */
 	static public function loadIpProcessor() {
-		if ( !isset( self::$oIp ) ) {
-			require_once( dirname( __FILE__ ).'/icwp-ip.php' );
-			self::$oIp = ICWP_APP_Ip::GetInstance();
-		}
-		return self::$oIp;
+		require_once( dirname( __FILE__ ).'/icwp-ip.php' );
+		return ICWP_APP_Ip::GetInstance();
 	}
 
 	/**
@@ -202,48 +120,32 @@ class ICWP_APP_Foundation {
 	 * @return ICWP_APP_WpAdminNotices
 	 */
 	static public function loadAdminNoticesProcessor() {
-		if ( !isset( self::$oAdminNotices ) ) {
-			require_once( dirname( __FILE__ ).'/wp-admin-notices.php' );
-			self::$oAdminNotices = ICWP_APP_WpAdminNotices::GetInstance();
-		}
-
-		return self::$oAdminNotices;
+		require_once( dirname( __FILE__ ).'/wp-admin-notices.php' );
+		return ICWP_APP_WpAdminNotices::GetInstance();
 	}
 
 	/**
 	 * @return ICWP_APP_WpUsers
 	 */
 	static public function loadWpUsers() {
-		if ( !isset( self::$oWpUsers ) ) {
-			require_once( dirname( __FILE__ ).'/wp-users.php' );
-			self::$oWpUsers = ICWP_APP_WpUsers::GetInstance();
-		}
-
-		return self::$oWpUsers;
+		require_once( dirname( __FILE__ ).'/wp-users.php' );
+		return ICWP_APP_WpUsers::GetInstance();
 	}
 
 	/**
 	 * @return ICWP_APP_WpUpgrades
 	 */
 	static public function loadWpUpgrades() {
-		if ( !isset( self::$oUpgrades ) ) {
-			require_once( dirname( __FILE__ ).'/icwp-wpupgrades.php' );
-			self::$oUpgrades = ICWP_APP_WpUpgrades::GetInstance();
-		}
-
-		return self::$oUpgrades;
+		require_once( dirname( __FILE__ ).'/icwp-wpupgrades.php' );
+		return ICWP_APP_WpUpgrades::GetInstance();
 	}
 
 	/**
 	 * @return ICWP_APP_WpComments
 	 */
 	static public function loadWpCommentsProcessor() {
-		if ( !isset( self::$oWpComments ) ) {
-			require_once( dirname( __FILE__ ).'/wp-comments.php' );
-			self::$oWpComments = ICWP_APP_WpComments::GetInstance();
-		}
-
-		return self::$oWpComments;
+		require_once( dirname( __FILE__ ).'/wp-comments.php' );
+		return ICWP_APP_WpComments::GetInstance();
 	}
 
 	/**
