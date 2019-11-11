@@ -802,8 +802,8 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return mixed|null
 	 */
 	protected function getPluginSpec_ActionLinks( $sKey ) {
-		$oConOptions = $this->getPluginControllerOptions();
-		return isset( $oConOptions->plugin_spec[ 'action_links' ][ $sKey ] ) ? $oConOptions->plugin_spec[ 'action_links' ][ $sKey ] : null;
+		$oConOpts = $this->getPluginControllerOptions();
+		return isset( $oConOpts->plugin_spec[ 'action_links' ][ $sKey ] ) ? $oConOpts->plugin_spec[ 'action_links' ][ $sKey ] : null;
 	}
 
 	/**
@@ -811,8 +811,8 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return mixed|null
 	 */
 	protected function getPluginSpec_Include( $sKey ) {
-		$oConOptions = $this->getPluginControllerOptions();
-		return isset( $oConOptions->plugin_spec[ 'includes' ][ $sKey ] ) ? $oConOptions->plugin_spec[ 'includes' ][ $sKey ] : null;
+		$oConOpts = $this->getPluginControllerOptions();
+		return isset( $oConOpts->plugin_spec[ 'includes' ][ $sKey ] ) ? $oConOpts->plugin_spec[ 'includes' ][ $sKey ] : null;
 	}
 
 	/**
@@ -820,8 +820,8 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return array|string
 	 */
 	protected function getPluginSpec_Labels( $sKey = '' ) {
-		$oConOptions = $this->getPluginControllerOptions();
-		$aLabels = isset( $oConOptions->plugin_spec[ 'labels' ] ) ? $oConOptions->plugin_spec[ 'labels' ] : array();
+		$oConOpts = $this->getPluginControllerOptions();
+		$aLabels = isset( $oConOpts->plugin_spec[ 'labels' ] ) ? $oConOpts->plugin_spec[ 'labels' ] : array();
 		//Prep the icon urls
 		if ( !empty( $aLabels[ 'icon_url_16x16' ] ) ) {
 			$aLabels[ 'icon_url_16x16' ] = $this->getPluginUrl_Image( $aLabels[ 'icon_url_16x16' ] );
@@ -834,7 +834,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 			return $aLabels;
 		}
 
-		return isset( $oConOptions->plugin_spec[ 'labels' ][ $sKey ] ) ? $oConOptions->plugin_spec[ 'labels' ][ $sKey ] : null;
+		return isset( $oConOpts->plugin_spec[ 'labels' ][ $sKey ] ) ? $oConOpts->plugin_spec[ 'labels' ][ $sKey ] : null;
 	}
 
 	/**
@@ -851,8 +851,8 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return mixed|null
 	 */
 	protected function getPluginSpec_Path( $sKey ) {
-		$oConOptions = $this->getPluginControllerOptions();
-		return isset( $oConOptions->plugin_spec[ 'paths' ][ $sKey ] ) ? $oConOptions->plugin_spec[ 'paths' ][ $sKey ] : null;
+		$oConOpts = $this->getPluginControllerOptions();
+		return isset( $oConOpts->plugin_spec[ 'paths' ][ $sKey ] ) ? $oConOpts->plugin_spec[ 'paths' ][ $sKey ] : null;
 	}
 
 	/**
@@ -860,16 +860,16 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return mixed|null
 	 */
 	protected function getPluginSpec_Property( $sKey ) {
-		$oConOptions = $this->getPluginControllerOptions();
-		return isset( $oConOptions->plugin_spec[ 'properties' ][ $sKey ] ) ? $oConOptions->plugin_spec[ 'properties' ][ $sKey ] : null;
+		$oConOpts = $this->getPluginControllerOptions();
+		return isset( $oConOpts->plugin_spec[ 'properties' ][ $sKey ] ) ? $oConOpts->plugin_spec[ 'properties' ][ $sKey ] : null;
 	}
 
 	/**
 	 * @return array
 	 */
 	protected function getPluginSpec_PluginMeta() {
-		$oConOptions = $this->getPluginControllerOptions();
-		return ( isset( $oConOptions->plugin_spec[ 'plugin_meta' ] ) && is_array( $oConOptions->plugin_spec[ 'plugin_meta' ] ) ) ? $oConOptions->plugin_spec[ 'plugin_meta' ] : array();
+		$oConOpts = $this->getPluginControllerOptions();
+		return ( isset( $oConOpts->plugin_spec[ 'plugin_meta' ] ) && is_array( $oConOpts->plugin_spec[ 'plugin_meta' ] ) ) ? $oConOpts->plugin_spec[ 'plugin_meta' ] : array();
 	}
 
 	/**
@@ -877,8 +877,8 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return mixed|null
 	 */
 	protected function getPluginSpec_Requirement( $sKey ) {
-		$oConOptions = $this->getPluginControllerOptions();
-		return isset( $oConOptions->plugin_spec[ 'requirements' ][ $sKey ] ) ? $oConOptions->plugin_spec[ 'requirements' ][ $sKey ] : null;
+		$oConOpts = $this->getPluginControllerOptions();
+		return isset( $oConOpts->plugin_spec[ 'requirements' ][ $sKey ] ) ? $oConOpts->plugin_spec[ 'requirements' ][ $sKey ] : null;
 	}
 
 	/**
@@ -1105,7 +1105,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return string
 	 */
 	public function getPath_Assets( $sAsset = '' ) {
-		return $this->getRootDir().$this->getPluginSpec_Path( 'assets' ).DIRECTORY_SEPARATOR.$sAsset;
+		return trailingslashit( path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'assets' ) ) ).$sAsset;
 	}
 
 	/**
@@ -1154,11 +1154,10 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	}
 
 	/**
-	 * get the root directory for the plugin with the trailing slash
 	 * @return string
 	 */
 	public function getPath_Languages() {
-		return $this->getRootDir().$this->getPluginSpec_Path( 'languages' ).DIRECTORY_SEPARATOR;
+		return trailingslashit( path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'languages' ) ) );
 	}
 
 	/**
@@ -1169,12 +1168,27 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	}
 
 	/**
-	 * get the root directory for the plugin with the trailing slash
+	 * get the root directory for the plugin source with the trailing slash
 	 * @return string
 	 */
 	public function getPath_Source() {
-		$sSource = $this->isLegacy() ? 'source-legacy' : 'source';
-		return $this->getRootDir().$this->getPluginSpec_Path( $sSource ).DIRECTORY_SEPARATOR;
+		return $this->isLegacy() ? $this->getPath_SourceLegacy() : $this->getPath_SourceCurrent();
+	}
+
+	/**
+	 * get the root directory for the plugin with the trailing slash
+	 * @return string
+	 */
+	public function getPath_SourceCurrent() {
+		return trailingslashit( path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'source' ) ) );
+	}
+
+	/**
+	 * get the root directory for the plugin with the trailing slash
+	 * @return string
+	 */
+	public function getPath_SourceLegacy() {
+		return trailingslashit( path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'source-legacy' ) ) );
 	}
 
 	/**
@@ -1206,7 +1220,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return string
 	 */
 	public function getPath_Templates() {
-		return $this->getRootDir().$this->getPluginSpec_Path( 'templates' ).DIRECTORY_SEPARATOR;
+		return trailingslashit( path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'templates' ) ) );
 	}
 
 	/**
@@ -1214,7 +1228,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return string
 	 */
 	public function getPath_TemplatesFile( $sTemplate ) {
-		return $this->getPath_Templates().$sTemplate;
+		return path_join( $this->getPath_Templates(), $sTemplate );
 	}
 
 	/**
@@ -1229,7 +1243,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return string
 	 */
 	public function getRootDir() {
-		return dirname( $this->getRootFile() ).DIRECTORY_SEPARATOR;
+		return trailingslashit( dirname( $this->getRootFile() ) );
 	}
 
 	/**

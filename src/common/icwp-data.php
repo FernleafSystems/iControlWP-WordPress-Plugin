@@ -733,7 +733,7 @@ class ICWP_APP_DataProcessor {
 		$sDomainName = trim( $sDomainName );
 		return ( preg_match( "/^([a-z\d](-*[a-z\d])*)(\.([a-z\d](-*[a-z\d])*))*$/i", $sDomainName ) //valid chars check
 				 && preg_match( "/^.{1,253}$/", $sDomainName ) //overall length check
-				 && preg_match( "/^[^\.]{1,63}(\.[^\.]{1,63})*$/", $sDomainName ) );//length of each label
+				 && preg_match( "/^[^.]{1,63}(\.[^.]{1,63})*$/", $sDomainName ) );//length of each label
 	}
 
 	/**
