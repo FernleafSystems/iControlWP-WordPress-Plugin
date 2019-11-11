@@ -1,9 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_APP_Processor_Base', false ) ) {
-	return;
-}
-
 abstract class ICWP_APP_Processor_Base extends ICWP_APP_Foundation {
 
 	/**
@@ -62,7 +58,7 @@ abstract class ICWP_APP_Processor_Base extends ICWP_APP_Foundation {
 		}
 
 		if ( $aNoticeAttributes[ 'schedule' ] == 'once'
-			 && ( !$this->loadWpUsersProcessor()->getCanAddUpdateCurrentUserMeta()
+			 && ( !$this->loadWpUsers()->getCanAddUpdateCurrentUserMeta()
 				  || $oWpNotices->getAdminNoticeIsDismissed( $aNoticeAttributes[ 'id' ] )
 			 )
 		) {
@@ -75,7 +71,7 @@ abstract class ICWP_APP_Processor_Base extends ICWP_APP_Foundation {
 		}
 
 		if ( isset( $aNoticeAttributes[ 'type' ] )
-			 && $aNoticeAttributes[ 'type' ] == 'promo' && $this->loadWpFunctions()->getIsMobile() ) {
+			 && $aNoticeAttributes[ 'type' ] == 'promo' && $this->loadWP()->getIsMobile() ) {
 			return false;
 		}
 
@@ -193,7 +189,7 @@ abstract class ICWP_APP_Processor_Base extends ICWP_APP_Foundation {
 	 * @return mixed
 	 */
 	public function getPluginDefaultRecipientAddress() {
-		$oWp = $this->loadWpFunctions();
+		$oWp = $this->loadWP();
 		return apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'report_email_address' ), $oWp->getSiteAdminEmail() );
 	}
 
@@ -202,13 +198,6 @@ abstract class ICWP_APP_Processor_Base extends ICWP_APP_Foundation {
 	 */
 	public function getEmailProcessor() {
 		return $this->getFeatureOptions()->getEmailProcessor();
-	}
-
-	/**
-	 * @param $sStatKey
-	 */
-	protected function doStatIncrement( $sStatKey ) {
-		$this->getFeatureOptions()->doStatIncrement( $sStatKey );
 	}
 
 	/**
@@ -222,20 +211,20 @@ abstract class ICWP_APP_Processor_Base extends ICWP_APP_Foundation {
 	 * @return bool|int|string
 	 */
 	protected function human_ip() {
-		return $this->loadDataProcessor()->getVisitorIpAddress();
+		return $this->loadDP()->getVisitorIpAddress();
 	}
 
 	/**
 	 * @return bool|int
 	 */
 	protected function ip() {
-		return $this->loadDataProcessor()->getVisitorIpAddress( false );
+		return $this->loadDP()->getVisitorIpAddress( false );
 	}
 
 	/**
 	 * @return int
 	 */
 	protected function time() {
-		return $this->loadDataProcessor()->GetRequestTime();
+		return $this->loadDP()->GetRequestTime();
 	}
 }

@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_APP_Api_Internal_Collect_Sync', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/base.php' );
-
 class ICWP_APP_Api_Internal_Collect_Sync extends ICWP_APP_Api_Internal_Collect_Base {
 
 	/**

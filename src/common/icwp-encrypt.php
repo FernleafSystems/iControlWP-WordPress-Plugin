@@ -1,9 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_APP_Encrypt', false ) ) {
-	return;
-}
-
 class ICWP_APP_Encrypt extends ICWP_APP_Foundation {
 
 	/**
@@ -66,7 +62,7 @@ class ICWP_APP_Encrypt extends ICWP_APP_Foundation {
 		}
 
 		if ( !is_string( $mDataToEncrypt ) ) {
-			$mDataToEncrypt = $this->loadDataProcessor()->encodeJson( $mDataToEncrypt );
+			$mDataToEncrypt = $this->loadDP()->encodeJson( $mDataToEncrypt );
 			$oEncryptResponse->serialized = true;
 		}
 		else {

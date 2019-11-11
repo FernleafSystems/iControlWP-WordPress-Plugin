@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_APP_Processor_BasePlugin', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/base_app.php' );
-
 class ICWP_APP_Processor_BasePlugin extends ICWP_APP_Processor_BaseApp {
 
 	/**
@@ -54,11 +48,11 @@ class ICWP_APP_Processor_BasePlugin extends ICWP_APP_Processor_BaseApp {
 	}
 
 	/**
-	 * @see autoAddToAdminNotices()
 	 * @param array $aNoticeAttributes
+	 * @see autoAddToAdminNotices()
 	 */
 	protected function addNotice_php53_version_warning( $aNoticeAttributes ) {
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 		if ( $oDp->getPhpVersionIsAtLeast( '5.3.2' ) ) {
 			return;
 		}
@@ -82,12 +76,12 @@ class ICWP_APP_Processor_BasePlugin extends ICWP_APP_Processor_BaseApp {
 	}
 
 	/**
-	 * @see autoAddToAdminNotices()
 	 * @param array $aNoticeAttributes
+	 * @see autoAddToAdminNotices()
 	 */
 	protected function addNotice_plugin_update_available( $aNoticeAttributes ) {
 		$oFO = $this->getFeatureOptions();
-		$oWpUsers = $this->loadWpUsersProcessor();
+		$oWpUsers = $this->loadWpUsers();
 
 		$sAdminNoticeMetaKey = $oFO->doPluginPrefix( 'plugin-update-available' );
 		if ( $this->loadAdminNoticesProcessor()->getAdminNoticeIsDismissed( 'plugin-update-available' ) ) {
@@ -99,7 +93,7 @@ class ICWP_APP_Processor_BasePlugin extends ICWP_APP_Processor_BaseApp {
 			return;
 		}
 
-		$oWp = $this->loadWpFunctions();
+		$oWp = $this->loadWP();
 		$sBaseFile = $this->getController()->getPluginBaseFile();
 		if ( !$oWp->getIsPage_Updates() && $oWp->getIsPluginUpdateAvailable( $sBaseFile ) ) { // Don't show on the update page
 
@@ -121,8 +115,8 @@ class ICWP_APP_Processor_BasePlugin extends ICWP_APP_Processor_BaseApp {
 	}
 
 	/**
-	 * @see autoAddToAdminNotices()
 	 * @param array $aNoticeAttributes
+	 * @see autoAddToAdminNotices()
 	 */
 	protected function addNotice_translate_plugin( $aNoticeAttributes ) {
 
@@ -145,13 +139,13 @@ class ICWP_APP_Processor_BasePlugin extends ICWP_APP_Processor_BaseApp {
 	}
 
 	/**
-	 * @see autoAddToAdminNotices()
 	 * @param array $aNoticeAttributes
+	 * @see autoAddToAdminNotices()
 	 */
 	protected function addNotice_post_plugin_update( $aNoticeAttributes ) {
 		$oFO = $this->getFeatureOptions();
 
-		$oWpUsers = $this->loadWpUsersProcessor();
+		$oWpUsers = $this->loadWpUsers();
 		$sAdminNoticeMetaKey = $oFO->doPluginPrefix( 'post-plugin-update' );
 		if ( $this->loadAdminNoticesProcessor()->getAdminNoticeIsDismissed( 'post-plugin-update' ) ) {
 			$oWpUsers->updateUserMeta( $sAdminNoticeMetaKey, $oFO->getVersion() ); // so they've hidden it. Now we set the current version so it doesn't display
@@ -211,17 +205,10 @@ class ICWP_APP_Processor_BasePlugin extends ICWP_APP_Processor_BaseApp {
 			$bShow = false;
 		}
 
-		$oWpFunctions = $this->loadWpFunctions();
-		if ( class_exists( 'Worpit_Plugin' ) ) {
-			if ( method_exists( 'Worpit_Plugin', 'IsLinked' ) ) {
-				$bShow = !Worpit_Plugin::IsLinked();
-			}
-			else if ( $oWpFunctions->getOption( Worpit_Plugin::$VariablePrefix.'assigned' ) == 'Y'
-					  && $oWpFunctions->getOption( Worpit_Plugin::$VariablePrefix.'assigned_to' ) != '' ) {
-
-				$bShow = false;
-			}
+		if ( method_exists( 'ICWP_Plugin', 'IsLinked' ) ) {
+			$bShow = !ICWP_Plugin::IsLinked();
 		}
+
 		return $bShow;
 	}
 
@@ -233,7 +220,7 @@ class ICWP_APP_Processor_BasePlugin extends ICWP_APP_Processor_BaseApp {
 		if ( empty( $nTimeInstalled ) ) {
 			return 0;
 		}
-		return round( ( $this->loadDataProcessor()->time() - $nTimeInstalled )/DAY_IN_SECONDS );
+		return round( ( $this->loadDP()->time() - $nTimeInstalled )/DAY_IN_SECONDS );
 	}
 
 	/**

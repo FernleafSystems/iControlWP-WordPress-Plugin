@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_APP_Api_Internal_Collect_Plugins', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/base.php' );
-
 class ICWP_APP_Api_Internal_Collect_Plugins extends ICWP_APP_Api_Internal_Collect_Base {
 
 	/**
@@ -21,12 +15,11 @@ class ICWP_APP_Api_Internal_Collect_Plugins extends ICWP_APP_Api_Internal_Collec
 	 * @return array                                associative: PluginFile => PluginData
 	 */
 	public function collect() {
-		$this->importCommonLib( 'plugins' );
 
 //			$this->prepThirdPartyPlugins(); TODO
 		$aPlugins = $this->getInstalledPlugins( $this->getDesiredPluginAttributes() );
 
-		$oUpdates = $this->loadWpFunctions()
+		$oUpdates = $this->loadWP()
 						 ->updatesGather( 'plugins', $this->isForceUpdateCheck() ); // option to do another update check? force it?
 
 		$aAutoUpdates = $this->getAutoUpdates( 'plugins' );
