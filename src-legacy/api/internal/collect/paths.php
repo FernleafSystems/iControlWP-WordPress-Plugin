@@ -77,7 +77,8 @@ class ICWP_APP_Api_Internal_Collect_Paths extends ICWP_APP_Api_Internal_Collect_
 			// if it doesn't exist and the last section of the home dir is the same as the diff
 			// then we remove the diff from the home dir
 			$sAbsHomeDir = $sRoot;
-			if ( $sDiff && !is_dir( $sAbsHomeDir.DIRECTORY_SEPARATOR.$sDiff ) && end( explode( DIRECTORY_SEPARATOR, $sAbsHomeDir ) ) == $sDiff ) {
+			$aAbsHomeParts = explode( DIRECTORY_SEPARATOR, $sAbsHomeDir );
+			if ( $sDiff && !is_dir( path_join( $sAbsHomeDir, $sDiff ) ) && end( $aAbsHomeParts ) == $sDiff ) {
 				// take the last part off the home dir
 				$sAbsHomeDir = implode( DIRECTORY_SEPARATOR, array_slice( explode( DIRECTORY_SEPARATOR, $sAbsHomeDir ), 0, -1 ) );
 			}

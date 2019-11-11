@@ -977,7 +977,11 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		public function getCoreUpdateByVersion( $sVersion ) {
 			$this->updatesCheck( 'core', true );
 			require_once( ABSPATH.'wp-admin/includes/update.php' );
-			return find_core_update( $sVersion, $this->getLocale() );
+			$oUpdate = find_core_update( $sVersion, $this->getLocale() );
+			if ( $oUpdate === false && ( $this->getLocale() == 'en' ) ) {
+				$oUpdate = find_core_update( $sVersion, 'en_US' );
+			}
+			return $oUpdate;
 		}
 
 		/**
