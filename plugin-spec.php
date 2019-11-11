@@ -17,13 +17,14 @@
     "wordpress": "3.5.0"
   },
   "paths":        {
-    "source":    "src",
-    "assets":    "assets",
-    "temp":      "tmp",
-    "languages": "languages",
-    "templates": "templates",
-    "flags":     "flags",
-    "cache":     "icwp"
+    "source":        "src",
+    "source-legacy": "src-legacy",
+    "assets":        "assets",
+    "temp":          "tmp",
+    "languages":     "languages",
+    "templates":     "templates",
+    "flags":         "flags",
+    "cache":         "icwp"
   },
   "includes":     {
     "admin":        {

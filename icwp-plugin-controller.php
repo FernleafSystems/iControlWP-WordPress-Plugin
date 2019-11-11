@@ -336,14 +336,6 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getOptionsEncoding() {
-		$sEncoding = $this->getPluginSpec_Property( 'options_encoding' );
-		return in_array( $sEncoding, array( 'yaml', 'json' ) ) ? $sEncoding : 'yaml';
-	}
-
-	/**
 	 * @return bool
 	 */
 	protected function createPluginMenu() {
@@ -1181,7 +1173,8 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return string
 	 */
 	public function getPath_Source() {
-		return $this->getRootDir().$this->getPluginSpec_Path( 'source' ).DIRECTORY_SEPARATOR;
+		$sSource = version_compare( PHP_VERSION, '5.3', '<' ) ? 'source-legacy' : 'source';
+		return $this->getRootDir().$this->getPluginSpec_Path( $sSource ).DIRECTORY_SEPARATOR;
 	}
 
 	/**
