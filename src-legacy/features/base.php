@@ -1143,14 +1143,6 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 		}
 
 		/**
-		 * @param $sStatKey
-		 */
-		public function doStatIncrement( $sStatKey ) {
-			$this->loadStatsProcessor();
-			ICWP_Stats_APP::DoStatIncrement( $sStatKey );
-		}
-
-		/**
 		 * @return ICWP_APP_Plugin_Controller
 		 */
 		public function getController() {

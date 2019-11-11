@@ -59,7 +59,7 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 	 * @return bool
 	 */
 	public function cleanTransientStorage() {
-		return $this->loadWP()->deleteTransient( $this->getSpecTransientStorageKey() );
+		return $this->loadWP()->deleteTransient( $this->getConfigStorageKey() );
 	}
 
 	/**
@@ -80,7 +80,7 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 	 */
 	public function doOptionsDelete() {
 		$oWp = $this->loadWP();
-		$oWp->deleteTransient( $this->getSpecTransientStorageKey() );
+		$oWp->deleteTransient( $this->getConfigStorageKey() );
 		return $oWp->deleteOption( $this->getOptionsStorageKey() );
 	}
 

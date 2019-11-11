@@ -205,13 +205,6 @@ abstract class ICWP_APP_Processor_Base extends ICWP_APP_Foundation {
 	}
 
 	/**
-	 * @param $sStatKey
-	 */
-	protected function doStatIncrement( $sStatKey ) {
-		$this->getFeatureOptions()->doStatIncrement( $sStatKey );
-	}
-
-	/**
 	 * @return ICWP_APP_FeatureHandler_Base
 	 */
 	protected function getFeatureOptions() {

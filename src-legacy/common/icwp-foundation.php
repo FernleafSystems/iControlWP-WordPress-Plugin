@@ -212,31 +212,8 @@ class ICWP_APP_Foundation {
 	}
 
 	/**
-	 * @return ICWP_APP_GoogleAuthenticator
-	 */
-	static public function loadGoogleAuthenticatorProcessor() {
-		if ( !isset( self::$oGA ) ) {
-			require_once( dirname( __FILE__ ).'/icwp-googleauthenticator.php' );
-			self::$oGA = ICWP_APP_GoogleAuthenticator::GetInstance();
-		}
-
-		return self::$oGA;
-	}
-
-	/**
-	 * @return ICWP_APP_GoogleRecaptcha
-	 */
-	static public function loadGoogleRecaptcha() {
-		if ( !isset( self::$oGR ) ) {
-			require_once( dirname( __FILE__ ).'/icwp-googlearecaptcha.php' );
-			self::$oGR = ICWP_APP_GoogleRecaptcha::GetInstance();
-		}
-
-		return self::$oGR;
-	}
-
-	/**
 	 * @return ICWP_APP_WpTrack
+	 * @deprecated 3.7
 	 */
 	static public function loadWpTrack() {
 		if ( !isset( self::$oTrack ) ) {
@@ -322,13 +299,6 @@ class ICWP_APP_Foundation {
 		}
 
 		return self::$oWpComments;
-	}
-
-	/**
-	 * @return ICWP_Stats_APP
-	 */
-	public function loadStatsProcessor() {
-		require_once( dirname( __FILE__ ).'/icwp-stats.php' );
 	}
 
 	/**
