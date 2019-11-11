@@ -176,7 +176,7 @@ if ( !class_exists( 'ICWP_APP_Render', false ) ):
 		 * @return string
 		 */
 		public function getTemplate() {
-			$this->sTemplate = $this->loadDataProcessor()->addExtensionToFilePath( $this->sTemplate, $this->getEngineStub() );
+			$this->sTemplate = $this->loadDP()->addExtensionToFilePath( $this->sTemplate, $this->getEngineStub() );
 			return $this->sTemplate;
 		}
 
@@ -208,7 +208,7 @@ if ( !class_exists( 'ICWP_APP_Render', false ) ):
 			if ( empty( $sTemplate ) ) {
 				$sTemplate = $this->getTemplate();
 			}
-			$sTemplate = $this->loadDataProcessor()->addExtensionToFilePath( $sTemplate, $this->getEngineStub() );
+			$sTemplate = $this->loadDP()->addExtensionToFilePath( $sTemplate, $this->getEngineStub() );
 			return path_join( $this->getTemplateRoot(), $sTemplate );
 		}
 

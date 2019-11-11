@@ -442,7 +442,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 				return null;
 			}
 
-			return $this->loadDataProcessor()->convertArrayToStdClass( $aPlugins[ $sPluginBaseFilename ] );
+			return $this->loadDP()->convertArrayToStdClass( $aPlugins[ $sPluginBaseFilename ] );
 		}
 
 		/**
@@ -526,7 +526,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		public function doRedirect( $sUrl, $aQueryParams = array(), $bSafe = true, $bProtectAgainstInfiniteLoops = true ) {
 			$sUrl = empty( $aQueryParams ) ? $sUrl : add_query_arg( $aQueryParams, $sUrl );
 
-			$oDp = $this->loadDataProcessor();
+			$oDp = $this->loadDP();
 			// we prevent any repetitive redirect loops
 			if ( $bProtectAgainstInfiniteLoops ) {
 				if ( $oDp->FetchCookie( 'icwp-isredirect' ) == 'yes' ) {
@@ -586,7 +586,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 
 			//special case for plugin admin pages.
 			if ( $sPage == 'admin.php' ) {
-				$sSubPage = $this->loadDataProcessor()->FetchGet( 'page' );
+				$sSubPage = $this->loadDP()->FetchGet( 'page' );
 				if ( !empty( $sSubPage ) ) {
 					$aQueryArgs = array(
 						'page' => $sSubPage,
@@ -617,7 +617,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		 * @return bool
 		 */
 		public function getIsLoginRequest() {
-			$oDp = $this->loadDataProcessor();
+			$oDp = $this->loadDP();
 			return
 				$oDp->GetIsRequestPost()
 				&& !is_null( $oDp->FetchPost( 'log' ) )
@@ -629,7 +629,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		 * @return bool
 		 */
 		public function getIsRegisterRequest() {
-			$oDp = $this->loadDataProcessor();
+			$oDp = $this->loadDP();
 			return
 				$oDp->GetIsRequestPost()
 				&& !is_null( $oDp->FetchPost( 'user_login' ) )
@@ -642,7 +642,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		 */
 		public function getIsLoginUrl() {
 			$aLoginUrlParts = @parse_url( wp_login_url() );
-			$aRequestParts = $this->loadDataProcessor()->getRequestUriParts();
+			$aRequestParts = $this->loadDP()->getRequestUriParts();
 			return ( !empty( $aRequestParts[ 'path' ] ) && ( rtrim( $aRequestParts[ 'path' ], '/' ) == rtrim( $aLoginUrlParts[ 'path' ], '/' ) ) );
 		}
 
@@ -804,7 +804,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		 */
 		public function getCurrentWpAdminPage() {
 
-			$oDp = $this->loadDataProcessor();
+			$oDp = $this->loadDP();
 			$sScript = $oDp->FetchServer( 'SCRIPT_NAME' );
 			if ( empty( $sScript ) ) {
 				$sScript = $oDp->FetchServer( 'PHP_SELF' );
@@ -832,12 +832,12 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		 */
 		public function setActivePluginLoadPosition( $sPluginFile, $nDesiredPosition = 0 ) {
 
-			$aActive = $this->loadDataProcessor()
+			$aActive = $this->loadDP()
 							->setArrayValueToPosition( $this->getOption( 'active_plugins' ), $sPluginFile, $nDesiredPosition );
 			$this->updateOption( 'active_plugins', $aActive );
 
 			if ( $this->isMultisite() ) {
-				$aActive = $this->loadDataProcessor()
+				$aActive = $this->loadDP()
 								->setArrayValueToPosition( $this->getOption( 'active_sitewide_plugins' ), $sPluginFile, $nDesiredPosition );
 				$this->updateOption( 'active_sitewide_plugins', $aActive );
 			}
@@ -864,7 +864,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		 * @return string
 		 */
 		public function getTimeStringForDisplay( $nTime = null, $bShowTime = true, $bShowDate = true ) {
-			$nTime = empty( $nTime ) ? $this->loadDataProcessor()->time() : $nTime;
+			$nTime = empty( $nTime ) ? $this->loadDP()->time() : $nTime;
 
 			$sFullTimeString = $bShowTime ? $this->getTimeFormat() : '';
 			if ( empty( $sFullTimeString ) ) {
@@ -890,7 +890,7 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 				}
 			}
 
-			$nTime = empty( $nTime ) ? $this->loadDataProcessor()->time() : $nTime;
+			$nTime = empty( $nTime ) ? $this->loadDP()->time() : $nTime;
 			return $nTime + ( $nTimezoneOffset*HOUR_IN_SECONDS );
 		}
 

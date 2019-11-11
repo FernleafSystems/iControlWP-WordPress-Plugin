@@ -26,7 +26,7 @@ class ICWP_APP_Api_Internal_Collect_Plugins extends ICWP_APP_Api_Internal_Collec
 //			$this->prepThirdPartyPlugins(); TODO
 		$aPlugins = $this->getInstalledPlugins( $this->getDesiredPluginAttributes() );
 
-		$oUpdates = $this->loadWpFunctions()
+		$oUpdates = $this->loadWP()
 						 ->updatesGather( 'plugins', $this->isForceUpdateCheck() ); // option to do another update check? force it?
 
 		$aAutoUpdates = $this->getAutoUpdates( 'plugins' );

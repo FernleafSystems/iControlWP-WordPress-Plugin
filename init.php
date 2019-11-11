@@ -1,6 +1,15 @@
 <?php
+
+if ( true|| version_compare( PHP_VERSION, '5.3', '<' ) ) {
+	require_once( dirname( __FILE__ ).'/src-legacy/common/icwp-foundation.php' );
+	require_once( dirname( __FILE__ ).'/icwp-plugin-controller.php' );
+}
+else {
+	require_once( dirname( __FILE__ ).'/lib/vendor/autoload.php' );
+}
+
 /** @var string $sIcwpPluginRootFile */
-require_once( dirname( __FILE__ ).'/lib/vendor/autoload.php' );
+$oICWP_App_Controller = ICWP_APP_Plugin_Controller::GetInstance( $sIcwpPluginRootFile );
 
 class ICWP_Plugin extends ICWP_APP_Foundation {
 
@@ -130,7 +139,4 @@ if ( !class_exists( 'Worpit_Plugin' ) ) {
 	}
 }
 
-$oICWP_App_Controller = ICWP_APP_Plugin_Controller::GetInstance( $sIcwpPluginRootFile );
-if ( !is_null( $oICWP_App_Controller ) ) {
-	$g_oWorpit = new ICWP_Plugin( $oICWP_App_Controller );
-}
+$g_oWorpit = new ICWP_Plugin( $oICWP_App_Controller );

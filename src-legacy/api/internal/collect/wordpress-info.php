@@ -19,8 +19,8 @@ class ICWP_APP_Api_Internal_Collect_Wordpress extends ICWP_APP_Api_Internal_Coll
 	 * @return array associative: ThemeStylesheet => ThemeData
 	 */
 	public function collect() {
-		$oDp = $this->loadDataProcessor();
-		$oWp = $this->loadWpFunctions();
+		$oDp = $this->loadDP();
+		$oWp = $this->loadWP();
 
 		$aInfo = array(
 			'is_multisite'            => (int)is_multisite(),
@@ -85,7 +85,7 @@ class ICWP_APP_Api_Internal_Collect_Wordpress extends ICWP_APP_Api_Internal_Coll
 	 * @return string
 	 */
 	protected function getServerAddress() {
-		if ( $this->loadDataProcessor()->isWindows() ) {
+		if ( $this->loadDP()->isWindows() ) {
 			if ( !isset( $_SERVER[ 'SERVER_ADDR' ] ) || empty( $_SERVER[ 'SERVER_ADDR' ] ) ) {
 				if ( isset( $_SERVER[ 'LOCAL_ADDR' ] ) && !empty( $_SERVER[ 'LOCAL_ADDR' ] ) ) {
 					$sAddress = $_SERVER[ 'LOCAL_ADDR' ];
@@ -125,7 +125,7 @@ class ICWP_APP_Api_Internal_Collect_Wordpress extends ICWP_APP_Api_Internal_Coll
 	private function getAvailableCoreUpdates() {
 		$aVersions = array();
 
-		$this->loadWpFunctions()->updatesCheck( 'core', true );
+		$this->loadWP()->updatesCheck( 'core', true );
 		$oUpds = get_site_transient( 'update_core' );
 		if ( is_object( $oUpds ) && !empty( $oUpds->updates ) && is_array( $oUpds->updates ) ) {
 			foreach ( $oUpds->updates as $oUpd ) {

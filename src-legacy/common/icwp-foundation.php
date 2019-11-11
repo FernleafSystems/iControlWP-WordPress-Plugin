@@ -99,7 +99,7 @@ class ICWP_APP_Foundation {
 	/**
 	 * @return ICWP_APP_DataProcessor
 	 */
-	static public function loadDataProcessor() {
+	static public function loadDP() {
 		if ( !isset( self::$oDp ) ) {
 			require_once( dirname( __FILE__ ).'/icwp-data.php' );
 			self::$oDp = ICWP_APP_DataProcessor::GetInstance();
@@ -123,7 +123,7 @@ class ICWP_APP_Foundation {
 	/**
 	 * @return ICWP_APP_WpFunctions
 	 */
-	static public function loadWpFunctions() {
+	static public function loadWP() {
 		if ( !isset( self::$oWp ) ) {
 			require_once( dirname( __FILE__ ).'/icwp-wpfunctions.php' );
 			self::$oWp = ICWP_APP_WpFunctions::GetInstance();
@@ -291,7 +291,7 @@ class ICWP_APP_Foundation {
 	/**
 	 * @return ICWP_APP_WpUsers
 	 */
-	static public function loadWpUsersProcessor() {
+	static public function loadWpUsers() {
 		if ( !isset( self::$oWpUsers ) ) {
 			require_once( dirname( __FILE__ ).'/wp-users.php' );
 			self::$oWpUsers = ICWP_APP_WpUsers::GetInstance();
@@ -329,5 +329,29 @@ class ICWP_APP_Foundation {
 	 */
 	public function loadStatsProcessor() {
 		require_once( dirname( __FILE__ ).'/icwp-stats.php' );
+	}
+
+	/**
+	 * @return ICWP_APP_DataProcessor
+	 * @deprecated 3.7
+	 */
+	static public function loadDataProcessor() {
+		return self::loadDP();
+	}
+
+	/**
+	 * @return ICWP_APP_WpFunctions
+	 * @deprecated 3.7
+	 */
+	static public function loadWpFunctions() {
+		return self::loadWP();
+	}
+
+	/**
+	 * @return ICWP_APP_WpUsers
+	 * @deprecated 3.7
+	 */
+	static public function loadWpUsersProcessor() {
+		return self::loadWpUsers();
 	}
 }

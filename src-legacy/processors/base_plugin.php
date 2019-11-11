@@ -58,7 +58,7 @@ class ICWP_APP_Processor_BasePlugin extends ICWP_APP_Processor_BaseApp {
 	 * @param array $aNoticeAttributes
 	 */
 	protected function addNotice_php53_version_warning( $aNoticeAttributes ) {
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 		if ( $oDp->getPhpVersionIsAtLeast( '5.3.2' ) ) {
 			return;
 		}
@@ -87,7 +87,7 @@ class ICWP_APP_Processor_BasePlugin extends ICWP_APP_Processor_BaseApp {
 	 */
 	protected function addNotice_plugin_update_available( $aNoticeAttributes ) {
 		$oFO = $this->getFeatureOptions();
-		$oWpUsers = $this->loadWpUsersProcessor();
+		$oWpUsers = $this->loadWpUsers();
 
 		$sAdminNoticeMetaKey = $oFO->doPluginPrefix( 'plugin-update-available' );
 		if ( $this->loadAdminNoticesProcessor()->getAdminNoticeIsDismissed( 'plugin-update-available' ) ) {
@@ -99,7 +99,7 @@ class ICWP_APP_Processor_BasePlugin extends ICWP_APP_Processor_BaseApp {
 			return;
 		}
 
-		$oWp = $this->loadWpFunctions();
+		$oWp = $this->loadWP();
 		$sBaseFile = $this->getController()->getPluginBaseFile();
 		if ( !$oWp->getIsPage_Updates() && $oWp->getIsPluginUpdateAvailable( $sBaseFile ) ) { // Don't show on the update page
 
@@ -151,7 +151,7 @@ class ICWP_APP_Processor_BasePlugin extends ICWP_APP_Processor_BaseApp {
 	protected function addNotice_post_plugin_update( $aNoticeAttributes ) {
 		$oFO = $this->getFeatureOptions();
 
-		$oWpUsers = $this->loadWpUsersProcessor();
+		$oWpUsers = $this->loadWpUsers();
 		$sAdminNoticeMetaKey = $oFO->doPluginPrefix( 'post-plugin-update' );
 		if ( $this->loadAdminNoticesProcessor()->getAdminNoticeIsDismissed( 'post-plugin-update' ) ) {
 			$oWpUsers->updateUserMeta( $sAdminNoticeMetaKey, $oFO->getVersion() ); // so they've hidden it. Now we set the current version so it doesn't display
@@ -211,7 +211,7 @@ class ICWP_APP_Processor_BasePlugin extends ICWP_APP_Processor_BaseApp {
 			$bShow = false;
 		}
 
-		$oWpFunctions = $this->loadWpFunctions();
+		$oWpFunctions = $this->loadWP();
 		if ( class_exists( 'Worpit_Plugin' ) ) {
 			if ( method_exists( 'Worpit_Plugin', 'IsLinked' ) ) {
 				$bShow = !Worpit_Plugin::IsLinked();
@@ -233,7 +233,7 @@ class ICWP_APP_Processor_BasePlugin extends ICWP_APP_Processor_BaseApp {
 		if ( empty( $nTimeInstalled ) ) {
 			return 0;
 		}
-		return round( ( $this->loadDataProcessor()->time() - $nTimeInstalled )/DAY_IN_SECONDS );
+		return round( ( $this->loadDP()->time() - $nTimeInstalled )/DAY_IN_SECONDS );
 	}
 
 	/**

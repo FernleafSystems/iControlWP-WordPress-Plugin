@@ -288,7 +288,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		/**
 		 */
 		protected function preActionEnvironmentSetup() {
-			$this->loadWpFunctions()->doBustCache();
+			$this->loadWP()->doBustCache();
 			@set_time_limit( $this->getRequestParams()->getTimeout() );
 		}
 
@@ -309,12 +309,12 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		protected function setAuthorizedUser() {
 
 			if ( !$this->isLoggedInUser() ) {
-				$oWpUser = $this->loadWpUsersProcessor();
+				$oWpUser = $this->loadWpUsers();
 				$oReqParams = $this->getRequestParams();
 				$sWpUser = $oReqParams->getStringParam( 'wpadmin_user' );
 				if ( empty( $sWpUser ) ) {
 
-					if ( version_compare( $this->loadWpFunctions()->getWordpressVersion(), '3.1', '>=' ) ) {
+					if ( version_compare( $this->loadWP()->getWordpressVersion(), '3.1', '>=' ) ) {
 						$aUserRecords = get_users( array(
 							'role' => 'administrator',
 							'number' => 1,
@@ -438,7 +438,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api', false ) ):
 		protected function getLoggedInUser() {
 			$sLoggedInUser = $this->sLoggedInUser;
 			if ( empty( $sLoggedInUser ) ) {
-				$oWpUser = $this->loadWpUsersProcessor();
+				$oWpUser = $this->loadWpUsers();
 				if ( $oWpUser->isUserLoggedIn() && $oWpUser->isUserAdmin() ) {
 					$sLoggedInUser = $oWpUser->getCurrentWpUser()->get( 'user_login' );
 					$this->setLoggedInUser( $sLoggedInUser );

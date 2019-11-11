@@ -61,7 +61,7 @@ if ( !class_exists( 'ICWP_APP_OptionsVO', false ) ) :
 		 * @return bool
 		 */
 		public function cleanTransientStorage() {
-			return $this->loadWpFunctions()->deleteTransient( $this->getSpecTransientStorageKey() );
+			return $this->loadWP()->deleteTransient( $this->getSpecTransientStorageKey() );
 		}
 
 		/**
@@ -73,7 +73,7 @@ if ( !class_exists( 'ICWP_APP_OptionsVO', false ) ) :
 			}
 			$this->cleanOptions();
 			$this->setNeedSave( false );
-			return $this->loadWpFunctions()
+			return $this->loadWP()
 						->updateOption( $this->getOptionsStorageKey(), $this->getAllOptionsValues() );
 		}
 
@@ -81,7 +81,7 @@ if ( !class_exists( 'ICWP_APP_OptionsVO', false ) ) :
 		 * @return bool
 		 */
 		public function doOptionsDelete() {
-			$oWp = $this->loadWpFunctions();
+			$oWp = $this->loadWP();
 			$oWp->deleteTransient( $this->getSpecTransientStorageKey() );
 			return $oWp->deleteOption( $this->getOptionsStorageKey() );
 		}
@@ -545,7 +545,7 @@ if ( !class_exists( 'ICWP_APP_OptionsVO', false ) ) :
 					if ( empty( $sStorageKey ) ) {
 						throw new Exception( 'Options Storage Key Is Empty' );
 					}
-					$this->aOptionsValues = $this->loadWpFunctions()->getOption( $sStorageKey, array() );
+					$this->aOptionsValues = $this->loadWP()->getOption( $sStorageKey, array() );
 				}
 			}
 			if ( !is_array( $this->aOptionsValues ) ) {
@@ -560,7 +560,7 @@ if ( !class_exists( 'ICWP_APP_OptionsVO', false ) ) :
 		 * @throws Exception
 		 */
 		private function readYamlConfiguration() {
-			$oWp = $this->loadWpFunctions();
+			$oWp = $this->loadWP();
 
 			$sTransientKey = $this->getSpecTransientStorageKey();
 			$aConfig = $oWp->getTransient( $sTransientKey );

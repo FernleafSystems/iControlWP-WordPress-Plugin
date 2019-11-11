@@ -1173,8 +1173,15 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return string
 	 */
 	public function getPath_Source() {
-		$sSource = version_compare( PHP_VERSION, '5.3', '<' ) ? 'source-legacy' : 'source';
+		$sSource = $this->isLegacy() ? 'source-legacy' : 'source';
 		return $this->getRootDir().$this->getPluginSpec_Path( $sSource ).DIRECTORY_SEPARATOR;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isLegacy() {
+		return true||version_compare( PHP_VERSION, '5.3', '<' );
 	}
 
 	/**

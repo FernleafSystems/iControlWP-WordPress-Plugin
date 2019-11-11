@@ -25,7 +25,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Login', false ) ):
 		 */
 		protected function processAction() {
 			$oReqParams = $this->getRequestParams();
-			$oWp = $this->loadWpFunctions();
+			$oWp = $this->loadWP();
 
 			$this->getStandardResponse()->setDie( true );
 
@@ -56,7 +56,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Plugin_Api_Login', false ) ):
 				);
 			}
 
-			$oWpUsers = $this->loadWpUsersProcessor();
+			$oWpUsers = $this->loadWpUsers();
 
 			$sUsername = $oReqParams->getStringParam( 'username' );
 			$oUser = $oWpUsers->getUserByUsername( $sUsername );

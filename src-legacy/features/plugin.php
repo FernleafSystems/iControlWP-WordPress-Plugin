@@ -83,7 +83,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		public function getCanHandshake( $bDoVerify = false ) {
 
 			if ( !$bDoVerify ) { // we always verify can handshake at least once every 24hrs
-				$nSinceLastHandshakeCheck = $this->loadDataProcessor()->time() - $this->getOpt( 'time_last_check_can_handshake', 0 );
+				$nSinceLastHandshakeCheck = $this->loadDP()->time() - $this->getOpt( 'time_last_check_can_handshake', 0 );
 				if ( $nSinceLastHandshakeCheck > DAY_IN_SECONDS ) {
 					$bDoVerify = true;
 				}
@@ -111,7 +111,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		}
 
 		public function doExtraSubmitProcessing() {
-			$oDp = $this->loadDataProcessor();
+			$oDp = $this->loadDP();
 
 			if ( $oDp->FetchPost( $this->getController()->doPluginOptionPrefix( 'reset_plugin' ) ) ) {
 				$sTo = $this->getAssignedTo();
@@ -186,7 +186,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 			if ( $this->getIsSiteLinked() || !$this->loadFS()->isFile( $sAutoAddFilePath ) ) {
 				return;
 			}
-			$sContent = $this->loadDataProcessor()
+			$sContent = $this->loadDP()
 							 ->readFileContentsUsingInclude( $sAutoAddFilePath );
 			$this->loadFS()->deleteFile( $sAutoAddFilePath );
 			if ( !empty( $sContent ) ) {
@@ -252,7 +252,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 			$sOptionKey = 'key';
 			$sAuthKey = $this->getOpt( $sOptionKey );
 			if ( empty( $sAuthKey ) ) {
-				$sAuthKey = $this->loadDataProcessor()->GenerateRandomString( 24, 7 );
+				$sAuthKey = $this->loadDP()->GenerateRandomString( 24, 7 );
 				$this->setOpt( $sOptionKey, $sAuthKey );
 			}
 			return $sAuthKey;
@@ -339,7 +339,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		public function getRequestParams() {
 			if ( !isset( $this->oRequestParams ) ) {
 				require_once( dirname( dirname( __FILE__ ) ) . DIRECTORY_SEPARATOR . 'api' . DIRECTORY_SEPARATOR . 'RequestParameters.php' );
-				$oDp = $this->loadDataProcessor();
+				$oDp = $this->loadDP();
 				$this->oRequestParams = new RequestParameters( $oDp->FetchGet( 'reqpars', '' ), $oDp->FetchPost( 'reqpars', '' ) );
 			}
 			return $this->oRequestParams;
@@ -357,7 +357,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Plugin', false ) ):
 		 * This is the point where you would want to do any options verification
 		 */
 		protected function doPrePluginOptionsSave() {
-			$oDp = $this->loadDataProcessor();
+			$oDp = $this->loadDP();
 
 			if ( $this->getOpt( 'activated_at', 0 ) <= 0 ) {
 				$this->setOpt( 'activated_at', $oDp->time() );

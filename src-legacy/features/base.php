@@ -141,7 +141,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 			if ( !empty( $aPhpReqs ) ) {
 
 				if ( !empty( $aPhpReqs['version'] ) ) {
-					$bMeetsReqs = $bMeetsReqs && $this->loadDataProcessor()->getPhpVersionIsAtLeast( $aPhpReqs['version'] );
+					$bMeetsReqs = $bMeetsReqs && $this->loadDP()->getPhpVersionIsAtLeast( $aPhpReqs[ 'version'] );
 				}
 
 				if ( !empty( $aPhpReqs['functions'] ) && is_array( $aPhpReqs['functions'] )  ) {
@@ -187,7 +187,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 		 */
 		protected function importOptions() {
 			// So we don't poll for the file every page load.
-			if ( $this->loadDataProcessor()->FetchGet( 'icwp_shield_import' ) == 1 ) {
+			if ( $this->loadDP()->FetchGet( 'icwp_shield_import' ) == 1 ) {
 				$aOptions = $this->getController()->getOptionsImportFromFile();
 				if ( !empty( $aOptions ) && is_array( $aOptions ) && array_key_exists( $this->getOptionsStorageKey(), $aOptions ) ) {
 					$this->getOptionsVo()->setMultipleOptions( $aOptions[ $this->getOptionsStorageKey() ] );
@@ -471,7 +471,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 				return false;
 			}
 
-			$oWpFunc = $this->loadWpFunctions();
+			$oWpFunc = $this->loadWP();
 			if ( is_admin() && !$oWpFunc->isMultisite() ) {
 				return true;
 			}
@@ -562,7 +562,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 		}
 
 		protected function setupAjaxHandlers() {
-			if ( $this->loadWpFunctions()->getIsAjax() ) {
+			if ( $this->loadWP()->getIsAjax() ) {
 				if ( is_admin() || is_network_admin() ) {
 					$this->adminAjaxHandlers();
 				}
@@ -579,7 +579,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 		 */
 		protected function checkAjaxNonce() {
 
-			$sNonce = $this->loadDataProcessor()->FetchRequest( '_ajax_nonce', '' );
+			$sNonce = $this->loadDP()->FetchRequest( '_ajax_nonce', '' );
 			if ( empty( $sNonce ) ) {
 				$sMessage = $this->getTranslatedString( 'nonce_failed_empty', 'Nonce security checking failed - the nonce value was empty.' );
 			}
@@ -815,7 +815,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 		 * @return mixed|null|string
 		 */
 		protected function getFormInput( $sKey, $bTrim = true ) {
-			$sData = $this->loadDataProcessor()->FetchPost( $this->prefixOptionKey( $sKey ) );
+			$sData = $this->loadDP()->FetchPost( $this->prefixOptionKey( $sKey ) );
 			return ( $bTrim && !empty( $sData ) && is_string( $sData ) ) ? trim( $sData ) : $sData;
 		}
 
@@ -823,7 +823,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 		 * @return bool
 		 */
 		protected function doSaveStandardOptions() {
-			$oDp = $this->loadDataProcessor();
+			$oDp = $this->loadDP();
 			$sAllOptions = $oDp->FetchPost( $this->prefixOptionKey( 'all_options_input' ) );
 
 			if ( empty( $sAllOptions ) ) {
@@ -852,7 +852,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 			if ( empty( $sAllOptionsInput ) ) {
 				return true;
 			}
-			$oDp = $this->loadDataProcessor();
+			$oDp = $this->loadDP();
 
 			$aAllInputOptions = explode( self::CollateSeparator, $sAllOptionsInput );
 			foreach ( $aAllInputOptions as $sInputKey ) {
@@ -958,7 +958,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 		 * @return bool
 		 */
 		public function getIsCurrentPageConfig() {
-			$oWpFunctions = $this->loadWpFunctions();
+			$oWpFunctions = $this->loadWP();
 			return $oWpFunctions->getCurrentWpAdminPage() == $this->doPluginPrefix( $this->getFeatureSlug() );
 		}
 
@@ -1028,7 +1028,7 @@ if ( !class_exists( 'ICWP_APP_FeatureHandler_Base', false ) ):
 				$sSubView = 'feature-default';
 			}
 
-			$aData[ 'sFeatureInclude' ] = $this->loadDataProcessor()->addExtensionToFilePath( $sSubView, '.php' );
+			$aData[ 'sFeatureInclude' ] = $this->loadDP()->addExtensionToFilePath( $sSubView, '.php' );
 			$aData[ 'strings' ] = array_merge( $aData[ 'strings' ], $this->getDisplayStrings() );
 			try {
 				echo $oRndr

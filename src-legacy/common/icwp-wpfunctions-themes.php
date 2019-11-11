@@ -131,8 +131,8 @@ class ICWP_APP_WpFunctions_Themes extends ICWP_APP_Foundation {
 	 * @return string|WP_Theme
 	 */
 	public function getCurrentThemeName() {
-		return $this->loadWpFunctions()->getWordpressIsAtLeastVersion( '3.4.0' ) ? $this->getCurrent()
-																						->get( 'Name' ) : get_current_theme();
+		return $this->loadWP()->getWordpressIsAtLeastVersion( '3.4.0' ) ? $this->getCurrent()
+																			   ->get( 'Name' ) : get_current_theme();
 	}
 
 	/**
@@ -156,7 +156,7 @@ class ICWP_APP_WpFunctions_Themes extends ICWP_APP_Foundation {
 	 * @return null|WP_Theme
 	 */
 	public function getTheme( $sStylesheet = null ) {
-		if ( $this->loadWpFunctions()->getWordpressIsAtLeastVersion( '3.4.0' ) ) {
+		if ( $this->loadWP()->getWordpressIsAtLeastVersion( '3.4.0' ) ) {
 			if ( !function_exists( 'wp_get_theme' ) ) {
 				require_once( ABSPATH.'wp-admin/includes/theme.php' );
 			}
@@ -186,7 +186,7 @@ class ICWP_APP_WpFunctions_Themes extends ICWP_APP_Foundation {
 			$this->clearUpdates();
 			$this->checkForUpdates();
 		}
-		return $this->loadWpFunctions()->getTransient( 'update_themes' );
+		return $this->loadWP()->getTransient( 'update_themes' );
 	}
 
 	/**
@@ -208,12 +208,12 @@ class ICWP_APP_WpFunctions_Themes extends ICWP_APP_Foundation {
 	 */
 	protected function clearUpdates() {
 		$sKey = 'update_themes';
-		$oResponse = $this->loadWpFunctions()->getTransient( $sKey );
+		$oResponse = $this->loadWP()->getTransient( $sKey );
 		if ( !is_object( $oResponse ) ) {
 			$oResponse = new stdClass();
 		}
 		$oResponse->last_checked = 0;
-		$this->loadWpFunctions()->setTransient( $sKey, $oResponse );
+		$this->loadWP()->setTransient( $sKey, $oResponse );
 	}
 
 	/**

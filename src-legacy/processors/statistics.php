@@ -82,7 +82,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Statistics', false ) ):
 		 */
 		protected function getIfIgnoreUser() {
 			$bIgnoreLoggedInUser = $this->getIsOption( 'ignore_logged_in_user', 'Y' );
-			$nCurrentUserLevel = $this->loadWpUsersProcessor()->getCurrentUserLevel();
+			$nCurrentUserLevel = $this->loadWpUsers()->getCurrentUserLevel();
 			if ( $bIgnoreLoggedInUser && $nCurrentUserLevel >= 0 ) { // logged in
 				$nIgnoreFromUserLevel = $this->getOption( 'ignore_from_user_level', 11 );
 				if ( $nCurrentUserLevel >= $nIgnoreFromUserLevel ) {
@@ -302,7 +302,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Statistics', false ) ):
 			$aData[ 'month_id' ]	= $nMonth;
 			$aData[ 'year_id' ]		= $nYear;
 			$aData[ 'count_total' ]	= 1;
-			$aData[ 'created_at' ]	= $this->loadDataProcessor()->time();
+			$aData[ 'created_at' ]	= $this->loadDP()->time();
 
 			$mResult = $this->insertData( $aData );
 			return $mResult;
@@ -346,7 +346,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Statistics', false ) ):
 		 */
 		protected function getPageUri() {
 			if ( !isset( $this->sCurrentPageUri ) ) {
-				$aParts = explode( '?', $this->loadDataProcessor()->FetchServer( 'REQUEST_URI', '' ) );
+				$aParts = explode( '?', $this->loadDP()->FetchServer( 'REQUEST_URI', '' ) );
 				$this->sCurrentPageUri = $aParts[0];
 			}
 			return $this->sCurrentPageUri;
@@ -357,7 +357,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Statistics', false ) ):
 		 */
 		protected function getPageId() {
 			if ( !isset( $this->nCurrentPageId ) ) {
-				$this->nCurrentPageId = $this->loadWpFunctions()->getCurrentPostId();
+				$this->nCurrentPageId = $this->loadWP()->getCurrentPostId();
 			}
 			return $this->nCurrentPageId;
 		}
@@ -414,7 +414,7 @@ if ( !class_exists( 'ICWP_APP_Processor_Statistics', false ) ):
 			";
 			$sQuery = sprintf( $sQuery,
 				$this->getTableName(),
-				( $this->loadDataProcessor()->time() - 31 * DAY_IN_SECONDS )
+				( $this->loadDP()->time() - 31*DAY_IN_SECONDS )
 			);
 			$this->loadDbProcessor()->doSql( $sQuery );
 		}

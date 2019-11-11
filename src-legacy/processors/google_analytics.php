@@ -42,7 +42,7 @@ if ( !class_exists( 'ICWP_APP_Processor_GoogleAnalytics', false ) ):
 		 */
 		protected function getIfIgnoreUser() {
 			$bIgnoreLoggedInUser = $this->aGaOptions[ 'ignore_logged_in_user' ] == 'Y';
-			$nCurrentUserLevel = $this->loadWpUsersProcessor()->getCurrentUserLevel();
+			$nCurrentUserLevel = $this->loadWpUsers()->getCurrentUserLevel();
 			if ( $bIgnoreLoggedInUser && $nCurrentUserLevel >= 0 ) { // logged in
 				$nIgnoreFromUserLevel = $this->aGaOptions[ 'ignore_from_user_level' ];
 				if ( $nCurrentUserLevel >= $nIgnoreFromUserLevel ) {

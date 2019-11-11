@@ -1,6 +1,6 @@
 <?php
 
-class ICWP_APP_Foundation {
+class ICWP_APP_Foundatio1n {
 
 	/**
 	 * @var ICWP_APP_DataProcessor

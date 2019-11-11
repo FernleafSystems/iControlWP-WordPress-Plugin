@@ -24,7 +24,7 @@ class ICWP_APP_Api_Internal_Collect_Capabilities extends ICWP_APP_Api_Internal_C
 	 * @return array
 	 */
 	public function collect() {
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 		$bCanExtensionLoaded = function_exists( 'extension_loaded' ) && is_callable( 'extension_loaded' );
 
 		$aData = array(
