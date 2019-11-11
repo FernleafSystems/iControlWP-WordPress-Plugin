@@ -107,19 +107,12 @@ class ComposerStaticInitb04ede0316c2b6b457669442dc19e064
         'ICWP_APP_WpUpgrades' => __DIR__ . '/../..' . '/../src/common/icwp-wpupgrades.php',
         'ICWP_APP_WpUsers' => __DIR__ . '/../..' . '/../src/common/wp-users.php',
         'ICWP_APP_WpWidget' => __DIR__ . '/../..' . '/../src/common/wp-widget.php',
-        'ICWP_APP_YamlProcessor' => __DIR__ . '/../..' . '/../src/common/icwp-yaml.php',
         'ICWP_Bulk_Plugin_Upgrader_Skin' => __DIR__ . '/../..' . '/../src/common/icwp-wpupgrades.php',
         'ICWP_Bulk_Theme_Upgrader_Skin' => __DIR__ . '/../..' . '/../src/common/icwp-wpupgrades.php',
         'ICWP_Plugin_Upgrader' => __DIR__ . '/../..' . '/../src/common/icwp-wpupgrades.php',
-        'ICWP_Stats_APP' => __DIR__ . '/../..' . '/../src/common/icwp-stats.php',
         'ICWP_Theme_Upgrader' => __DIR__ . '/../..' . '/../src/common/icwp-wpupgrades.php',
         'ICWP_Upgrader_Skin' => __DIR__ . '/../..' . '/../src/common/icwp-wpupgrades.php',
         'RequestParameters' => __DIR__ . '/../..' . '/../src/api/RequestParameters.php',
-        'Spyc' => __DIR__ . '/../..' . '/../src/common/yaml/Spyc.php',
-        'sfYaml' => __DIR__ . '/../..' . '/../src/common/yaml/symfony/sfYaml.php',
-        'sfYamlDumper' => __DIR__ . '/../..' . '/../src/common/yaml/symfony/sfYamlDumper.php',
-        'sfYamlInline' => __DIR__ . '/../..' . '/../src/common/yaml/symfony/sfYamlInline.php',
-        'sfYamlParser' => __DIR__ . '/../..' . '/../src/common/yaml/symfony/sfYamlParser.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

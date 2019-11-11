@@ -202,9 +202,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * Registers the plugins activation, deactivate and uninstall hooks.
 	 */
 	protected function registerActivationHooks() {
-		register_activation_hook( $this->getRootFile(), array( $this, 'onWpActivatePlugin' ) );
 		register_deactivation_hook( $this->getRootFile(), array( $this, 'onWpDeactivatePlugin' ) );
-		//	register_uninstall_hook( $this->oPluginVo->getRootFile(), array( $this, 'onWpUninstallPlugin' ) );
 	}
 
 	/**
@@ -221,11 +219,6 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 			do_action( $this->doPluginPrefix( 'delete_plugin' ) );
 			$this->deletePluginControllerOptions();
 		}
-	}
-
-	public function onWpActivatePlugin() {
-		do_action( $this->doPluginPrefix( 'plugin_activate' ) );
-		$this->loadAllFeatures( true, true );
 	}
 
 	/**
