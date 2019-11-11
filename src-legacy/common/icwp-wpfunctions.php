@@ -748,6 +748,13 @@ if ( !class_exists( 'ICWP_APP_WpFunctions', false ) ):
 		/**
 		 * @return bool
 		 */
+		public function isDebug() {
+			return defined( 'WP_DEBUG' ) && WP_DEBUG;
+		}
+
+		/**
+		 * @return bool
+		 */
 		public function isMultisite() {
 			if ( !isset( $this->bIsMultisite ) ) {
 				$this->bIsMultisite = function_exists( 'is_multisite' ) && is_multisite();

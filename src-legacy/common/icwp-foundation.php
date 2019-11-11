@@ -7,16 +7,6 @@ if ( class_exists( 'ICWP_APP_Foundation', false ) ) {
 class ICWP_APP_Foundation {
 
 	/**
-	 * @var ICWP_APP_DataProcessor
-	 */
-	private static $oDp;
-
-	/**
-	 * @var ICWP_APP_WpFilesystem
-	 */
-	private static $oFs;
-
-	/**
 	 * @var ICWP_APP_WpCron
 	 */
 	private static $oWpCron;
@@ -47,11 +37,6 @@ class ICWP_APP_Foundation {
 	private static $oRender;
 
 	/**
-	 * @var ICWP_APP_YamlProcessor
-	 */
-	private static $oYaml;
-
-	/**
 	 * @var ICWP_APP_Encrypt
 	 */
 	private static $oEncrypt;
@@ -60,11 +45,6 @@ class ICWP_APP_Foundation {
 	 * @var ICWP_APP_Ip
 	 */
 	private static $oIp;
-
-	/**
-	 * @var ICWP_APP_GoogleAuthenticator
-	 */
-	private static $oGA;
 
 	/**
 	 * @var ICWP_APP_WpAdminNotices
@@ -82,16 +62,6 @@ class ICWP_APP_Foundation {
 	private static $oWpComments;
 
 	/**
-	 * @var ICWP_APP_GoogleRecaptcha
-	 */
-	private static $oGR;
-
-	/**
-	 * @var ICWP_APP_WpTrack
-	 */
-	private static $oTrack;
-
-	/**
 	 * @var ICWP_APP_WpUpgrades
 	 */
 	private static $oUpgrades;
@@ -100,24 +70,16 @@ class ICWP_APP_Foundation {
 	 * @return ICWP_APP_DataProcessor
 	 */
 	static public function loadDP() {
-		if ( !isset( self::$oDp ) ) {
-			require_once( dirname( __FILE__ ).'/icwp-data.php' );
-			self::$oDp = ICWP_APP_DataProcessor::GetInstance();
-		}
-
-		return self::$oDp;
+		require_once( dirname( __FILE__ ).'/icwp-data.php' );
+		return ICWP_APP_DataProcessor::GetInstance();
 	}
 
 	/**
 	 * @return ICWP_APP_WpFilesystem
 	 */
 	static public function loadFS() {
-		if ( !isset( self::$oFs ) ) {
-			require_once( dirname( __FILE__ ).'/icwp-wpfilesystem.php' );
-			self::$oFs = ICWP_APP_WpFilesystem::GetInstance();
-		}
-
-		return self::$oFs;
+		require_once( dirname( __FILE__ ).'/icwp-wpfilesystem.php' );
+		return ICWP_APP_WpFilesystem::GetInstance();
 	}
 
 	/**
@@ -207,7 +169,6 @@ class ICWP_APP_Foundation {
 			require_once( dirname( __FILE__ ).'/icwp-ip.php' );
 			self::$oIp = ICWP_APP_Ip::GetInstance();
 		}
-
 		return self::$oIp;
 	}
 
@@ -216,12 +177,8 @@ class ICWP_APP_Foundation {
 	 * @deprecated 3.7
 	 */
 	static public function loadWpTrack() {
-		if ( !isset( self::$oTrack ) ) {
-			require_once( dirname( __FILE__ ).'/wp-track.php' );
-			self::$oTrack = ICWP_APP_WpTrack::GetInstance();
-		}
-
-		return self::$oTrack;
+		require_once( dirname( __FILE__ ).'/wp-track.php' );
+		return ICWP_APP_WpTrack::GetInstance();
 	}
 
 	/**
@@ -239,18 +196,6 @@ class ICWP_APP_Foundation {
 		}
 
 		return self::$oRender;
-	}
-
-	/**
-	 * @return ICWP_APP_YamlProcessor
-	 */
-	static public function loadYamlProcessor() {
-		if ( !isset( self::$oYaml ) ) {
-			require_once( dirname( __FILE__ ).'/icwp-yaml.php' );
-			self::$oYaml = ICWP_APP_YamlProcessor::GetInstance();
-		}
-
-		return self::$oYaml;
 	}
 
 	/**

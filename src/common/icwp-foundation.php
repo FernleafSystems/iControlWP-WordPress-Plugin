@@ -3,24 +3,9 @@
 class ICWP_APP_Foundatio1n {
 
 	/**
-	 * @var ICWP_APP_DataProcessor
-	 */
-	private static $oDp;
-
-	/**
-	 * @var ICWP_APP_WpFilesystem
-	 */
-	private static $oFs;
-
-	/**
 	 * @var ICWP_APP_WpCron
 	 */
 	private static $oWpCron;
-
-	/**
-	 * @var ICWP_APP_WpFunctions
-	 */
-	private static $oWp;
 
 	/**
 	 * @var ICWP_APP_WpFunctions_Plugins
@@ -81,32 +66,21 @@ class ICWP_APP_Foundatio1n {
 	 * @return ICWP_APP_DataProcessor
 	 */
 	static public function loadDP() {
-		if ( !isset( self::$oDp ) ) {
-			self::$oDp = ICWP_APP_DataProcessor::GetInstance();
-		}
-
-		return self::$oDp;
+		return ICWP_APP_DataProcessor::GetInstance();
 	}
 
 	/**
 	 * @return ICWP_APP_WpFilesystem
 	 */
 	static public function loadFS() {
-		if ( !isset( self::$oFs ) ) {
-			self::$oFs = ICWP_APP_WpFilesystem::GetInstance();
-		}
-
-		return self::$oFs;
+		return ICWP_APP_WpFilesystem::GetInstance();
 	}
 
 	/**
 	 * @return ICWP_APP_WpFunctions
 	 */
 	static public function loadWP() {
-		if ( !isset( self::$oWp ) ) {
-			self::$oWp = ICWP_APP_WpFunctions::GetInstance();
-		}
-		return self::$oWp;
+		return ICWP_APP_WpFunctions::GetInstance();
 	}
 
 	/**
