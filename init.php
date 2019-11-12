@@ -11,7 +11,7 @@ else {
 /** @var string $sIcwpPluginRootFile */
 $oICWP_App_Controller = ICWP_APP_Plugin_Controller::GetInstance( $sIcwpPluginRootFile );
 
-class ICWP_Plugin extends ICWP_APP_Foundation {
+class ICWP_Plugin {
 
 	/**
 	 * @var ICWP_APP_Plugin_Controller
@@ -109,13 +109,6 @@ class ICWP_Plugin extends ICWP_APP_Foundation {
 	 */
 	public static function GetPluginSystem() {
 		return self::getController()->loadCorePluginFeatureHandler();
-	}
-
-	/**
-	 * @return ICWP_APP_FeatureHandler_Statistics
-	 */
-	public static function GetStatsSystem() {
-		return self::getController()->loadFeatureHandler( array( 'slug' => 'statistics' ) );
 	}
 
 	/**
