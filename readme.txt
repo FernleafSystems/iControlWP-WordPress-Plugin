@@ -121,7 +121,7 @@ No. WorpDrive is available for a small monthly fee.
 * **(v.0)**	ADDED:		Support for Google Tag Manager and Global Site Tags.
 * **(v.0)**	IMPROVED:	Large refactoring with a preference on autoloading using Composer.
 * **(v.0)**	IMPROVED:	Moved module configuration to JSON, away from YAML.
-* **(v.0)**	IMPROVED:	Plugin split into 2 halves: legacy code for PHP 5.2, newer code for PHP 5.3+
+* **(v.0)**	IMPROVED:	Plugin split into 2 halves: legacy code for PHP 5.x, newer code for PHP 7.x.
 
 = 3.6 Series =
 *Released: 8th January, 2019*

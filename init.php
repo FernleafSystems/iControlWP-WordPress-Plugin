@@ -1,6 +1,6 @@
 <?php
 
-if ( version_compare( PHP_VERSION, '5.3', '<' ) ) {
+if ( version_compare( PHP_VERSION, '7.0', '<' ) ) {
 	require_once( dirname( __FILE__ ).'/src-legacy/common/icwp-foundation.php' );
 	require_once( dirname( __FILE__ ).'/icwp-plugin-controller.php' );
 }
