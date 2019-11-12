@@ -1,18 +1,12 @@
 <?php
 
-if ( class_exists( 'ICWP_APP_Api_Internal_Collect_Capabilities', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/capabilities.php' );
-
 class ICWP_APP_Api_Internal_Collect_Environment extends ICWP_APP_Api_Internal_Collect_Capabilities {
 
 	/**
 	 * @return array
 	 */
 	public function collect() {
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 		if ( $oDp->suhosinFunctionExists( 'set_time_limit' ) ) {
 			@set_time_limit( 15 );
 		}

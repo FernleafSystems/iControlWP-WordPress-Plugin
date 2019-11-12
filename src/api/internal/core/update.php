@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_APP_Api_Internal_Core_Update', false ) ) {
-	return;
-}
-
-require_once( dirname( dirname( __FILE__ ) ).'/base.php' );
-
 class ICWP_APP_Api_Internal_Core_Update extends ICWP_APP_Api_Internal_Base {
 
 	/**
@@ -13,11 +7,12 @@ class ICWP_APP_Api_Internal_Core_Update extends ICWP_APP_Api_Internal_Base {
 	 */
 	public function process() {
 		$this->loadWpUpgrades();
-		$oWp = $this->loadWpFunctions();
+		$oWp = $this->loadWP();
 		$aActionParams = $this->getActionParams();
 		$sVersion = $aActionParams[ 'version' ];
+
 		if ( !$oWp->getIfCoreUpdateExists( $sVersion ) ) {
-			return $this->success( array(), 'The requested version is not currently available to install' );
+			return $this->success( array(), 'The requested version is not currently available to install.' );
 		}
 
 		$oUpgrader = new Core_Upgrader( new ICWP_Upgrader_Skin() );
@@ -27,7 +22,7 @@ class ICWP_APP_Api_Internal_Core_Update extends ICWP_APP_Api_Internal_Base {
 		}
 
 		// This was added because some people's sites didn't upgrade the database
-		$this->loadWpFunctions()->doWpUpgrade();
+		$this->loadWP()->doWpUpgrade();
 
 		return $this->success( array( 'result' => $oResult ) );
 	}

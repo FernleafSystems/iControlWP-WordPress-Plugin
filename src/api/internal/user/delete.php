@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_APP_Api_Internal_User_Delete', false ) ) {
-	return;
-}
-
-require_once( dirname( dirname( __FILE__ ) ).'/base.php' );
-
 class ICWP_APP_Api_Internal_User_Delete extends ICWP_APP_Api_Internal_Base {
 
 	/**
@@ -22,7 +16,7 @@ class ICWP_APP_Api_Internal_User_Delete extends ICWP_APP_Api_Internal_Base {
 		// Validate User ID
 
 		try {
-			$bResult = $this->loadWpUsersProcessor()->deleteUser(
+			$bResult = $this->loadWpUsers()->deleteUser(
 				$nUserId,
 				false,
 				$nReassignUserId

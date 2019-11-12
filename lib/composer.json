@@ -1,0 +1,37 @@
+{
+  "name":              "odp-icontrolwp/requirements",
+  "description":       "iControlWP requirements",
+  "authors":           [
+    {
+      "name":     "Paul Goodchild",
+      "email":    "paul@paulgoodchild.me",
+      "homepage": "https://paulgoodchild.me"
+    }
+  ],
+  "license":           "MIT",
+  "keywords":          [
+  ],
+  "repositories":      [
+  ],
+  "config":            {
+    "platform": {
+      "php": "5.2"
+    }
+  },
+  "require":           {
+    "php": "^5.2"
+  },
+  "require-dev":       {
+  },
+  "minimum-stability": "dev",
+  "prefer-stable":     true,
+  "autoload":          {
+    "psr-4":    {
+      "FernleafSystems\\Wordpress\\Plugin\\iControlWP\\": "src"
+    },
+    "classmap": [
+      "../src/",
+      "../icwp-plugin-controller.php"
+    ]
+  }
+}

@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_APP_Api_Internal_Core_Reinstall', false ) ) {
-	return;
-}
-
-require_once( dirname( dirname( __FILE__ ) ).'/base.php' );
-
 class ICWP_APP_Api_Internal_Core_Reinstall extends ICWP_APP_Api_Internal_Base {
 
 	/**
@@ -14,7 +8,7 @@ class ICWP_APP_Api_Internal_Core_Reinstall extends ICWP_APP_Api_Internal_Base {
 	 */
 	public function process() {
 		$this->loadWpUpgrades();
-		$oWp = $this->loadWpFunctions();
+		$oWp = $this->loadWP();
 
 		$oWpCoreUpdate = find_core_update( $oWp->getWordpressVersion(), $oWp->getLocale() );
 		if ( empty( $oWpCoreUpdate ) ) {

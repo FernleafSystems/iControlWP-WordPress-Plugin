@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_APP_Api_Internal_User_List', false ) ) {
-	return;
-}
-
-require_once( dirname( dirname( __FILE__ ) ).'/base.php' );
-
 class ICWP_APP_Api_Internal_User_List extends ICWP_APP_Api_Internal_Base {
 
 	/**
@@ -13,7 +7,7 @@ class ICWP_APP_Api_Internal_User_List extends ICWP_APP_Api_Internal_Base {
 	 */
 	public function process() {
 		if ( !function_exists( 'get_users' ) ) {
-			include( ABS_PATH.'wp-includes/user.php' );
+			include( ABSPATH.'wp-includes/user.php' );
 		}
 
 		$aData = array();

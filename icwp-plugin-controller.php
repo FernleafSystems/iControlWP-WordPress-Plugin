@@ -19,10 +19,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-if ( class_exists( 'ICWP_APP_Plugin_Controller', false ) ) {
-	return;
-}
-
 class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 
 	/**
@@ -71,11 +67,6 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	private $aRequirementsMessages;
 
 	/**
-	 * @var array
-	 */
-	private $aImportedOptions;
-
-	/**
 	 * @var string
 	 */
 	protected static $sSessionId;
@@ -119,7 +110,6 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 		self::$sRootFile = $sRootFile;
 		$this->checkMinimumRequirements();
 		add_action( 'plugins_loaded', array( $this, 'onWpPluginsLoaded' ), 0 );
-		$this->loadWpTrack();
 	}
 
 	/**
@@ -128,11 +118,11 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 */
 	private function readPluginSpecification() {
 		$aSpec = array();
-		$sContents = include( $this->getPathPluginSpec() );
+		$sContents = $this->loadDP()->readFileContentsUsingInclude( $this->getPathPluginSpec() );
 		if ( !empty( $sContents ) ) {
-			$aSpec = $this->loadYamlProcessor()->parseYamlString( $sContents );
-			if ( is_null( $aSpec ) ) {
-				throw new Exception( 'YAML parser could not load to process the plugin spec configuration.' );
+			$aSpec = json_decode( $sContents, true );
+			if ( empty( $aSpec ) ) {
+				throw new Exception( 'Could not json_decode the plugin spec configuration.' );
 			}
 		}
 		return $aSpec;
@@ -160,7 +150,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 
 		$sMinimumWp = $this->getPluginSpec_Requirement( 'wordpress' );
 		if ( !empty( $sMinimumWp ) ) {
-			$sWpVersion = $this->loadWpFunctions()->getWordpressVersion();
+			$sWpVersion = $this->loadWP()->getWordpressVersion();
 			if ( version_compare( $sWpVersion, $sMinimumWp, '<' ) ) {
 				$aRequirementsMessages[] = sprintf( 'WordPress does not meet minimum version. Your version: %s.  Required Version: %s.', $sWpVersion, $sMinimumWp );
 				$bMeetsRequirements = false;
@@ -212,23 +202,23 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * Registers the plugins activation, deactivate and uninstall hooks.
 	 */
 	protected function registerActivationHooks() {
-		register_activation_hook( $this->getRootFile(), array( $this, 'onWpActivatePlugin' ) );
 		register_deactivation_hook( $this->getRootFile(), array( $this, 'onWpDeactivatePlugin' ) );
-		//	register_uninstall_hook( $this->oPluginVo->getRootFile(), array( $this, 'onWpUninstallPlugin' ) );
 	}
 
 	/**
 	 */
 	public function onWpDeactivatePlugin() {
+		$oFS = $this->loadFS();
+
+		$sTmpDir = $this->getPath_PluginCache();
+		if ( $oFS->isDir( $sTmpDir ) ) {
+			$oFS->deleteDir( $sTmpDir );
+		}
+
 		if ( current_user_can( $this->getBasePermissions() ) && apply_filters( $this->doPluginPrefix( 'delete_on_deactivate' ), false ) ) {
 			do_action( $this->doPluginPrefix( 'delete_plugin' ) );
 			$this->deletePluginControllerOptions();
 		}
-	}
-
-	public function onWpActivatePlugin() {
-		do_action( $this->doPluginPrefix( 'plugin_activate' ) );
-		$this->loadAllFeatures( true, true );
 	}
 
 	/**
@@ -252,10 +242,10 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 
 		add_filter( 'all_plugins', array( $this, 'filter_hidePluginFromTableList' ) );
 		add_filter( 'all_plugins', array( $this, 'doPluginLabels' ) );
-		add_filter( 'plugin_action_links_' . $this->getPluginBaseFile(), array( $this, 'onWpPluginActionLinks' ), 50, 1 );
+		add_filter( 'plugin_action_links_'.$this->getPluginBaseFile(), array( $this, 'onWpPluginActionLinks' ), 50, 1 );
 		add_filter( 'plugin_row_meta', array( $this, 'onPluginRowMeta' ), 50, 2 );
 		add_filter( 'site_transient_update_plugins', array( $this, 'filter_hidePluginUpdatesFromUI' ) );
-		add_action( 'in_plugin_update_message-' . $this->getPluginBaseFile(), array( $this, 'onWpPluginUpdateMessage' ) );
+		add_action( 'in_plugin_update_message-'.$this->getPluginBaseFile(), array( $this, 'onWpPluginUpdateMessage' ) );
 
 		add_filter( 'auto_update_plugin', array( $this, 'onWpAutoUpdate' ), 500, 2 );
 		add_filter( 'set_site_transient_update_plugins', array( $this, 'setUpdateFirstDetectedAt' ) );
@@ -343,38 +333,6 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 */
 	public function getHasPermissionToView() {
 		return $this->getHasPermissionToManage(); // TODO: separate view vs manage
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getOptionsEncoding() {
-		$sEncoding = $this->getPluginSpec_Property( 'options_encoding' );
-		return in_array( $sEncoding, array( 'yaml', 'json' ) ) ? $sEncoding : 'yaml';
-	}
-
-	/**
-	 * @uses die()
-	 */
-	public function getOptionsImportFromFile() {
-
-		if ( !isset( $this->aImportedOptions ) ) {
-			$this->aImportedOptions = array();
-
-			$sFile = path_join( $this->getRootDir(), 'shield_options_export.txt' );
-			$oFS = $this->loadFS();
-			if ( $oFS->isFile( $sFile ) ) {
-				$sOptionsString = $oFS->getFileContent( $sFile );
-				if ( !empty( $sOptionsString ) && is_string( $sOptionsString ) ) {
-					$aOptions = $this->loadYamlProcessor()->parseYamlString( $sOptionsString );
-					if ( !empty( $aOptions ) && is_array( $aOptions ) ) {
-						$this->aImportedOptions = $aOptions;
-					}
-				}
-				$oFS->deleteFile( $sFile );
-			}
-		}
-		return $this->aImportedOptions;
 	}
 
 	/**
@@ -615,14 +573,14 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 		if ( !empty( $oPluginUpdateData ) && !empty( $oPluginUpdateData->response )
 			 && isset( $oPluginUpdateData->response[ $this->getPluginBaseFile() ] ) ) {
 			// i.e. there's an update available
-			$sNewVersion = $this->loadWpFunctions()->getPluginUpdateNewVersion( $this->getPluginBaseFile() );
+			$sNewVersion = $this->loadWP()->getPluginUpdateNewVersion( $this->getPluginBaseFile() );
 			if ( !empty( $sNewVersion ) ) {
 				$oConOptions = $this->getPluginControllerOptions();
 				if ( !isset( $oConOptions->update_first_detected ) || ( count( $oConOptions->update_first_detected ) > 3 ) ) {
 					$oConOptions->update_first_detected = array();
 				}
 				if ( !isset( $oConOptions->update_first_detected[ $sNewVersion ] ) ) {
-					$oConOptions->update_first_detected[ $sNewVersion ] = $this->loadDataProcessor()->time();
+					$oConOptions->update_first_detected[ $sNewVersion ] = $this->loadDP()->time();
 				}
 
 				// a bit of cleanup to remove the old-style entries which would gather foreva-eva
@@ -645,7 +603,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return boolean
 	 */
 	public function onWpAutoUpdate( $bDoAutoUpdate, $mItem ) {
-		$oWp = $this->loadWpFunctions();
+		$oWp = $this->loadWP();
 
 		$sItemFile = $oWp->getFileFromAutomaticUpdateItem( $mItem );
 
@@ -674,7 +632,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 					$sNewVersion = $oWp->getPluginUpdateNewVersion( $this->getPluginBaseFile() );
 					if ( !empty( $sNewVersion ) ) {
 						$nFirstDetected = isset( $oConOptions->update_first_detected[ $sNewVersion ] ) ? $oConOptions->update_first_detected[ $sNewVersion ] : 0;
-						$nTimeUpdateAvailable = $this->loadDataProcessor()->time() - $nFirstDetected;
+						$nTimeUpdateAvailable = $this->loadDP()->time() - $nFirstDetected;
 						$bDoAutoUpdate = ( $nFirstDetected > 0 && ( $nTimeUpdateAvailable > WEEK_IN_SECONDS ) );
 					}
 					break;
@@ -770,13 +728,13 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * from the WordPress Admin UI.
 	 * In order to ensure that WordPress still checks for plugin updates it will not remove this plugin from
 	 * the list of plugins if DOING_CRON is set to true.
-	 * @uses $this->fHeadless if the plugin is headless, it is hidden
 	 * @param StdClass $oPlugins
 	 * @return StdClass
+	 * @uses $this->fHeadless if the plugin is headless, it is hidden
 	 */
 	public function filter_hidePluginUpdatesFromUI( $oPlugins ) {
 
-		if ( $this->loadWpFunctions()->getIsCron() ) {
+		if ( $this->loadWP()->getIsCron() ) {
 			return $oPlugins;
 		}
 		if ( !apply_filters( $this->doPluginPrefix( 'hide_plugin_updates' ), false ) ) {
@@ -810,7 +768,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 		do_action( $this->doPluginPrefix( 'form_submit' ) );
 
 		if ( $this->getIsPage_PluginAdmin() ) {
-			$oWp = $this->loadWpFunctions();
+			$oWp = $this->loadWP();
 			$oWp->doRedirect( $oWp->getUrl_CurrentAdminPage() );
 		}
 		return true;
@@ -844,8 +802,8 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return mixed|null
 	 */
 	protected function getPluginSpec_ActionLinks( $sKey ) {
-		$oConOptions = $this->getPluginControllerOptions();
-		return isset( $oConOptions->plugin_spec[ 'action_links' ][ $sKey ] ) ? $oConOptions->plugin_spec[ 'action_links' ][ $sKey ] : null;
+		$oConOpts = $this->getPluginControllerOptions();
+		return isset( $oConOpts->plugin_spec[ 'action_links' ][ $sKey ] ) ? $oConOpts->plugin_spec[ 'action_links' ][ $sKey ] : null;
 	}
 
 	/**
@@ -853,8 +811,8 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return mixed|null
 	 */
 	protected function getPluginSpec_Include( $sKey ) {
-		$oConOptions = $this->getPluginControllerOptions();
-		return isset( $oConOptions->plugin_spec[ 'includes' ][ $sKey ] ) ? $oConOptions->plugin_spec[ 'includes' ][ $sKey ] : null;
+		$oConOpts = $this->getPluginControllerOptions();
+		return isset( $oConOpts->plugin_spec[ 'includes' ][ $sKey ] ) ? $oConOpts->plugin_spec[ 'includes' ][ $sKey ] : null;
 	}
 
 	/**
@@ -862,8 +820,8 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return array|string
 	 */
 	protected function getPluginSpec_Labels( $sKey = '' ) {
-		$oConOptions = $this->getPluginControllerOptions();
-		$aLabels = isset( $oConOptions->plugin_spec[ 'labels' ] ) ? $oConOptions->plugin_spec[ 'labels' ] : array();
+		$oConOpts = $this->getPluginControllerOptions();
+		$aLabels = isset( $oConOpts->plugin_spec[ 'labels' ] ) ? $oConOpts->plugin_spec[ 'labels' ] : array();
 		//Prep the icon urls
 		if ( !empty( $aLabels[ 'icon_url_16x16' ] ) ) {
 			$aLabels[ 'icon_url_16x16' ] = $this->getPluginUrl_Image( $aLabels[ 'icon_url_16x16' ] );
@@ -876,7 +834,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 			return $aLabels;
 		}
 
-		return isset( $oConOptions->plugin_spec[ 'labels' ][ $sKey ] ) ? $oConOptions->plugin_spec[ 'labels' ][ $sKey ] : null;
+		return isset( $oConOpts->plugin_spec[ 'labels' ][ $sKey ] ) ? $oConOpts->plugin_spec[ 'labels' ][ $sKey ] : null;
 	}
 
 	/**
@@ -893,8 +851,8 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return mixed|null
 	 */
 	protected function getPluginSpec_Path( $sKey ) {
-		$oConOptions = $this->getPluginControllerOptions();
-		return isset( $oConOptions->plugin_spec[ 'paths' ][ $sKey ] ) ? $oConOptions->plugin_spec[ 'paths' ][ $sKey ] : null;
+		$oConOpts = $this->getPluginControllerOptions();
+		return isset( $oConOpts->plugin_spec[ 'paths' ][ $sKey ] ) ? $oConOpts->plugin_spec[ 'paths' ][ $sKey ] : null;
 	}
 
 	/**
@@ -902,16 +860,16 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return mixed|null
 	 */
 	protected function getPluginSpec_Property( $sKey ) {
-		$oConOptions = $this->getPluginControllerOptions();
-		return isset( $oConOptions->plugin_spec[ 'properties' ][ $sKey ] ) ? $oConOptions->plugin_spec[ 'properties' ][ $sKey ] : null;
+		$oConOpts = $this->getPluginControllerOptions();
+		return isset( $oConOpts->plugin_spec[ 'properties' ][ $sKey ] ) ? $oConOpts->plugin_spec[ 'properties' ][ $sKey ] : null;
 	}
 
 	/**
 	 * @return array
 	 */
 	protected function getPluginSpec_PluginMeta() {
-		$oConOptions = $this->getPluginControllerOptions();
-		return ( isset( $oConOptions->plugin_spec[ 'plugin_meta' ] ) && is_array( $oConOptions->plugin_spec[ 'plugin_meta' ] ) ) ? $oConOptions->plugin_spec[ 'plugin_meta' ] : array();
+		$oConOpts = $this->getPluginControllerOptions();
+		return ( isset( $oConOpts->plugin_spec[ 'plugin_meta' ] ) && is_array( $oConOpts->plugin_spec[ 'plugin_meta' ] ) ) ? $oConOpts->plugin_spec[ 'plugin_meta' ] : array();
 	}
 
 	/**
@@ -919,8 +877,8 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return mixed|null
 	 */
 	protected function getPluginSpec_Requirement( $sKey ) {
-		$oConOptions = $this->getPluginControllerOptions();
-		return isset( $oConOptions->plugin_spec[ 'requirements' ][ $sKey ] ) ? $oConOptions->plugin_spec[ 'requirements' ][ $sKey ] : null;
+		$oConOpts = $this->getPluginControllerOptions();
+		return isset( $oConOpts->plugin_spec[ 'requirements' ][ $sKey ] ) ? $oConOpts->plugin_spec[ 'requirements' ][ $sKey ] : null;
 	}
 
 	/**
@@ -935,12 +893,11 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return bool
 	 */
 	public function getIsValidAdminArea( $bCheckUserPermissions = true ) {
-		if ( $bCheckUserPermissions && $this->loadWpTrack()
-											->getWpActionHasFired( 'init' ) && !current_user_can( $this->getBasePermissions() ) ) {
+		if ( $bCheckUserPermissions && did_action( 'init' ) && !current_user_can( $this->getBasePermissions() ) ) {
 			return false;
 		}
 
-		$oWp = $this->loadWpFunctions();
+		$oWp = $this->loadWP();
 		if ( !$oWp->isMultisite() && is_admin() ) {
 			return true;
 		}
@@ -986,14 +943,14 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return bool
 	 */
 	public function getIsPage_PluginAdmin() {
-		return ( strpos( $this->loadWpFunctions()->getCurrentWpAdminPage(), $this->getPluginPrefix() ) === 0 );
+		return ( strpos( $this->loadWP()->getCurrentWpAdminPage(), $this->getPluginPrefix() ) === 0 );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function getIsPage_PluginMainDashboard() {
-		return ( $this->loadWpFunctions()->getCurrentWpAdminPage() == $this->getPluginPrefix() );
+		return ( $this->loadWP()->getCurrentWpAdminPage() == $this->getPluginPrefix() );
 	}
 
 	/**
@@ -1009,7 +966,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 			'icwp_link_action'
 		);
 
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 		foreach ( $aFormSubmitOptions as $sOption ) {
 			if ( !is_null( $oDp->FetchRequest( $sOption, false ) ) ) {
 				return true;
@@ -1148,7 +1105,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return string
 	 */
 	public function getPath_Assets( $sAsset = '' ) {
-		return $this->getRootDir().$this->getPluginSpec_Path( 'assets' ).DIRECTORY_SEPARATOR.$sAsset;
+		return trailingslashit( path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'assets' ) ) ).$sAsset;
 	}
 
 	/**
@@ -1197,19 +1154,48 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	}
 
 	/**
-	 * get the root directory for the plugin with the trailing slash
 	 * @return string
 	 */
 	public function getPath_Languages() {
-		return $this->getRootDir().$this->getPluginSpec_Path( 'languages' ).DIRECTORY_SEPARATOR;
+		return trailingslashit( path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'languages' ) ) );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getPath_PluginCache() {
+		return path_join( WP_CONTENT_DIR, $this->getPluginSpec_Path( 'cache' ) );
+	}
+
+	/**
+	 * get the root directory for the plugin source with the trailing slash
+	 * @return string
+	 */
+	public function getPath_Source() {
+		return $this->isLegacy() ? $this->getPath_SourceLegacy() : $this->getPath_SourceCurrent();
 	}
 
 	/**
 	 * get the root directory for the plugin with the trailing slash
 	 * @return string
 	 */
-	public function getPath_Source() {
-		return $this->getRootDir().$this->getPluginSpec_Path( 'source' ).DIRECTORY_SEPARATOR;
+	public function getPath_SourceCurrent() {
+		return trailingslashit( path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'source' ) ) );
+	}
+
+	/**
+	 * get the root directory for the plugin with the trailing slash
+	 * @return string
+	 */
+	public function getPath_SourceLegacy() {
+		return trailingslashit( path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'source-legacy' ) ) );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isLegacy() {
+		return version_compare( PHP_VERSION, '7.0', '<' );
 	}
 
 	/**
@@ -1234,7 +1220,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return string
 	 */
 	public function getPath_Templates() {
-		return $this->getRootDir().$this->getPluginSpec_Path( 'templates' ).DIRECTORY_SEPARATOR;
+		return trailingslashit( path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'templates' ) ) );
 	}
 
 	/**
@@ -1242,14 +1228,14 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return string
 	 */
 	public function getPath_TemplatesFile( $sTemplate ) {
-		return $this->getPath_Templates().$sTemplate;
+		return path_join( $this->getPath_Templates(), $sTemplate );
 	}
 
 	/**
 	 * @return string
 	 */
 	private function getPathPluginSpec() {
-		return $this->getRootDir().'plugin-spec.php';
+		return path_join( $this->getRootDir(), 'plugin-spec.php' );
 	}
 
 	/**
@@ -1257,7 +1243,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 * @return string
 	 */
 	public function getRootDir() {
-		return dirname( $this->getRootFile() ).DIRECTORY_SEPARATOR;
+		return trailingslashit( dirname( $this->getRootFile() ) );
 	}
 
 	/**
@@ -1290,7 +1276,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	protected function getPluginControllerOptions() {
 		if ( !isset( self::$oControllerOptions ) ) {
 
-			self::$oControllerOptions = $this->loadWpFunctions()
+			self::$oControllerOptions = $this->loadWP()
 											 ->getOption( $this->getPluginControllerOptionsKey() );
 			if ( !is_object( self::$oControllerOptions ) ) {
 				self::$oControllerOptions = new stdClass();
@@ -1321,7 +1307,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 		$oOptions = $this->getPluginControllerOptions();
 		if ( $this->sConfigOptionsHashWhenLoaded != md5( serialize( $oOptions ) ) ) {
 			add_filter( $this->doPluginPrefix( 'bypass_permission_to_manage' ), '__return_true' );
-			$this->loadWpFunctions()->updateOption( $this->getPluginControllerOptionsKey(), $oOptions );
+			$this->loadWP()->updateOption( $this->getPluginControllerOptionsKey(), $oOptions );
 			remove_filter( $this->doPluginPrefix( 'bypass_permission_to_manage' ), '__return_true' );
 		}
 	}
@@ -1362,7 +1348,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	/**
 	 */
 	public function clearSession() {
-		$this->loadDataProcessor()->setDeleteCookie( $this->getPluginPrefix() );
+		$this->loadDP()->setDeleteCookie( $this->getPluginPrefix() );
 		self::$sSessionId = null;
 	}
 
@@ -1382,7 +1368,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 */
 	public function getSessionId( $bSetIfNeeded = true ) {
 		if ( empty( self::$sSessionId ) ) {
-			self::$sSessionId = $this->loadDataProcessor()->FetchCookie( $this->getPluginPrefix(), '' );
+			self::$sSessionId = $this->loadDP()->FetchCookie( $this->getPluginPrefix(), '' );
 			if ( empty( self::$sSessionId ) && $bSetIfNeeded ) {
 				self::$sSessionId = md5( uniqid( $this->getPluginPrefix() ) );
 				$this->setSessionCookie();
@@ -1396,7 +1382,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	 */
 	public function getUniqueRequestId() {
 		if ( !isset( self::$sRequestId ) ) {
-			$oDp = $this->loadDataProcessor();
+			$oDp = $this->loadDP();
 			self::$sRequestId = md5( $this->getSessionId( false ).$oDp->getVisitorIpAddress().$oDp->time() );
 		}
 		return self::$sRequestId;
@@ -1413,11 +1399,11 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 	/**
 	 */
 	protected function setSessionCookie() {
-		$oWp = $this->loadWpFunctions();
-		$this->loadDataProcessor()->setCookie(
+		$oWp = $this->loadWP();
+		$this->loadDP()->setCookie(
 			$this->getPluginPrefix(),
 			$this->getSessionId(),
-			$this->loadDataProcessor()->time() + DAY_IN_SECONDS*30,
+			$this->loadDP()->time() + DAY_IN_SECONDS*30,
 			$oWp->getCookiePath(),
 			$oWp->getCookieDomain(),
 			false
@@ -1456,7 +1442,7 @@ class ICWP_APP_Plugin_Controller extends ICWP_APP_Foundation {
 				$bSuccess = true;
 			}
 			catch ( Exception $oE ) {
-				$this->loadWpFunctions()->wpDie( $oE->getMessage() );
+				$this->loadWP()->wpDie( $oE->getMessage() );
 			}
 		}
 		return $bSuccess;

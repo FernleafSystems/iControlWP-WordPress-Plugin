@@ -1,5 +1,4 @@
 <?php
-if ( !class_exists( 'ICWP_APP_WpAdminNotices', false ) ):
 
 	class ICWP_APP_WpAdminNotices extends ICWP_APP_Foundation {
 
@@ -38,7 +37,7 @@ if ( !class_exists( 'ICWP_APP_WpAdminNotices', false ) ):
 			add_action( 'network_admin_notices',	array( $this, 'onWpAdminNotices' ) );
 			add_action( 'wp_loaded',				array( $this, 'flushFlashMessage' ) );
 
-			if ( $this->loadWpFunctions()->getIsAjax() ) {
+			if ( $this->loadWP()->getIsAjax() ) {
 				add_action( 'wp_ajax_icwp_DismissAdminNotice', array( $this, 'ajaxDismissAdminNotice' ), 11 );
 			}
 		}
@@ -56,7 +55,7 @@ if ( !class_exists( 'ICWP_APP_WpAdminNotices', false ) ):
 			$bSuccess = $this->checkAjaxNonce();
 			if ( $bSuccess ) {
 				// Get all notices and if this notice exists, we set it to "hidden"
-				$sNoticeId = sanitize_key( $this->loadDataProcessor()->FetchGet( 'notice_id', '' ) );
+				$sNoticeId = sanitize_key( $this->loadDP()->FetchGet( 'notice_id', '' ) );
 				$aNotices = apply_filters( $this->getActionPrefix().'register_admin_notices', array() );
 				if ( !empty( $sNoticeId ) && array_key_exists( $sNoticeId, $aNotices ) ) {
 					$this->setAdminNoticeAsDismissed( $aNotices[ $sNoticeId ] );
@@ -79,14 +78,14 @@ if ( !class_exists( 'ICWP_APP_WpAdminNotices', false ) ):
 		 * @return false|string
 		 */
 		public function getAdminNoticeMeta( $sNoticeId ) {
-			return $this->loadWpUsersProcessor()->getUserMeta( $this->getActionPrefix().$sNoticeId );
+			return $this->loadWpUsers()->getUserMeta( $this->getActionPrefix().$sNoticeId );
 		}
 
 		/**
 		 * @param array $aNotice
 		 */
 		public function setAdminNoticeAsDismissed( $aNotice ) {
-			$this->loadWpUsersProcessor()->updateUserMeta( $this->getActionPrefix().$aNotice['id'], 'Y' );
+			$this->loadWpUsers()->updateUserMeta( $this->getActionPrefix().$aNotice[ 'id'], 'Y' );
 		}
 
 		/**
@@ -95,7 +94,7 @@ if ( !class_exists( 'ICWP_APP_WpAdminNotices', false ) ):
 		 */
 		protected function checkAjaxNonce() {
 
-			$sNonce = $this->loadDataProcessor()->FetchRequest( '_ajax_nonce', '' );
+			$sNonce = $this->loadDP()->FetchRequest( '_ajax_nonce', '' );
 			if ( empty( $sNonce ) ) {
 				$sMessage = 'Nonce security checking failed - the nonce value was empty.';
 			}
@@ -197,7 +196,7 @@ if ( !class_exists( 'ICWP_APP_WpAdminNotices', false ) ):
 		 * @param $sMessage
 		 */
 		public function addFlashMessage( $sMessage ) {
-			$this->loadDataProcessor()->setCookie( $this->getActionPrefix().'flash', esc_attr( $sMessage ) );
+			$this->loadDP()->setCookie( $this->getActionPrefix().'flash', esc_attr( $sMessage ) );
 		}
 
 		protected function flashNotice() {
@@ -208,7 +207,7 @@ if ( !class_exists( 'ICWP_APP_WpAdminNotices', false ) ):
 
 		public function flushFlashMessage() {
 
-			$oDp = $this->loadDataProcessor();
+			$oDp = $this->loadDP();
 			$sCookieName = $this->getActionPrefix().'flash';
 			$this->sFlashMessage = $oDp->FetchCookie( $sCookieName, '' );
 			if ( !empty( $this->sFlashMessage ) ) {
@@ -217,4 +216,3 @@ if ( !class_exists( 'ICWP_APP_WpAdminNotices', false ) ):
 			$oDp->setDeleteCookie( $sCookieName );
 		}
 	}
-endif;

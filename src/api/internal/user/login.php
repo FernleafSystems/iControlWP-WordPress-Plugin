@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_APP_Api_Internal_User_Login', false ) ) {
-	return;
-}
-
-require_once( dirname( dirname( __FILE__ ) ).'/base.php' );
-
 class ICWP_APP_Api_Internal_User_Login extends ICWP_APP_Api_Internal_Base {
 
 	/**
@@ -14,7 +8,7 @@ class ICWP_APP_Api_Internal_User_Login extends ICWP_APP_Api_Internal_Base {
 	public function process() {
 		$sSource = home_url().'$'.uniqid().'$'.time();
 		$sToken = md5( $sSource );
-		$this->loadWpFunctions()->setTransient( 'icwplogintoken', $sToken, MINUTE_IN_SECONDS );
+		$this->loadWP()->setTransient( 'icwplogintoken', $sToken, MINUTE_IN_SECONDS );
 		$aData = array(
 			'source' => $sSource,
 			'token'  => $sToken

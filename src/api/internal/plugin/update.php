@@ -1,18 +1,11 @@
 <?php
 
-if ( class_exists( 'ICWP_APP_Api_Internal_Plugin_Update', false ) ) {
-	return;
-}
-
-require_once( dirname( dirname( __FILE__ ) ).'/base.php' );
-
 class ICWP_APP_Api_Internal_Plugin_Update extends ICWP_APP_Api_Internal_Base {
 
 	/**
 	 * @return ApiResponse
 	 */
 	public function process() {
-		$this->importCommonLib( 'plugins' );
 		$aActionParams = $this->getActionParams();
 		$sAssetFile = $aActionParams[ 'plugin_file' ];
 
@@ -23,9 +16,9 @@ class ICWP_APP_Api_Internal_Plugin_Update extends ICWP_APP_Api_Internal_Base {
 
 		// For some reason, certain updates don't appear and we may have to force an update check to ensure WordPress
 		// knows about the update.
-		$oAvailableUpdates = $this->loadWpFunctions()->updatesGather( 'plugins' );
+		$oAvailableUpdates = $this->loadWP()->updatesGather( 'plugins' );
 		if ( empty( $oAvailableUpdates ) || empty( $oAvailableUpdates->response[ $sAssetFile ] ) ) {
-			$this->loadWpFunctions()->updatesCheck( 'plugins', true );
+			$this->loadWP()->updatesCheck( 'plugins', true );
 			$aData[ 'force_update_recheck' ] = 1;
 		}
 
