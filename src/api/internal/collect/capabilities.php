@@ -11,7 +11,7 @@ class ICWP_APP_Api_Internal_Collect_Capabilities extends ICWP_APP_Api_Internal_C
 	 * @return ApiResponse
 	 */
 	public function process() {
-		return $this->success( array( 'capabilities' => $this->collect() ) );
+		return $this->success( [ 'capabilities' => $this->collect() ] );
 	}
 
 	/**
@@ -21,7 +21,7 @@ class ICWP_APP_Api_Internal_Collect_Capabilities extends ICWP_APP_Api_Internal_C
 		$oDp = $this->loadDP();
 		$bCanExtensionLoaded = function_exists( 'extension_loaded' ) && is_callable( 'extension_loaded' );
 
-		$aData = array(
+		$aData = [
 			'php_version'                => $oDp->getPhpVersion(), //TODO DELETE
 			'version_php'                => $oDp->getPhpVersion(),
 			'is_force_ssl_admin'         => ( function_exists( 'force_ssl_admin' ) && force_ssl_admin() ) ? 1 : 0,
@@ -31,7 +31,7 @@ class ICWP_APP_Api_Internal_Collect_Capabilities extends ICWP_APP_Api_Internal_C
 			'can_wordpress_write_notice' => $sWriteToDiskNotice,
 			'ext_pdo'                    => class_exists( 'PDO' ) || ( $bCanExtensionLoaded && extension_loaded( 'pdo' ) ),
 			'ext_mysqli'                 => ( $bCanExtensionLoaded && extension_loaded( 'mysqli' ) ) ? 1 : 0,
-		);
+		];
 
 		return $aData;
 	}

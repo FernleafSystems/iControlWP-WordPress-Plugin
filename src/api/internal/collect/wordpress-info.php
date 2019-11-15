@@ -6,7 +6,7 @@ class ICWP_APP_Api_Internal_Collect_Wordpress extends ICWP_APP_Api_Internal_Coll
 	 * @return ApiResponse
 	 */
 	public function process() {
-		return $this->success( array( 'wordpress-info' => $this->collect() ) );
+		return $this->success( [ 'wordpress-info' => $this->collect() ] );
 	}
 
 	/**
@@ -16,13 +16,13 @@ class ICWP_APP_Api_Internal_Collect_Wordpress extends ICWP_APP_Api_Internal_Coll
 		$oDp = $this->loadDP();
 		$oWp = $this->loadWP();
 
-		$aInfo = array(
+		$aInfo = [
 			'is_multisite'            => (int)is_multisite(),
 			'is_classicpress'         => (int)function_exists( 'classicpress_version' ),
 			'type'                    => is_multisite() ? 'wpms' : 'wordpress',
 			'admin_path'              => network_admin_url(),
 			'admin_url'               => network_admin_url(), // TODO: DELETE
-//			'core_update_available'   => $oWp->getHasCoreUpdatesAvailable( $this->isForceUpdateCheck() ) ? 1 : 0,
+			//			'core_update_available'   => $oWp->getHasCoreUpdatesAvailable( $this->isForceUpdateCheck() ) ? 1 : 0,
 			'available_core_upgrades' => $this->getAvailableCoreUpdates(),
 			'wordpress_version'       => $oWp->getWordPressVersion(),
 			'wordpress_title'         => get_bloginfo( 'name' ),
@@ -36,14 +36,14 @@ class ICWP_APP_Api_Internal_Collect_Wordpress extends ICWP_APP_Api_Internal_Coll
 			'is_wpe'                  => ( @getenv( 'IS_WPE' ) == '1' ) ? 1 : 0,
 			'wordpress_url'           => $oWp->getHomeUrl(),
 			'wordpress_wpurl'         => get_bloginfo( 'wpurl' ),
-			'debug'                   => array(
+			'debug'                   => [
 				'url_rewritten'   => $oDp->isUrlRewritten() ? 1 : 0,
 				'database_server' => isset( $_ENV[ 'DATABASE_SERVER' ] ) ? $_ENV[ 'DATABASE_SERVER' ] : '-1',
 				'ds'              => DIRECTORY_SEPARATOR,
-			)
-		);
+			]
+		];
 
-		$aDefines = array(
+		$aDefines = [
 			'FS_METHOD',
 			'DISALLOW_FILE_EDIT',
 			'FORCE_SSL_LOGIN',
@@ -57,11 +57,11 @@ class ICWP_APP_Api_Internal_Collect_Wordpress extends ICWP_APP_Api_Internal_Coll
 			'DB_PASSWORD',
 			'DB_CHARSET',
 			'DB_COLLATE',
-		);
+		];
 
-		$aWpConfig = array(
+		$aWpConfig = [
 			'table_prefix' => $this->loadDbProcessor()->getPrefix()
-		);
+		];
 		foreach ( $aDefines as $sDefineKey ) {
 			if ( defined( $sDefineKey ) ) {
 				$aWpConfig[ strtolower( $sDefineKey ) ] = constant( $sDefineKey );
@@ -117,7 +117,7 @@ class ICWP_APP_Api_Internal_Collect_Wordpress extends ICWP_APP_Api_Internal_Coll
 	 * @return string[]
 	 */
 	private function getAvailableCoreUpdates() {
-		$aVersions = array();
+		$aVersions = [];
 
 		$this->loadWP()->updatesCheck( 'core', true );
 		$oUpds = get_site_transient( 'update_core' );

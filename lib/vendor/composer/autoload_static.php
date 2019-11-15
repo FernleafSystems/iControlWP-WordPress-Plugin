@@ -107,11 +107,7 @@ class ComposerStaticInit087f4a15eb951e43b942d9d65f3f788d
         'ICWP_APP_WpUpgrades' => __DIR__ . '/../..' . '/../src/common/icwp-wpupgrades.php',
         'ICWP_APP_WpUsers' => __DIR__ . '/../..' . '/../src/common/wp-users.php',
         'ICWP_APP_WpWidget' => __DIR__ . '/../..' . '/../src/common/wp-widget.php',
-        'ICWP_Bulk_Plugin_Upgrader_Skin' => __DIR__ . '/../..' . '/../src/common/icwp-wpupgrades.php',
-        'ICWP_Bulk_Theme_Upgrader_Skin' => __DIR__ . '/../..' . '/../src/common/icwp-wpupgrades.php',
-        'ICWP_Plugin_Upgrader' => __DIR__ . '/../..' . '/../src/common/icwp-wpupgrades.php',
-        'ICWP_Theme_Upgrader' => __DIR__ . '/../..' . '/../src/common/icwp-wpupgrades.php',
-        'ICWP_Upgrader_Skin' => __DIR__ . '/../..' . '/../src/common/icwp-wpupgrades.php',
+        'ICWP_Upgrader_Skin' => __DIR__ . '/../..' . '/../src/common/Upgrades/Icwp_Upgrader_Skin.php',
         'RequestParameters' => __DIR__ . '/../..' . '/../src/api/RequestParameters.php',
     );
 
