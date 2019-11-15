@@ -11,20 +11,20 @@ class ICWP_APP_Api_Internal_Collect_Environment extends ICWP_APP_Api_Internal_Co
 			@set_time_limit( 15 );
 		}
 
-		$aAppsData = array();
+		$aAppsData = [];
 		if ( $oDp->suhosinFunctionExists( 'exec' ) ) {
-			$aAppVersionCmds = array(
+			$aAppVersionCmds = [
 				'mysql -V',
 				'mysqldump -V',
 				'mysqlimport -V',
 				'unzip -v',
 				'zip -v',
 				'tar --version'
-			);
+			];
 			$aAppsData = $this->collectApplicationVersions( $aAppVersionCmds );
 		}
 
-		return array(
+		return [
 			'open_basedir'                 => ini_get( 'open_basedir' ),
 			'safe_mode'                    => ini_get( 'safe_mode' ),
 			'safe_mode_gid'                => ini_get( 'safe_mode_gid' ),
@@ -42,7 +42,7 @@ class ICWP_APP_Api_Internal_Collect_Environment extends ICWP_APP_Api_Internal_Co
 			'can_mysqldump'                => $aAppsData[ 'mysqldump' ][ 'version-info' ] > 0 ? 1 : 0,
 			'can_mysqlimport'              => $aAppsData[ 'mysqlimport' ][ 'version-info' ] > 0 ? 1 : 0,
 			'applications'                 => $aAppsData,
-		);
+		];
 	}
 
 	/**
@@ -50,18 +50,18 @@ class ICWP_APP_Api_Internal_Collect_Environment extends ICWP_APP_Api_Internal_Co
 	 * @return array
 	 */
 	protected function collectApplicationVersions( $aAppVersionCmds ) {
-		$aApplications = array();
+		$aApplications = [];
 
 		foreach ( $aAppVersionCmds as $nIndex => $sVersionCmd ) {
 			list( $sExecutable, $sVersionParam ) = explode( ' ', $sVersionCmd, 2 );
 			@exec( $sVersionCmd, $aOutput, $nReturnVal );
 
-			$aApplications[ $sExecutable ] = array(
+			$aApplications[ $sExecutable ] = [
 				'exec'         => $sExecutable,
 				'version-cmd'  => $sVersionCmd,
 				'version-info' => $this->parseApplicationVersionOutput( $sExecutable, implode( "\n", $aOutput ) ),
 				'found'        => $nReturnVal === 0,
-			);
+			];
 		}
 		return $aApplications;
 	}
@@ -72,7 +72,7 @@ class ICWP_APP_Api_Internal_Collect_Environment extends ICWP_APP_Api_Internal_Co
 	 * @return string
 	 */
 	protected function parseApplicationVersionOutput( $insExecutable, $insVersionOutput ) {
-		$aRegExprs = array(
+		$aRegExprs = [
 			'mysql'       => '/Distrib\s+([0-9]+\.[0-9]+(\.[0-9]+)?)/i',
 			//mysql  Ver 14.14 Distrib 5.1.56, for pc-linux-gnu (i686) using readline 5.1
 			'mysqlimport' => '/Distrib\s+([0-9]+\.[0-9]+(\.[0-9]+)?)/i',
@@ -85,7 +85,7 @@ class ICWP_APP_Api_Internal_Collect_Environment extends ICWP_APP_Api_Internal_Co
 			//UnZip 5.52 of 28 February 2005, by Info-ZIP.  Maintained by C. Spieler.  Send
 			'tar'         => '/tar\s+\(GNU\s+tar\)\s+([0-9]+\.[0-9]+(\.[0-9]+)?)/i'
 			//tar (GNU tar) 1.15.1
-		);
+		];
 
 		if ( $insExecutable == 'php' ) {
 			if ( preg_match( '/X-Pingback/i', $insVersionOutput ) ) {

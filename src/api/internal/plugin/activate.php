@@ -12,10 +12,10 @@ class ICWP_APP_Api_Internal_Plugin_Activate extends ICWP_APP_Api_Internal_Base {
 
 		$bResult = $this->loadWpFunctionsPlugins()->activate( $sPluginFile, $bIsWpms );
 		$aPlugin = $this->getWpCollector()->collectWordpressPlugins( $sPluginFile );
-		$aData = array(
+		$aData = [
 			'result'        => $bResult,
 			'single-plugin' => $aPlugin[ $sPluginFile ]
-		);
+		];
 		return $this->success( $aData );
 	}
 }

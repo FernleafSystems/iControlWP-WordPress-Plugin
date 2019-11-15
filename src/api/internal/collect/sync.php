@@ -6,11 +6,11 @@ class ICWP_APP_Api_Internal_Collect_Sync extends ICWP_APP_Api_Internal_Collect_B
 	 * @return ApiResponse
 	 */
 	public function process() {
-		$aData = array(
+		$aData = [
 			'capabilities'    => $this->getCollector_Capabilities()->collect(),
 			'wordpress-info'  => $this->getCollector_WordPressInfo()->collect(),
 			'wordpress-paths' => $this->getCollector_Paths()->collect(),
-		);
+		];
 
 		if ( class_exists( 'DirectoryIterator', false ) ) {
 			$this->cleanRollbackData();
@@ -28,7 +28,7 @@ class ICWP_APP_Api_Internal_Collect_Sync extends ICWP_APP_Api_Internal_Collect_B
 		$nBoundary = time() - WEEK_IN_SECONDS;
 		$oFs = $this->loadFS();
 
-		$aContexts = array( 'plugins', 'themes' );
+		$aContexts = [ 'plugins', 'themes' ];
 		foreach ( $aContexts as $sContext ) {
 			$sWorkingDir = path_join( $this->getRollbackBaseDir(), $sContext );
 			if ( !is_dir( $sWorkingDir ) ) {
@@ -65,7 +65,7 @@ class ICWP_APP_Api_Internal_Collect_Sync extends ICWP_APP_Api_Internal_Collect_B
 					if ( !$oFileItem->isDir() ) {
 						$oFs->deleteFile( $oFileItem->getPathname() );
 					}
-					else if ( !in_array( $oFileItem->getFilename(), array( 'plugins', 'themes' ) ) ) {
+					else if ( !in_array( $oFileItem->getFilename(), [ 'plugins', 'themes' ] ) ) {
 						$oFs->deleteDir( $oFileItem->getPathname() );
 					}
 				}

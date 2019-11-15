@@ -22,14 +22,14 @@ class ICWP_APP_Api_Internal_Base extends ICWP_APP_Foundation {
 	protected function initFtp() {
 		$aFtpCred = $this->getRequestParams()->getParam( 'ftpcred', null );
 		if ( !empty( $aFtpCred ) && is_array( $aFtpCred ) ) {
-			$aRequestToWpMappingFtp = array(
+			$aRequestToWpMappingFtp = [
 				'hostname'        => 'ftp_host',
 				'username'        => 'ftp_user',
 				'password'        => 'ftp_pass',
 				'public_key'      => 'ftp_public_key',
 				'private_key'     => 'ftp_private_key',
 				'connection_type' => 'ftp_protocol',
-			);
+			];
 			foreach ( $aRequestToWpMappingFtp as $sWpKey => $sRequestKey ) {
 				$_POST[ $sWpKey ] = isset( $aFtpCred[ $sRequestKey ] ) ? $aFtpCred[ $sRequestKey ] : '';
 			}
@@ -85,10 +85,10 @@ class ICWP_APP_Api_Internal_Base extends ICWP_APP_Foundation {
 	 * @param string $sMessage
 	 * @return ApiResponse
 	 */
-	protected function success( $aExecutionData = array(), $sMessage = '' ) {
+	protected function success( $aExecutionData = [], $sMessage = '' ) {
 		return $this->getStandardResponse()
 					->setSuccess( true )
-					->setData( empty( $aExecutionData ) ? array( 'success' => 1 ) : $aExecutionData )
+					->setData( empty( $aExecutionData ) ? [ 'success' => 1 ] : $aExecutionData )
 					->setMessage( sprintf( 'INTERNAL Package Execution SUCCEEDED with message: "%s".', $sMessage ) )
 					->setCode( 0 );
 	}

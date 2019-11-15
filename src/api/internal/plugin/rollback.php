@@ -26,9 +26,9 @@ class ICWP_APP_Api_Internal_Plugin_Rollback extends ICWP_APP_Api_Internal_Base {
 		copy_dir( $sRollbackSourcePath, $sPluginDirPath );
 		$oFS->deleteDir( $sRollbackSourcePath );
 
-		$aData = array(
+		$aData = [
 			'wordpress-plugins' => $this->getWpCollector()->collectWordpressPlugins( null, true )
-		);
+		];
 		return $this->success( $aData );
 	}
 

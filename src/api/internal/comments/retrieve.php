@@ -17,14 +17,14 @@ class ICWP_APP_Api_Internal_Comments_Retrieve extends ICWP_APP_Api_Internal_Base
 		$aCommentTypesToLookup = explode( ',', $sAllTypes );
 
 		$oWpCommentsHandler = $this->loadWpCommentsProcessor();
-		$aResults = array();
+		$aResults = [];
 		foreach ( $aCommentStatusToLookup as $sStatus ) {
 			$aRetrieveParams[ 'status' ] = $sStatus;
 			$aResults = array_merge( $aResults, $oWpCommentsHandler->getCommentsOfTypes( $aCommentTypesToLookup, $aRetrieveParams ) );
 		}
 
 		//Get Post IDs / Titles
-		$aPostTitles = array();
+		$aPostTitles = [];
 		foreach ( $aResults as &$aComment ) {
 			if ( !in_array( $aComment[ 'comment_post_ID' ], $aPostTitles ) ) {
 				$aPostTitles[ $aComment[ 'comment_post_ID' ] ] = get_the_title( $aComment[ 'comment_post_ID' ] );
@@ -32,9 +32,9 @@ class ICWP_APP_Api_Internal_Comments_Retrieve extends ICWP_APP_Api_Internal_Base
 			$aComment[ 'post_title' ] = $aPostTitles[ $aComment[ 'comment_post_ID' ] ];
 		}
 
-		$aData = array(
+		$aData = [
 			'comments' => $aResults
-		);
+		];
 		return $this->success( $aData );
 	}
 }

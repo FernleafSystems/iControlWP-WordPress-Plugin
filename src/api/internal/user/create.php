@@ -37,10 +37,10 @@ class ICWP_APP_Api_Internal_User_Create extends ICWP_APP_Api_Internal_Base {
 			return $this->fail( 'Could not create user with error: '.$mNewUserId->get_error_message() );
 		}
 
-		$aData = array(
+		$aData = [
 			'new_user_id'   => $mNewUserId,
 			'new_user_data' => $aUser,
-		);
+		];
 		return $this->success( $aData );
 	}
 }

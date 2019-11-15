@@ -11,7 +11,7 @@ class ICWP_APP_Api_Internal_Theme_Delete extends ICWP_APP_Api_Internal_Base {
 
 		if ( empty( $sStylesheet ) ) {
 			return $this->fail(
-				array(),
+				[],
 				'Stylesheet provided was empty.'
 			);
 		}
@@ -19,7 +19,7 @@ class ICWP_APP_Api_Internal_Theme_Delete extends ICWP_APP_Api_Internal_Base {
 		$oWpThemes = $this->loadWpFunctionsThemes();
 		if ( !$oWpThemes->getExists( $sStylesheet ) ) {
 			return $this->fail(
-				array( 'stylesheet' => $sStylesheet ),
+				[ 'stylesheet' => $sStylesheet ],
 				sprintf( 'Theme does not exist with Stylesheet: %s', $sStylesheet )
 			);
 		}
@@ -27,18 +27,18 @@ class ICWP_APP_Api_Internal_Theme_Delete extends ICWP_APP_Api_Internal_Base {
 		$oThemeToDelete = $oWpThemes->getTheme( $sStylesheet );
 		if ( $oThemeToDelete->get_stylesheet_directory() == get_stylesheet_directory() ) {
 			return $this->fail(
-				array( 'stylesheet' => $sStylesheet ),
+				[ 'stylesheet' => $sStylesheet ],
 				sprintf( 'Cannot uninstall the currently active WordPress theme: %s', $sStylesheet )
 			);
 		}
 
 		$mResult = $oWpThemes->delete( $sStylesheet );
 
-		$aData = array(
+		$aData = [
 			'result'           => $mResult,
 			'wordpress-themes' => $this->getWpCollector()->collectWordpressThemes(),
 			//Need to send back all themes so we can update the one that got deleted
-		);
+		];
 		return $this->success( $aData );
 	}
 }
