@@ -9,7 +9,7 @@ class ICWP_APP_Api_Internal_Plugin_Update extends ICWP_APP_Api_Internal_Base {
 		$aActionParams = $this->getActionParams();
 		$sAssetFile = $aActionParams[ 'plugin_file' ];
 
-		$aData = array();
+		$aData = [];
 
 		// handles manual Third Party Update Checking.
 //			$oWpUpdatesHandler->prepThirdPartyPlugins();
@@ -28,9 +28,8 @@ class ICWP_APP_Api_Internal_Plugin_Update extends ICWP_APP_Api_Internal_Base {
 		}
 
 		$aResult = $this->loadWpFunctionsPlugins()->update( $sAssetFile );
-
-		if ( isset( $aResult[ 'successful' ] ) && $aResult[ 'successful' ] == 0 ) {
-			return $this->fail( implode( ' | ', $aResult[ 'errors' ] ), $aResult );
+		if ( empty( $aResult[ 'successful' ] ) ) {
+			return $this->fail( implode( ' | ', $aResult[ 'errors' ] ), -1, $aResult );
 		}
 
 		$aData[ 'rollback' ] = isset( $fRollbackResult ) ? $fRollbackResult : false;

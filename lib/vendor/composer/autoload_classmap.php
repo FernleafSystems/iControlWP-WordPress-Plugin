@@ -92,10 +92,6 @@ return array(
     'ICWP_APP_WpUpgrades' => $baseDir . '/../src/common/icwp-wpupgrades.php',
     'ICWP_APP_WpUsers' => $baseDir . '/../src/common/wp-users.php',
     'ICWP_APP_WpWidget' => $baseDir . '/../src/common/wp-widget.php',
-    'ICWP_Bulk_Plugin_Upgrader_Skin' => $baseDir . '/../src/common/icwp-wpupgrades.php',
-    'ICWP_Bulk_Theme_Upgrader_Skin' => $baseDir . '/../src/common/icwp-wpupgrades.php',
-    'ICWP_Plugin_Upgrader' => $baseDir . '/../src/common/icwp-wpupgrades.php',
-    'ICWP_Theme_Upgrader' => $baseDir . '/../src/common/icwp-wpupgrades.php',
-    'ICWP_Upgrader_Skin' => $baseDir . '/../src/common/icwp-wpupgrades.php',
+    'ICWP_Upgrader_Skin' => $baseDir . '/../src/common/Upgrades/Icwp_Upgrader_Skin.php',
     'RequestParameters' => $baseDir . '/../src/api/RequestParameters.php',
 );

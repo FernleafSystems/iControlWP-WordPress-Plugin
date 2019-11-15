@@ -59,37 +59,26 @@ class ICWP_APP_WpFunctions_Themes extends ICWP_APP_Foundation {
 	/**
 	 * @param string $sUrlToInstall
 	 * @param bool   $bOverwrite
-	 * @return bool
+	 * @return mixed[]
 	 */
-	public function install( $sUrlToInstall, $bOverwrite = true ) {
+	public function install( $sUrlToInstall, $bOverwrite = true ) :array {
 		$this->loadWpUpgrades();
 
-		$aResult = array(
-			'successful'  => true,
-			'plugin_info' => '',
-			'errors'      => array()
-		);
-
 		$oUpgraderSkin = new ICWP_Upgrader_Skin();
-		$oUpgrader = new ICWP_Theme_Upgrader( $oUpgraderSkin );
-		$oUpgrader->setOverwriteMode( $bOverwrite );
-		ob_start();
-		$sInstallResult = $oUpgrader->install( $sUrlToInstall );
-		if ( ob_get_contents() ) {
-			// for some reason this errors with no buffer present
-			ob_end_clean();
-		}
+		$oUpgrader = new Theme_Upgrader( $oUpgraderSkin );
+		add_filter( 'upgrader_package_options', function ( $aOptions ) use ( $bOverwrite ) {
+			$aOptions[ 'clear_destination' ] = $bOverwrite;
+			return $aOptions;
+		} );
 
-		if ( is_wp_error( $oUpgraderSkin->m_aErrors[ 0 ] ) ) {
-			$aResult[ 'successful' ] = false;
-			$aResult[ 'errors' ] = $oUpgraderSkin->m_aErrors[ 0 ]->get_error_messages();
-		}
-		else {
-			$aResult[ 'theme_info' ] = $oUpgrader->theme_info();
-		}
+		$mResult = $oUpgrader->install( $sUrlToInstall );
 
-		$aResult[ 'feedback' ] = $oUpgraderSkin->getFeedback();
-		return $aResult;
+		return [
+			'successful' => $mResult === true,
+			'feedback'   => $oUpgraderSkin->getIcwpFeedback(),
+			'theme_info' => $oUpgrader->theme_info(),
+			'errors'     => is_wp_error( $mResult ) ? $mResult->get_error_messages() : [ 'no errors' ]
+		];
 	}
 
 	/**
@@ -99,28 +88,15 @@ class ICWP_APP_WpFunctions_Themes extends ICWP_APP_Foundation {
 	public function update( $sFile ) {
 		$this->loadWpUpgrades();
 
-		$aResult = array(
-			'successful' => 1,
-			'errors'     => array()
-		);
-
-		$oUpgraderSkin = new ICWP_Bulk_Theme_Upgrader_Skin();
+		$oUpgraderSkin = new ICWP_Upgrader_Skin();
 		$oUpgrader = new Theme_Upgrader( $oUpgraderSkin );
-		ob_start();
-		$oUpgrader->bulk_upgrade( array( $sFile ) );
-		if ( ob_get_contents() ) {
-			// for some reason this errors with no buffer present
-			ob_end_clean();
-		}
+		$mResult = $oUpgrader->upgrade( $sFile );
 
-		if ( isset( $oUpgraderSkin->m_aErrors[ 0 ] ) ) {
-			if ( is_wp_error( $oUpgraderSkin->m_aErrors[ 0 ] ) ) {
-				$aResult[ 'successful' ] = 0;
-				$aResult[ 'errors' ] = $oUpgraderSkin->m_aErrors[ 0 ]->get_error_messages();
-			}
-		}
-		$aResult[ 'feedback' ] = $oUpgraderSkin->getFeedback();
-		return $aResult;
+		return [
+			'successful' => $mResult === true,
+			'feedback'   => $oUpgraderSkin->getIcwpFeedback(),
+			'errors'     => is_wp_error( $mResult ) ? $mResult->get_error_messages() : [ 'no errors' ]
+		];
 	}
 
 	/**
@@ -216,6 +192,6 @@ class ICWP_APP_WpFunctions_Themes extends ICWP_APP_Foundation {
 	 * @return array
 	 */
 	public function wpmsGetSiteAllowedThemes() {
-		return ( function_exists( 'get_site_allowed_themes' ) ? get_site_allowed_themes() : array() );
+		return ( function_exists( 'get_site_allowed_themes' ) ? get_site_allowed_themes() : [] );
 	}
 }

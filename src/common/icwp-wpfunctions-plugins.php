@@ -64,38 +64,26 @@ class ICWP_APP_WpFunctions_Plugins extends ICWP_APP_Foundation {
 	/**
 	 * @param string $sUrlToInstall
 	 * @param bool   $bOverwrite
-	 * @return bool
+	 * @return array
 	 */
 	public function install( $sUrlToInstall, $bOverwrite = true ) {
 		$this->loadWpUpgrades();
 
-		$aResult = array(
-			'successful'  => true,
-			'plugin_info' => '',
-			'errors'      => array()
-		);
-
 		$oUpgraderSkin = new ICWP_Upgrader_Skin();
-		$oUpgrader = new ICWP_Plugin_Upgrader( $oUpgraderSkin );
-		$oUpgrader->setOverwriteMode( $bOverwrite );
-		ob_start();
-		$sInstallResult = $oUpgrader->install( $sUrlToInstall );
-		if ( ob_get_contents() ) {
-			// for some reason this errors with no buffer present
-			ob_end_clean();
-		}
+		$oUpgrader = new Plugin_Upgrader( $oUpgraderSkin );
+		add_filter( 'upgrader_package_options', function ( $aOptions ) use ( $bOverwrite ) {
+			$aOptions[ 'clear_destination' ] = $bOverwrite;
+			return $aOptions;
+		} );
 
-		if ( is_wp_error( $oUpgraderSkin->m_aErrors[ 0 ] ) ) {
-			$aResult[ 'successful' ] = false;
-			$aResult[ 'errors' ] = $oUpgraderSkin->m_aErrors[ 0 ]->get_error_messages();
-		}
-		else {
-			$aResult[ 'plugin_info' ] = $oUpgrader->plugin_info();
-		}
+		$mResult = $oUpgrader->install( $sUrlToInstall );
 
-		$aResult[ 'feedback' ] = $oUpgraderSkin->getFeedback();
-
-		return $aResult;
+		return [
+			'successful'  => $mResult === true,
+			'feedback'    => $oUpgraderSkin->getIcwpFeedback(),
+			'plugin_info' => $oUpgrader->plugin_info(),
+			'errors'      => is_wp_error( $mResult ) ? $mResult->get_error_messages() : [ 'no errors' ]
+		];
 	}
 
 	/**
@@ -105,28 +93,15 @@ class ICWP_APP_WpFunctions_Plugins extends ICWP_APP_Foundation {
 	public function update( $sFile ) {
 		$this->loadWpUpgrades();
 
-		$aResult = array(
-			'successful' => 1,
-			'errors'     => array()
-		);
-
-		$oUpgraderSkin = new ICWP_Bulk_Plugin_Upgrader_Skin();
+		$oUpgraderSkin = new ICWP_Upgrader_Skin();
 		$oUpgrader = new Plugin_Upgrader( $oUpgraderSkin );
-		ob_start();
-		$oUpgrader->bulk_upgrade( array( $sFile ) );
-		if ( ob_get_contents() ) {
-			// for some reason this errors with no buffer present
-			ob_end_clean();
-		}
+		$mResult = $oUpgrader->upgrade( $sFile );
 
-		if ( isset( $oUpgraderSkin->m_aErrors[ 0 ] ) ) {
-			if ( is_wp_error( $oUpgraderSkin->m_aErrors[ 0 ] ) ) {
-				$aResult[ 'successful' ] = 0;
-				$aResult[ 'errors' ] = $oUpgraderSkin->m_aErrors[ 0 ]->get_error_messages();
-			}
-		}
-		$aResult[ 'feedback' ] = $oUpgraderSkin->getFeedback();
-		return $aResult;
+		return [
+			'successful'  => $mResult === true,
+			'feedback'    => $oUpgraderSkin->getIcwpFeedback(),
+			'errors'      => is_wp_error( $mResult ) ? $mResult->get_error_messages() : [ 'no errors' ]
+		];
 	}
 
 	/**
@@ -200,7 +175,7 @@ class ICWP_APP_WpFunctions_Plugins extends ICWP_APP_Foundation {
 		if ( !function_exists( 'get_plugins' ) ) {
 			require_once( ABSPATH.'wp-admin/includes/plugin.php' );
 		}
-		return function_exists( 'get_plugins' ) ? get_plugins() : array();
+		return function_exists( 'get_plugins' ) ? get_plugins() : [];
 	}
 
 	/**

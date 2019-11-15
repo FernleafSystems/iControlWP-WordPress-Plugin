@@ -10,7 +10,7 @@ class ICWP_APP_Api_Internal_Plugin_Install extends ICWP_APP_Api_Internal_Base {
 
 		if ( empty( $aPlugin[ 'url' ] ) ) {
 			return $this->fail(
-				array(),
+				[],
 				'The URL was empty.'
 			);
 		}
@@ -25,8 +25,8 @@ class ICWP_APP_Api_Internal_Plugin_Install extends ICWP_APP_Api_Internal_Base {
 		$oWpPlugins = $this->loadWpFunctionsPlugins();
 
 		$aResult = $oWpPlugins->install( $sPluginUrl, $aPlugin[ 'overwrite' ] );
-		if ( isset( $aResult[ 'successful' ] ) && !$aResult[ 'successful' ] ) {
-			return $this->fail( implode( ' | ', $aResult[ 'errors' ] ), $aResult );
+		if ( empty( $aResult[ 'successful' ] ) ) {
+			return $this->fail( implode( ' | ', $aResult[ 'errors' ] ), -1, $aResult );
 		}
 
 		//activate as required
@@ -37,10 +37,10 @@ class ICWP_APP_Api_Internal_Plugin_Install extends ICWP_APP_Api_Internal_Base {
 
 		wp_cache_flush(); // since we've added a plugin
 
-		$aData = array(
+		$aData = [
 			'result'            => $aResult,
 			'wordpress-plugins' => $this->getWpCollector()->collectWordpressPlugins()
-		);
+		];
 		return $this->success( $aData );
 	}
 }

@@ -11,19 +11,19 @@ class ICWP_APP_Api_Internal_Theme_Update extends ICWP_APP_Api_Internal_Base {
 
 		if ( $aActionParams[ 'do_rollback_prep' ] ) {
 			$oPluginsCommon = new ICWP_APP_Api_Internal_Common_Plugins();
-			$fRollbackResult = $oPluginsCommon->prepRollbackData( $sAssetFile, 'plugins' );
+			$bRollback = $oPluginsCommon->prepRollbackData( $sAssetFile, 'plugins' );
 		}
 
 		$aResult = $this->loadWpFunctionsThemes()->update( $sAssetFile );
-		if ( isset( $aResult[ 'successful' ] ) && $aResult[ 'successful' ] == 0 ) {
-			return $this->fail( implode( ' | ', $aResult[ 'errors' ] ), $aResult );
+		if ( empty( $aResult[ 'successful' ] ) ) {
+			return $this->fail( implode( ' | ', $aResult[ 'errors' ] ), -1, $aResult );
 		}
 
-		$aData = array(
-			'rollback' => isset( $fRollbackResult ) ? $fRollbackResult : false,
+		$aData = [
+			'rollback' => $bRollback ?? false,
 			'result'   => $aResult,
 			'normal'   => $sAssetFile,
-		);
+		];
 		return $this->success( $aData );
 	}
 }
