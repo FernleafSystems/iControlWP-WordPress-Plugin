@@ -3,8 +3,8 @@
 class ICWP_APP_Api_Internal_Core_Reinstall extends ICWP_APP_Api_Internal_Base {
 
 	/**
-	 * @see wp-admin/update-core.php
 	 * @return ApiResponse
+	 * @see wp-admin/update-core.php
 	 */
 	public function process() {
 		$this->loadWpUpgrades();
@@ -22,6 +22,6 @@ class ICWP_APP_Api_Internal_Core_Reinstall extends ICWP_APP_Api_Internal_Base {
 			return $this->fail( 'Re-install failed with error: '.$oResult->get_error_message() );
 		}
 
-		return $this->success( array( 'result' => $oResult ) );
+		return $this->success( [ 'result' => $oResult ] );
 	}
 }

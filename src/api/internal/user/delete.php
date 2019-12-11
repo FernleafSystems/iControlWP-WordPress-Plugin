@@ -26,7 +26,7 @@ class ICWP_APP_Api_Internal_User_Delete extends ICWP_APP_Api_Internal_Base {
 			return $this->fail( $oE->getMessage() );
 		}
 
-		$aData = array( 'result' => $bResult );
+		$aData = [ 'result' => $bResult ];
 		return $this->success( $aData );
 	}
 }

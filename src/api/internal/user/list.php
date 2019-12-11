@@ -10,25 +10,25 @@ class ICWP_APP_Api_Internal_User_List extends ICWP_APP_Api_Internal_Base {
 			include( ABSPATH.'wp-includes/user.php' );
 		}
 
-		$aData = array();
+		$aData = [];
 		$aActionParams = $this->getActionParams();
 		$aListParts = $aActionParams[ 'parts' ];
 
 		// Get Users
 		if ( in_array( 'users', $aListParts ) ) {
-			$aFields = array(
+			$aFields = [
 				'ID',
 				'user_login',
 				'display_name',
 				'user_email',
 				'user_registered'
-			);
-			$aUsers = get_users( array( 'fields' => $aFields ) );
+			];
+			$aUsers = get_users( [ 'fields' => $aFields ] );
 
-			$aOutputUsers = array();
+			$aOutputUsers = [];
 			foreach ( $aUsers as $nCount => $oUser ) {
 
-				$aOutputUsers[ $nCount ] = array();
+				$aOutputUsers[ $nCount ] = [];
 				foreach ( $aFields as $sField ) {
 					$aOutputUsers[ $nCount ][ $sField ] = $oUser->{$sField};
 				}

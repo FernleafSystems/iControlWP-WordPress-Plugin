@@ -6,13 +6,13 @@ class ICWP_APP_Api_Internal_Collect_Plugins extends ICWP_APP_Api_Internal_Collec
 	 * @return ApiResponse
 	 */
 	public function process() {
-		return $this->success( array( 'wordpress-plugins' => $this->collect() ) );
+		return $this->success( [ 'wordpress-plugins' => $this->collect() ] );
 	}
 
 	/**
-	 * @see class-wp-plugins-list-table.php
-	 * @see plugins.php
 	 * @return array                                associative: PluginFile => PluginData
+	 * @see plugins.php
+	 * @see class-wp-plugins-list-table.php
 	 */
 	public function collect() {
 
@@ -77,14 +77,14 @@ class ICWP_APP_Api_Internal_Collect_Plugins extends ICWP_APP_Api_Internal_Collec
 	 * @return array
 	 */
 	protected function getDesiredPluginAttributes() {
-		return array(
+		return [
 			'Name',
 			'PluginURI',
 			'Version',
 			'Network',
 			'slug',
 			'Version'
-		);
+		];
 	}
 
 	/**

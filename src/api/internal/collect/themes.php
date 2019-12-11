@@ -6,7 +6,7 @@ class ICWP_APP_Api_Internal_Collect_Themes extends ICWP_APP_Api_Internal_Collect
 	 * @return ApiResponse
 	 */
 	public function process() {
-		return $this->success( array( 'wordpress-themes' => $this->collect() ) );
+		return $this->success( [ 'wordpress-themes' => $this->collect() ] );
 	}
 
 	/**
@@ -46,7 +46,7 @@ class ICWP_APP_Api_Internal_Collect_Themes extends ICWP_APP_Api_Internal_Collect
 	 */
 	public function getInstalledThemes() {
 
-		$aThemes = array();
+		$aThemes = [];
 
 		if ( $this->loadWP()->getWordpressIsAtLeastVersion( '3.4' ) ) {
 
@@ -61,7 +61,7 @@ class ICWP_APP_Api_Internal_Collect_Themes extends ICWP_APP_Api_Internal_Collect
 				$bHasChildThemes = $bHasChildThemes || $bIsChildTheme;
 
 				$sStylesheet = $oTheme->offsetGet( 'Stylesheet' );
-				$aThemes[ $sStylesheet ] = array(
+				$aThemes[ $sStylesheet ] = [
 					'Name'           => $oTheme->display( 'Name' ),
 					'Title'          => $oTheme->offsetGet( 'Title' ),
 					'Description'    => $oTheme->offsetGet( 'Description' ),
@@ -83,7 +83,7 @@ class ICWP_APP_Api_Internal_Collect_Themes extends ICWP_APP_Api_Internal_Collect
 
 					// We add our own
 					'network_active' => $oTheme->is_allowed( 'network' )
-				);
+				];
 				$aThemes[ $sStylesheet ] = array_intersect_key(
 					$aThemes[ $sStylesheet ],
 					array_flip( $this->getDesiredThemeAttributes() )
@@ -105,7 +105,7 @@ class ICWP_APP_Api_Internal_Collect_Themes extends ICWP_APP_Api_Internal_Collect
 		else {
 			$aThemes = $this->loadWpFunctionsThemes()->getThemes();
 			$fIsMultisite = is_multisite();
-			$aNetworkAllowedThemes = function_exists( 'get_site_allowed_themes' ) ? get_site_allowed_themes() : array();
+			$aNetworkAllowedThemes = function_exists( 'get_site_allowed_themes' ) ? get_site_allowed_themes() : [];
 
 			// We add our own here because it's easier due to WordPress differences
 			foreach ( $aThemes as $sName => $aData ) {
@@ -123,7 +123,7 @@ class ICWP_APP_Api_Internal_Collect_Themes extends ICWP_APP_Api_Internal_Collect
 	 * @return array
 	 */
 	protected function getDesiredThemeAttributes() {
-		return array(
+		return [
 			'Name',
 			'Version',
 			'Template',
@@ -133,6 +133,6 @@ class ICWP_APP_Api_Internal_Collect_Themes extends ICWP_APP_Api_Internal_Collect
 			'Network',
 			'active',
 			'network_active'
-		);
+		];
 	}
 }

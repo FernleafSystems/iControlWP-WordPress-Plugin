@@ -6,7 +6,7 @@ class ICWP_APP_Api_Internal_Collect_Paths extends ICWP_APP_Api_Internal_Collect_
 	 * @return ApiResponse
 	 */
 	public function process() {
-		return $this->success( array( 'paths' => $this->collect() ) );
+		return $this->success( [ 'paths' => $this->collect() ] );
 	}
 
 	/**
@@ -20,18 +20,18 @@ class ICWP_APP_Api_Internal_Collect_Paths extends ICWP_APP_Api_Internal_Collect_
 	 * @return array
 	 */
 	protected function getDbSettings() {
-		$aDefines = array(
+		$aDefines = [
 			'DB_HOST',
 			'DB_NAME',
 			'DB_USER',
 			'DB_PASSWORD',
 			'DB_CHARSET',
 			'DB_COLLATE'
-		);
+		];
 
-		$aSettings = array(
+		$aSettings = [
 			'table_prefix' => $this->loadDbProcessor()->getPrefix()
-		);
+		];
 		foreach ( $aDefines as $sDefineKey ) {
 			if ( defined( $sDefineKey ) ) {
 				$aSettings[ strtolower( $sDefineKey ) ] = constant( $sDefineKey );
@@ -97,7 +97,7 @@ class ICWP_APP_Api_Internal_Collect_Paths extends ICWP_APP_Api_Internal_Collect_
 		$bRelocatedWpConfig = $sWpConfig !== false && $oWp->isWpConfigRelocated( $sWpConfig, ABSPATH );
 		$sUploadsDir = defined( 'UPLOADS' ) ? untrailingslashit( UPLOADS ) : untrailingslashit( WP_CONTENT_DIR ).'/uploads';
 
-		return array(
+		return [
 			'wordpress_url'          => $sHomeUrl, // get_bloginfo( 'url' ),
 			'wordpress_wpurl'        => get_bloginfo( 'wpurl' ),
 			'wordpress_home_url'     => $sHomeUrl, //network_home_url()
@@ -128,7 +128,7 @@ class ICWP_APP_Api_Internal_Collect_Paths extends ICWP_APP_Api_Internal_Collect_
 			'document_root'                => isset( $_SERVER[ 'DOCUMENT_ROOT' ] ) ? $_SERVER[ 'DOCUMENT_ROOT' ] : '-1',
 			'script_filename'              => isset( $_SERVER[ 'SCRIPT_FILENAME' ] ) ? $_SERVER[ 'SCRIPT_FILENAME' ] : '-1',
 			'path_translated'              => isset( $_SERVER[ 'PATH_TRANSLATED' ] ) ? $_SERVER[ 'PATH_TRANSLATED' ] : '-1'
-		);
+		];
 	}
 
 	/**

@@ -12,7 +12,7 @@ class ICWP_APP_Api_Internal_Comments_Status extends ICWP_APP_Api_Internal_Base {
 
 		$oWpComments = $this->loadWpCommentsProcessor();
 
-		$aResults = array();
+		$aResults = [];
 		$aActionParams = $this->getActionParams();
 		foreach ( $aActionParams[ 'comments_and_status' ] as $nCommentId => $sStatus ) {
 
@@ -30,7 +30,7 @@ class ICWP_APP_Api_Internal_Comments_Status extends ICWP_APP_Api_Internal_Base {
 			} */
 		}
 
-		$aData = array( 'results' => $aResults );
+		$aData = [ 'results' => $aResults ];
 		return $this->success( $aData );
 	}
 }

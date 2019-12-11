@@ -1,8 +1,8 @@
 {
   "properties":   {
-    "version":                 "3.7.0",
-    "release_timestamp":       1573548976,
-    "build":                   "201911.1201",
+    "version":                 "3.7.1",
+    "release_timestamp":       1576059447,
+    "build":                   "201912.1101",
     "slug_parent":             "icwp",
     "slug_plugin":             "app",
     "text_domain":             "worpit-admin-dashboard-plugin",

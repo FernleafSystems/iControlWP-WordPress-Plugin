@@ -17,7 +17,7 @@ class ICWP_APP_Api_Internal_Db_Base extends ICWP_APP_Api_Internal_Base {
 
 		$nDatabaseTotal = 0;
 		$nGainTotal = 0;
-		$aTables = array();
+		$aTables = [];
 		/** @var stdClass $oTable */
 		foreach ( $aTableStatusResults as $oTable ) {
 			$nDataLength = $oTable->Data_length;
@@ -32,14 +32,14 @@ class ICWP_APP_Api_Internal_Db_Base extends ICWP_APP_Api_Internal_Base {
 
 			if ( !$oDb->isTableView( $oTable ) || $bIncludeViews ) {
 
-				$aTable = array(
+				$aTable = [
 					'name'    => $oTable->Name,
 					'records' => $oTable->Rows,
 					'size'    => $nTableTotal,
 					'gain'    => $nDataFree,
 					'comment' => $sComment,
 					'crashed' => 0
-				);
+				];
 
 				if ( $oDb->isTableCrashed( $oTable ) ) {
 					$aTable[ 'comment' ] = sprintf( 'Table "%s" appears to be crashed', $oTable->Name );
@@ -49,11 +49,11 @@ class ICWP_APP_Api_Internal_Db_Base extends ICWP_APP_Api_Internal_Base {
 			}
 		}
 
-		$aData = array(
+		$aData = [
 			'tables'         => $aTables,
 			'database_total' => $nDatabaseTotal,
 			'database_gain'  => $nGainTotal
-		);
+		];
 		return $aData;
 	}
 }
