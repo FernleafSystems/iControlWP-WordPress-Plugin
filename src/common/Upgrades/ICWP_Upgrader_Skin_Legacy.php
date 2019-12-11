@@ -3,10 +3,7 @@
 require_once( ABSPATH.'wp-admin/includes/upgrade.php' );
 require_once( ABSPATH.'wp-admin/includes/class-wp-upgrader.php' );
 
-/**
- * Class ICWP_Upgrader_Skin
- */
-class ICWP_Upgrader_Skin extends \WP_Upgrader_Skin {
+class ICWP_Upgrader_Skin_Legacy extends \WP_Upgrader_Skin {
 
 	/**
 	 * @var array
@@ -22,7 +19,7 @@ class ICWP_Upgrader_Skin extends \WP_Upgrader_Skin {
 	/**
 	 * @inheritDoc
 	 */
-	function feedback( $string, ...$args ) {
+	function feedback( $string ) {
 		// overriding this prevent automatic echo of feedback
 		if ( empty( $this->aFeedback ) ) {
 			$this->aFeedback = [];
