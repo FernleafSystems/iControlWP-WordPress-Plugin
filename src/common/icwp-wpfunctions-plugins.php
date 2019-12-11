@@ -64,12 +64,14 @@ class ICWP_APP_WpFunctions_Plugins extends ICWP_APP_Foundation {
 	/**
 	 * @param string $sUrlToInstall
 	 * @param bool   $bOverwrite
-	 * @return array
+	 * @return mixed[]
 	 */
 	public function install( $sUrlToInstall, $bOverwrite = true ) {
 		$this->loadWpUpgrades();
 
-		$oUpgraderSkin = new ICWP_Upgrader_Skin();
+		$oUpgraderSkin = $this->loadWP()->getWordpressIsAtLeastVersion( '5.3' ) ?
+			new \ICWP_Upgrader_Skin()
+			: new \ICWP_Upgrader_Skin_Legacy();
 		$oUpgrader = new Plugin_Upgrader( $oUpgraderSkin );
 		add_filter( 'upgrader_package_options', function ( $aOptions ) use ( $bOverwrite ) {
 			$aOptions[ 'clear_destination' ] = $bOverwrite;
@@ -88,12 +90,14 @@ class ICWP_APP_WpFunctions_Plugins extends ICWP_APP_Foundation {
 
 	/**
 	 * @param string $sFile
-	 * @return array
+	 * @return mixed[]
 	 */
 	public function update( $sFile ) {
 		$this->loadWpUpgrades();
 
-		$oUpgraderSkin = new ICWP_Upgrader_Skin();
+		$oUpgraderSkin = $this->loadWP()->getWordpressIsAtLeastVersion( '5.3' ) ?
+			new \ICWP_Upgrader_Skin()
+			: new \ICWP_Upgrader_Skin_Legacy();
 		$oUpgrader = new Plugin_Upgrader( $oUpgraderSkin );
 		$mResult = $oUpgrader->upgrade( $sFile );
 
