@@ -69,10 +69,10 @@ class ICWP_APP_WpFunctions_Plugins extends ICWP_APP_Foundation {
 	public function install( $sUrlToInstall, $bOverwrite = true ) {
 		$this->loadWpUpgrades();
 
-		$oUpgraderSkin = $this->loadWP()->getWordpressIsAtLeastVersion( '5.3' ) ?
+		$oSkin = $this->loadWP()->getWordpressIsAtLeastVersion( '5.3' ) ?
 			new \ICWP_Upgrader_Skin()
 			: new \ICWP_Upgrader_Skin_Legacy();
-		$oUpgrader = new Plugin_Upgrader( $oUpgraderSkin );
+		$oUpgrader = new Plugin_Upgrader( $oSkin );
 		add_filter( 'upgrader_package_options', function ( $aOptions ) use ( $bOverwrite ) {
 			$aOptions[ 'clear_destination' ] = $bOverwrite;
 			return $aOptions;
@@ -82,7 +82,7 @@ class ICWP_APP_WpFunctions_Plugins extends ICWP_APP_Foundation {
 
 		return [
 			'successful'  => $mResult === true,
-			'feedback'    => $oUpgraderSkin->getIcwpFeedback(),
+			'feedback'    => method_exists( $oSkin, 'getIcwpFeedback' ) ? $oSkin->getIcwpFeedback() : [],
 			'plugin_info' => $oUpgrader->plugin_info(),
 			'errors'      => is_wp_error( $mResult ) ? $mResult->get_error_messages() : [ 'no errors' ]
 		];
@@ -95,16 +95,28 @@ class ICWP_APP_WpFunctions_Plugins extends ICWP_APP_Foundation {
 	public function update( $sFile ) {
 		$this->loadWpUpgrades();
 
-		$oUpgraderSkin = $this->loadWP()->getWordpressIsAtLeastVersion( '5.3' ) ?
+		$oSkin = $this->loadWP()->getWordpressIsAtLeastVersion( '5.3' ) ?
 			new \ICWP_Upgrader_Skin()
 			: new \ICWP_Upgrader_Skin_Legacy();
-		$oUpgrader = new Plugin_Upgrader( $oUpgraderSkin );
-		$mResult = $oUpgrader->upgrade( $sFile );
+		$oUpgrader = new Plugin_Upgrader( $oSkin );
+		$mResult = $oUpgrader->bulk_upgrade( [ $sFile ] );
+
+		$aErrors = [];
+		/** @var array|\WP_Error $mDetails */
+		$mDetails = ( is_array( $mResult ) && isset( $mResult[ $sFile ] ) ) ? $mResult[ $sFile ] : [];
+		if ( empty( $mDetails ) ) {
+			$aErrors[] = 'False - Filesystem Error';
+		}
+		elseif ( is_wp_error( $mDetails ) ) {
+			$mDetails = [];
+			$aErrors = $mDetails->get_error_messages();
+		}
 
 		return [
-			'successful'  => $mResult === true,
-			'feedback'    => $oUpgraderSkin->getIcwpFeedback(),
-			'errors'      => is_wp_error( $mResult ) ? $mResult->get_error_messages() : [ 'no errors' ]
+			'successful' => empty( $aErrors ),
+			'errors'     => $aErrors,
+			'details'    => $mDetails,
+			'feedback'   => method_exists( $oSkin, 'getIcwpFeedback' ) ? $oSkin->getIcwpFeedback() : [],
 		];
 	}
 
@@ -125,7 +137,7 @@ class ICWP_APP_WpFunctions_Plugins extends ICWP_APP_Foundation {
 			WPRC_Installer::wprc_update_plugins();
 			return true;
 		}
-		else if ( function_exists( 'wp_update_plugins' ) ) {
+		elseif ( function_exists( 'wp_update_plugins' ) ) {
 			return ( wp_update_plugins() !== false );
 		}
 		return null;
