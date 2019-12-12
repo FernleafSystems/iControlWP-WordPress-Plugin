@@ -108,7 +108,7 @@ class ICWP_APP_WpFunctions_Themes extends ICWP_APP_Foundation {
 		}
 
 		return [
-			'successful' => !empty( $aDetails ),
+			'successful' => empty( $aErrors ),
 			'errors'     => $aErrors,
 			'details'    => $mDetails,
 			'feedback'   => method_exists( $oSkin, 'getIcwpFeedback' ) ? $oSkin->getIcwpFeedback() : [],
