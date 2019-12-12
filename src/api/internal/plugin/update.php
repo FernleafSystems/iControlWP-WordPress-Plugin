@@ -27,9 +27,16 @@ class ICWP_APP_Api_Internal_Plugin_Update extends ICWP_APP_Api_Internal_Base {
 			$fRollbackResult = $oPluginsCommon->prepRollbackData( $sAssetFile, 'plugins' );
 		}
 
-		$aResult = $this->loadWpFunctionsPlugins()->update( $sAssetFile );
+		$oWpPlugins = $this->loadWpFunctionsPlugins();
+		$bWasActive = $oWpPlugins->getIsActive( $sAssetFile );
+
+		$aResult = $oWpPlugins->update( $sAssetFile );
 		if ( empty( $aResult[ 'successful' ] ) ) {
 			return $this->fail( implode( ' | ', $aResult[ 'errors' ] ), -1, $aResult );
+		}
+
+		if ( $bWasActive && !$oWpPlugins->getIsActive( $sAssetFile ) ) {
+			activate_plugin( $bWasActive );
 		}
 
 		$aData[ 'rollback' ] = isset( $fRollbackResult ) ? $fRollbackResult : false;
