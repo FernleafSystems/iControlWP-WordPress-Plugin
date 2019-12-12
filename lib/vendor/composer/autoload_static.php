@@ -108,6 +108,7 @@ class ComposerStaticInit087f4a15eb951e43b942d9d65f3f788d
         'ICWP_APP_WpUsers' => __DIR__ . '/../..' . '/../src/common/wp-users.php',
         'ICWP_APP_WpWidget' => __DIR__ . '/../..' . '/../src/common/wp-widget.php',
         'ICWP_Upgrader_Skin' => __DIR__ . '/../..' . '/../src/common/Upgrades/Icwp_Upgrader_Skin.php',
+        'ICWP_Upgrader_Skin_Legacy' => __DIR__ . '/../..' . '/../src/common/Upgrades/ICWP_Upgrader_Skin_Legacy.php',
         'RequestParameters' => __DIR__ . '/../..' . '/../src/api/RequestParameters.php',
     );
 

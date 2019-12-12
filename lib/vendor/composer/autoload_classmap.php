@@ -93,5 +93,6 @@ return array(
     'ICWP_APP_WpUsers' => $baseDir . '/../src/common/wp-users.php',
     'ICWP_APP_WpWidget' => $baseDir . '/../src/common/wp-widget.php',
     'ICWP_Upgrader_Skin' => $baseDir . '/../src/common/Upgrades/Icwp_Upgrader_Skin.php',
+    'ICWP_Upgrader_Skin_Legacy' => $baseDir . '/../src/common/Upgrades/ICWP_Upgrader_Skin_Legacy.php',
     'RequestParameters' => $baseDir . '/../src/api/RequestParameters.php',
 );
