@@ -115,10 +115,10 @@ No. WorpDrive is available for a small monthly fee.
 
 == Changelog ==
 
-= 3.7.2 - Current Release =
+= 3.7.3 - Current Release =
 *Released: 12th December, 2019* - [Release Notes](https://shsec.io/g5)
 
-* **(v.1)**	IMPROVED:	Compatibility with WordPress 5.3.
+* **(v.3)**	FIXED:		Issue where plugin would deactivate itself during upgrade.
 
 = 3.7 Series =
 *Released: 12th November, 2019*
