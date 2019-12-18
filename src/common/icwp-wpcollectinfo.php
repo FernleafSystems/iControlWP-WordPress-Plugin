@@ -34,7 +34,7 @@ class ICWP_APP_WpCollectInfo extends ICWP_APP_Foundation {
 
 //			$this->prepThirdPartyPlugins(); //TODO
 
-		$aPlugins = empty( $sPluginFile ) ? $oWpPlugins->getPlugins() : array( $sPluginFile => $oWpPlugins->getPlugin( $sPluginFile ) );
+		$aPlugins = empty( $sPluginFile ) ? $oWpPlugins->getPlugins() : [ $sPluginFile => $oWpPlugins->getPlugin( $sPluginFile ) ];
 		$oCurrentUpdates = $oWpPlugins->getUpdates( $bForceUpdateCheck );
 		$aAutoUpdatesList = $this->getAutoUpdates( 'plugins' );
 
@@ -76,7 +76,7 @@ class ICWP_APP_WpCollectInfo extends ICWP_APP_Foundation {
 		$oWpThemes = $this->loadWpFunctionsThemes();
 
 //			$this->prepThirdPartyThemes(); //TODO
-		$aThemes = empty( $sThemeFile ) ? $oWpThemes->getThemes() : array( $sThemeFile => $oWpThemes->getTheme( $sThemeFile ) );
+		$aThemes = empty( $sThemeFile ) ? $oWpThemes->getThemes() : [ $sThemeFile => $oWpThemes->getTheme( $sThemeFile ) ];
 		$aThemes = $this->normaliseThemeData( $aThemes );
 
 		$oCurrentUpdates = $oWpThemes->getUpdates( $bForceUpdateCheck );
@@ -114,13 +114,13 @@ class ICWP_APP_WpCollectInfo extends ICWP_APP_Foundation {
 	 */
 	protected function normaliseThemeData( $aThemes ) {
 
-		$aNormalizedThemes = array();
+		$aNormalizedThemes = [];
 
 		if ( $this->loadWP()->getWordpressIsAtLeastVersion( '3.4' ) ) {
 
 			/** @var WP_Theme[] $aThemes */
 			foreach ( $aThemes as $sStylesheet => $oTheme ) {
-				$aNormalizedThemes[ $sStylesheet ] = array(
+				$aNormalizedThemes[ $sStylesheet ] = [
 					'Name'        => $oTheme->display( 'Name' ),
 					'Title'       => $oTheme->offsetGet( 'Title' ),
 					'Description' => $oTheme->offsetGet( 'Description' ),
@@ -140,7 +140,7 @@ class ICWP_APP_WpCollectInfo extends ICWP_APP_Foundation {
 
 					// We add our own data here because it's easier while it's an object
 					'network_active' => $oTheme->is_allowed( 'network' )
-				);
+				];
 			}
 		}
 		else {

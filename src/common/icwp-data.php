@@ -87,7 +87,7 @@ class ICWP_APP_DataProcessor {
 	 */
 	protected function findViableVisitorIp() {
 
-		$aAddressSourceOptions = array(
+		$aAddressSourceOptions = [
 			'HTTP_CF_CONNECTING_IP',
 			'HTTP_X_FORWARDED_FOR',
 			'HTTP_X_FORWARDED',
@@ -97,7 +97,7 @@ class ICWP_APP_DataProcessor {
 			'HTTP_FORWARDED',
 			'HTTP_CLIENT_IP',
 			'REMOTE_ADDR'
-		);
+		];
 
 		$sIpToReturn = false;
 		foreach ( $aAddressSourceOptions as $sOption ) {
@@ -155,10 +155,10 @@ class ICWP_APP_DataProcessor {
 	public function getRequestUriParts() {
 		if ( !isset( $this->aRequestUriParts ) ) {
 			$aExploded = explode( '?', $this->getRequestUri(), 2 );
-			$this->aRequestUriParts = array(
+			$this->aRequestUriParts = [
 				'path'  => empty( $aExploded[ 0 ] ) ? '' : $aExploded[ 0 ],
 				'query' => empty( $aExploded[ 1 ] ) ? '' : $aExploded[ 1 ],
-			);
+			];
 		}
 		return $this->aRequestUriParts;
 	}
@@ -184,7 +184,7 @@ class ICWP_APP_DataProcessor {
 	 * @param array $outaOutput
 	 * @return boolean
 	 */
-	public function checkCanExec( &$outaOutput = array() ) {
+	public function checkCanExec( &$outaOutput = [] ) {
 		if ( !$this->suhosinFunctionExists( 'exec' ) ) {
 			return false;
 		}
@@ -274,13 +274,13 @@ class ICWP_APP_DataProcessor {
 	 */
 	public function extractCommaSeparatedList( $sRawList = '' ) {
 
-		$aRawList = array();
+		$aRawList = [];
 		if ( empty( $sRawList ) ) {
 			return $aRawList;
 		}
 
 		$aRawList = array_map( 'trim', preg_split( '/\r\n|\r|\n/', $sRawList ) );
-		$aNewList = array();
+		$aNewList = [];
 		$bHadStar = false;
 		foreach ( $aRawList as $sKey => $sRawLine ) {
 
@@ -304,7 +304,7 @@ class ICWP_APP_DataProcessor {
 				}
 			}
 
-			$aParams = empty( $aParts[ 1 ] ) ? array() : explode( ',', $aParts[ 1 ] );
+			$aParams = empty( $aParts[ 1 ] ) ? [] : explode( ',', $aParts[ 1 ] );
 			$aNewList[ $aParts[ 0 ] ] = $aParams;
 		}
 		return $aNewList;
@@ -367,7 +367,7 @@ class ICWP_APP_DataProcessor {
 	 * @return string
 	 */
 	static public function GenerateRandomString( $nLength = 10, $nStrength = 7, $bIgnoreAmb = true ) {
-		$aChars = array( 'abcdefghijkmnopqrstuvwxyz' );
+		$aChars = [ 'abcdefghijkmnopqrstuvwxyz' ];
 
 		if ( $nStrength & 2 ) {
 			$aChars[] = '023456789';

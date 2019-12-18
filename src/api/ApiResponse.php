@@ -30,7 +30,7 @@ class ApiResponse {
 	public function getData() {
 		$aData = $this->getResponseItem( 'data' );
 		if ( is_null( $aData ) || !is_array( $aData ) ) {
-			$aData = array();
+			$aData = [];
 			$this->setResponseItem( 'data', $aData );
 		}
 		return $aData;
@@ -38,7 +38,7 @@ class ApiResponse {
 
 	/**
 	 * @param string $sItem
-	 * @param null $mDefault
+	 * @param null   $mDefault
 	 * @return mixed|null
 	 */
 	public function getDataItem( $sItem, $mDefault = null ) {
@@ -55,7 +55,7 @@ class ApiResponse {
 
 	/**
 	 * @param string $sItem
-	 * @param mixed $mDefault
+	 * @param mixed  $mDefault
 	 * @return mixed
 	 */
 	protected function getResponseItem( $sItem, $mDefault = null ) {
@@ -110,7 +110,7 @@ class ApiResponse {
 
 	/**
 	 * @param string $sItem
-	 * @param mixed $mValue
+	 * @param mixed  $mValue
 	 * @return ApiResponse
 	 */
 	public function setDataItem( $sItem, $mValue ) {
@@ -192,7 +192,7 @@ class ApiResponse {
 
 	/**
 	 * @param string $sItem
-	 * @param mixed $mValue
+	 * @param mixed  $mValue
 	 * @return $this
 	 */
 	protected function setResponseItem( $sItem, $mValue ) {
@@ -215,7 +215,7 @@ class ApiResponse {
 			$oResponse->die = false;
 			$oResponse->handshake = 'none';
 			$oResponse->openssl_verify = -999;
-			$oResponse->data = array();
+			$oResponse->data = [];
 
 			$this->oResponsePackageData = $oResponse;
 		}

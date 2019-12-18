@@ -8,7 +8,7 @@ class ICWP_APP_Processor_GoogleAnalytics extends ICWP_APP_Processor_BaseApp {
 	private $aGaOptions;
 
 	public function run() {
-		add_action( 'wp', array( $this, 'onWp' ) );
+		add_action( 'wp', [ $this, 'onWp' ] );
 	}
 
 	public function onWp() {
@@ -16,9 +16,9 @@ class ICWP_APP_Processor_GoogleAnalytics extends ICWP_APP_Processor_BaseApp {
 
 		$sID = $this->getTrackingId();
 		if ( !empty( $sID ) && !$this->getIfIgnoreUser() && $this->isValidAnalyticsMode() ) {
-			add_action( $this->getWpHook(), array( $this, 'printGoogleAnalytics' ), 100 );
+			add_action( $this->getWpHook(), [ $this, 'printGoogleAnalytics' ], 100 );
 			if ( $this->getAnalyticsMode() == 'tagman' ) {
-				add_action( 'wp_body_open', array( $this, 'printTagManBody' ) );
+				add_action( 'wp_body_open', [ $this, 'printTagManBody' ] );
 			}
 		}
 	}
@@ -51,7 +51,7 @@ class ICWP_APP_Processor_GoogleAnalytics extends ICWP_APP_Processor_BaseApp {
 		return $this->getFeatureOptions()
 					->renderTemplate(
 						sprintf( 'snippets/analytics_%s.php', strtolower( $sType ) ),
-						array( 'tid' => $this->getTrackingId() )
+						[ 'tid' => $this->getTrackingId() ]
 					);
 	}
 
@@ -77,13 +77,13 @@ class ICWP_APP_Processor_GoogleAnalytics extends ICWP_APP_Processor_BaseApp {
 	private function getGaOpts() {
 		$oMod = $this->getFeatureOptions();
 		if ( empty( $this->aGaOptions ) ) {
-			$this->aGaOptions = array(
+			$this->aGaOptions = [
 				'tracking_id'            => $oMod->getOpt( 'tracking_id' ),
 				'analytics_mode'         => strtolower( $oMod->getOpt( 'analytics_mode' ) ),
 				'ignore_logged_in_user'  => $oMod->getOpt( 'ignore_logged_in_user' ),
 				'ignore_from_user_level' => $oMod->getOpt( 'ignore_from_user_level', 11 ),
 				'in_footer'              => $oMod->getOpt( 'in_footer' ),
-			);
+			];
 		}
 		return $this->aGaOptions;
 	}
@@ -107,7 +107,7 @@ class ICWP_APP_Processor_GoogleAnalytics extends ICWP_APP_Processor_BaseApp {
 	}
 
 	public function isValidAnalyticsMode() {
-		return in_array( $this->getAnalyticsMode(), array( 'classic', 'sitetag', 'tagman', 'universal' ) );
+		return in_array( $this->getAnalyticsMode(), [ 'classic', 'sitetag', 'tagman', 'universal' ] );
 	}
 
 	/**

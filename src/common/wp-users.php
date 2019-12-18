@@ -29,12 +29,12 @@ class ICWP_APP_WpUsers extends ICWP_APP_Foundation {
 	 */
 	public function createUser( $aNewUserData, $bSendUserNotification = false ) {
 
-		$aUserDefaults = array(
+		$aUserDefaults = [
 			'user_registered' => strftime( '%F %T', time() ),
 			'display_name'    => false,
 			'user_url'        => '',
 			'description'     => ''
-		);
+		];
 
 		//set defaults for unset vars
 		$aNewUser = wp_parse_args( $aNewUserData, $aUserDefaults );
@@ -100,7 +100,7 @@ class ICWP_APP_WpUsers extends ICWP_APP_Foundation {
 	/**
 	 * @param array $aLoginUrlParams
 	 */
-	public function forceUserRelogin( $aLoginUrlParams = array() ) {
+	public function forceUserRelogin( $aLoginUrlParams = [] ) {
 		$this->logoutUser();
 		$this->loadWP()->redirectToLogin( $aLoginUrlParams );
 	}

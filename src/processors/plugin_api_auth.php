@@ -19,11 +19,11 @@ class ICWP_APP_Processor_Plugin_Api_Auth extends ICWP_APP_Processor_Plugin_Api {
 		return $this->setSuccessResponse(
 			'Auth',
 			0,
-			array(
+			[
 				'is_logged_in'     => $this->setAuthorizedUser(),
 				'is_wpe'           => @getenv( 'IS_WPE' ),
 				'is_wpe_logged_in' => $this->setWpEngineAuth(),
-			)
+			]
 		);
 	}
 }

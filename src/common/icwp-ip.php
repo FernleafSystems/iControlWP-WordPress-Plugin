@@ -33,7 +33,7 @@ class ICWP_APP_Ip {
 	 */
 	public static function checkIp( $requestIp, $ips ) {
 		if ( !is_array( $ips ) ) {
-			$ips = array( $ips );
+			$ips = [ $ips ];
 		}
 		$method = substr_count( $requestIp, ':' ) > 1 ? 'checkIp6' : 'checkIp4';
 		foreach ( $ips as $ip ) {

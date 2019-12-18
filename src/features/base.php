@@ -71,7 +71,7 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 	 * @param array                      $aFeatureProperties
 	 * @throws Exception
 	 */
-	public function __construct( $oPluginController, $aFeatureProperties = array() ) {
+	public function __construct( $oPluginController, $aFeatureProperties = [] ) {
 		if ( empty( $oPluginController ) ) {
 			throw new Exception();
 		}
@@ -90,34 +90,34 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 
 			$nRunPriority = isset( $aFeatureProperties[ 'load_priority' ] ) ? $aFeatureProperties[ 'load_priority' ] : 100;
 			// Handle any upgrades as necessary (only go near this if it's the admin area)
-			add_action( 'plugins_loaded', array( $this, 'onWpPluginsLoaded' ), $nRunPriority );
-			add_action( 'init', array( $this, 'onWpInit' ), 1 );
-			add_action( $this->doPluginPrefix( 'form_submit' ), array( $this, 'handleFormSubmit' ) );
-			add_filter( $this->doPluginPrefix( 'filter_plugin_submenu_items' ), array(
+			add_action( 'plugins_loaded', [ $this, 'onWpPluginsLoaded' ], $nRunPriority );
+			add_action( 'init', [ $this, 'onWpInit' ], 1 );
+			add_action( $this->doPluginPrefix( 'form_submit' ), [ $this, 'handleFormSubmit' ] );
+			add_filter( $this->doPluginPrefix( 'filter_plugin_submenu_items' ), [
 				$this,
 				'filter_addPluginSubMenuItem'
-			) );
-			add_filter( $this->doPluginPrefix( 'get_feature_summary_data' ), array(
+			] );
+			add_filter( $this->doPluginPrefix( 'get_feature_summary_data' ), [
 				$this,
 				'filter_getFeatureSummaryData'
-			) );
-			add_action( $this->doPluginPrefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureShutdown' ) );
-			add_action( $this->doPluginPrefix( 'delete_plugin' ), array( $this, 'deletePluginOptions' ) );
-			add_filter( $this->doPluginPrefix( 'aggregate_all_plugin_options' ), array(
+			] );
+			add_action( $this->doPluginPrefix( 'plugin_shutdown' ), [ $this, 'action_doFeatureShutdown' ] );
+			add_action( $this->doPluginPrefix( 'delete_plugin' ), [ $this, 'deletePluginOptions' ] );
+			add_filter( $this->doPluginPrefix( 'aggregate_all_plugin_options' ), [
 				$this,
 				'aggregateOptionsValues'
-			) );
+			] );
 
-			add_filter( $this->doPluginPrefix( 'register_admin_notices' ), array( $this, 'fRegisterAdminNotices' ) );
-			add_filter( $this->doPluginPrefix( 'gather_options_for_export' ), array(
+			add_filter( $this->doPluginPrefix( 'register_admin_notices' ), [ $this, 'fRegisterAdminNotices' ] );
+			add_filter( $this->doPluginPrefix( 'gather_options_for_export' ), [
 				$this,
 				'exportTransferableOptions'
-			) );
+			] );
 
-			add_action( $this->doPluginPrefix( 'set_options_'.$this->getFeatureSlug() ), array(
+			add_action( $this->doPluginPrefix( 'set_options_'.$this->getFeatureSlug() ), [
 				$this,
 				'actionSetOptions'
-			) );
+			] );
 
 			$this->doPostConstruction();
 		}
@@ -129,7 +129,7 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 	 */
 	public function fRegisterAdminNotices( $aAdminNotices ) {
 		if ( !is_array( $aAdminNotices ) ) {
-			$aAdminNotices = array();
+			$aAdminNotices = [];
 		}
 		return array_merge( $aAdminNotices, $this->getOptionsVo()->getAdminNotices() );
 	}
@@ -316,7 +316,7 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 	 */
 	public function getEmailHandler() {
 		if ( is_null( self::$oEmailHandler ) ) {
-			self::$oEmailHandler = $this->getController()->loadFeatureHandler( array( 'slug' => 'email' ) );
+			self::$oEmailHandler = $this->getController()->loadFeatureHandler( [ 'slug' => 'email' ] );
 		}
 		return self::$oEmailHandler;
 	}
@@ -406,11 +406,11 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 				$sMenuTitleName = sprintf( '<span class="icwp_highlighted">%s</span>', $sMenuTitleName );
 			}
 			$sMenuPageTitle = $sMenuTitleName.' - '.$sHumanName;
-			$aItems[ $sMenuPageTitle ] = array(
+			$aItems[ $sMenuPageTitle ] = [
 				$sMenuTitleName,
 				$this->doPluginPrefix( $this->getFeatureSlug() ),
-				array( $this, 'displayFeatureConfigPage' )
-			);
+				[ $this, 'displayFeatureConfigPage' ]
+			];
 
 			$aAdditionalItems = $this->getOptionsVo()->getAdditionalMenuItems();
 			if ( !empty( $aAdditionalItems ) && is_array( $aAdditionalItems ) ) {
@@ -422,11 +422,11 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 					}
 
 					$sMenuPageTitle = $sHumanName.' - '.$aMenuItem[ 'title' ];
-					$aItems[ $sMenuPageTitle ] = array(
+					$aItems[ $sMenuPageTitle ] = [
 						$aMenuItem[ 'title' ],
 						$this->doPluginPrefix( $aMenuItem[ 'slug' ] ),
-						array( $this, $aMenuItem[ 'callback' ] )
-					);
+						[ $this, $aMenuItem[ 'callback' ] ]
+					];
 				}
 			}
 		}
@@ -437,7 +437,7 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 	 * @return array
 	 */
 	protected function getAdditionalMenuItem() {
-		return array();
+		return [];
 	}
 
 	/**
@@ -450,14 +450,14 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 		}
 
 		$sMenuTitle = $this->getOptionsVo()->getFeatureProperty( 'menu_title' );
-		$aSummaryData[] = array(
+		$aSummaryData[] = [
 			'enabled'    => $this->getIsMainFeatureEnabled(),
 			'active'     => self::$sActivelyDisplayedModuleOptions == $this->getFeatureSlug(),
 			'slug'       => $this->getFeatureSlug(),
 			'name'       => $this->getMainFeatureName(),
 			'menu_title' => empty( $sMenuTitle ) ? $this->getMainFeatureName() : $sMenuTitle,
 			'href'       => network_admin_url( 'admin.php?page='.$this->doPluginPrefix( $this->getFeatureSlug() ) )
-		);
+		];
 
 		return $aSummaryData;
 	}
@@ -474,7 +474,7 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 		if ( is_admin() && !$oWpFunc->isMultisite() ) {
 			return true;
 		}
-		else if ( is_network_admin() && $oWpFunc->isMultisite() ) {
+		elseif ( is_network_admin() && $oWpFunc->isMultisite() ) {
 			return true;
 		}
 		return false;
@@ -585,7 +585,7 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 		if ( empty( $sNonce ) ) {
 			$sMessage = $this->getTranslatedString( 'nonce_failed_empty', 'Nonce security checking failed - the nonce value was empty.' );
 		}
-		else if ( wp_verify_nonce( $sNonce, 'icwp_ajax' ) === false ) {
+		elseif ( wp_verify_nonce( $sNonce, 'icwp_ajax' ) === false ) {
 			$sMessage = $this->getTranslatedString( 'nonce_failed_supplied', 'Nonce security checking failed - the nonce supplied was "%s".' );
 			$sMessage = sprintf( $sMessage, $sNonce );
 		}
@@ -594,7 +594,7 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 		}
 
 		// At this stage we haven't returned after success so we failed the nonce check
-		$this->sendAjaxResponse( false, array( 'message' => $sMessage ) );
+		$this->sendAjaxResponse( false, [ 'message' => $sMessage ] );
 		return false; //unreachable
 	}
 
@@ -611,7 +611,7 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 	 * @param       $bSuccess
 	 * @param array $aData
 	 */
-	protected function sendAjaxResponse( $bSuccess, $aData = array() ) {
+	protected function sendAjaxResponse( $bSuccess, $aData = [] ) {
 		$bSuccess ? wp_send_json_success( $aData ) : wp_send_json_error( $aData );
 	}
 
@@ -667,7 +667,7 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 				if ( $sOptionType == 'password' && !empty( $mCurrentOptionVal ) ) {
 					$mCurrentOptionVal = '';
 				}
-				else if ( $sOptionType == 'array' ) {
+				elseif ( $sOptionType == 'array' ) {
 
 					if ( empty( $mCurrentOptionVal ) ) {
 						$mCurrentOptionVal = '';
@@ -677,13 +677,13 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 					}
 					$aOptionParams[ 'rows' ] = substr_count( $mCurrentOptionVal, "\n" ) + 1;
 				}
-				else if ( $sOptionType == 'yubikey_unique_keys' ) {
+				elseif ( $sOptionType == 'yubikey_unique_keys' ) {
 
 					if ( empty( $mCurrentOptionVal ) ) {
 						$mCurrentOptionVal = '';
 					}
 					else {
-						$aDisplay = array();
+						$aDisplay = [];
 						foreach ( $mCurrentOptionVal as $aParts ) {
 							$aDisplay[] = key( $aParts ).', '.reset( $aParts );
 						}
@@ -691,13 +691,13 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 					}
 					$aOptionParams[ 'rows' ] = substr_count( $mCurrentOptionVal, "\n" ) + 1;
 				}
-				else if ( $sOptionType == 'comma_separated_lists' ) {
+				elseif ( $sOptionType == 'comma_separated_lists' ) {
 
 					if ( empty( $mCurrentOptionVal ) ) {
 						$mCurrentOptionVal = '';
 					}
 					else {
-						$aNewValues = array();
+						$aNewValues = [];
 						foreach ( $mCurrentOptionVal as $sPage => $aParams ) {
 							$aNewValues[] = $sPage.', '.implode( ", ", $aParams );
 						}
@@ -776,7 +776,7 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 
 		$aOptions = $this->buildOptions();
 
-		$aToJoin = array();
+		$aToJoin = [];
 		foreach ( $aOptions as $aOptionsSection ) {
 
 			if ( empty( $aOptionsSection ) ) {
@@ -870,10 +870,10 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 				if ( $sOptionType == 'text' || $sOptionType == 'email' ) { //if it was a text box, and it's null, don't update anything
 					continue;
 				}
-				else if ( $sOptionType == 'checkbox' ) { //if it was a checkbox, and it's null, it means 'N'
+				elseif ( $sOptionType == 'checkbox' ) { //if it was a checkbox, and it's null, it means 'N'
 					$sOptionValue = 'N';
 				}
-				else if ( $sOptionType == 'integer' ) { //if it was a integer, and it's null, it means '0'
+				elseif ( $sOptionType == 'integer' ) { //if it was a integer, and it's null, it means '0'
 					$sOptionValue = 0;
 				}
 			}
@@ -885,23 +885,23 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 				if ( $sOptionType == 'integer' ) {
 					$sOptionValue = intval( $sOptionValue );
 				}
-				else if ( $sOptionType == 'password' && $this->hasEncryptOption() ) { //md5 any password fields
+				elseif ( $sOptionType == 'password' && $this->hasEncryptOption() ) { //md5 any password fields
 					$sTempValue = trim( $sOptionValue );
 					if ( empty( $sTempValue ) ) {
 						continue;
 					}
 					$sOptionValue = md5( $sTempValue );
 				}
-				else if ( $sOptionType == 'array' ) { //arrays are textareas, where each is separated by newline
+				elseif ( $sOptionType == 'array' ) { //arrays are textareas, where each is separated by newline
 					$sOptionValue = array_filter( explode( "\n", $sOptionValue ), 'trim' );
 				}
-				else if ( $sOptionType == 'email' && function_exists( 'is_email' ) && !is_email( $sOptionValue ) ) {
+				elseif ( $sOptionType == 'email' && function_exists( 'is_email' ) && !is_email( $sOptionValue ) ) {
 					$sOptionValue = '';
 				}
-				else if ( $sOptionType == 'comma_separated_lists' ) {
+				elseif ( $sOptionType == 'comma_separated_lists' ) {
 					$sOptionValue = $oDp->extractCommaSeparatedList( $sOptionValue );
 				}
-				else if ( $sOptionType == 'multiple_select' ) {
+				elseif ( $sOptionType == 'multiple_select' ) {
 				}
 			}
 			$this->setOpt( $sOptionKey, $sOptionValue );
@@ -974,7 +974,7 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 	protected function getBaseDisplayData() {
 		$oCon = $this->getController();
 		self::$sActivelyDisplayedModuleOptions = $this->getFeatureSlug();
-		return array(
+		return [
 			'var_prefix'      => $oCon->getOptionStoragePrefix(),
 			'sPluginName'     => $oCon->getHumanName(),
 			'sFeatureName'    => $this->getMainFeatureName(),
@@ -988,14 +988,14 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 			'aPluginLabels'   => $oCon->getPluginLabels(),
 
 			'bShowStateSummary' => false,
-			'aSummaryData'      => apply_filters( $this->doPluginPrefix( 'get_feature_summary_data' ), array() ),
+			'aSummaryData'      => apply_filters( $this->doPluginPrefix( 'get_feature_summary_data' ), [] ),
 
 			'aAllOptions'       => $this->buildOptions(),
 			'aHiddenOptions'    => $this->getOptionsVo()->getHiddenOptions(),
 			'all_options_input' => $this->collateAllFormInputsForAllOptions(),
 
 			'sPageTitle' => $this->getMainFeatureName(),
-			'strings'    => array(
+			'strings'    => [
 				'go_to_settings'                    => __( 'Settings' ),
 				'on'                                => __( 'On' ),
 				'off'                               => __( 'Off' ),
@@ -1003,8 +1003,8 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 				'blog'                              => __( 'Blog' ),
 				'plugin_activated_features_summary' => __( 'Plugin Activated Features Summary:' ),
 				'save_all_settings'                 => __( 'Save All Settings' ),
-			)
-		);
+			]
+		];
 	}
 
 	/**
@@ -1019,7 +1019,7 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 	 * @param string $sSubView
 	 * @return bool
 	 */
-	protected function display( $aData = array(), $sSubView = '' ) {
+	protected function display( $aData = [], $sSubView = '' ) {
 		$oRndr = $this->loadRenderer( $this->getController()->getPath_Templates() );
 
 		// Get Base Data
@@ -1052,7 +1052,7 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 	 * @param string $sSubView
 	 * @return bool
 	 */
-	protected function displayByTemplate( $aData = array(), $sSubView = '' ) {
+	protected function displayByTemplate( $aData = [], $sSubView = '' ) {
 
 		// Get Base Data
 		$aData = apply_filters( $this->doPluginPrefix( $this->getFeatureSlug().'display_data' ), array_merge( $this->getBaseDisplayData(), $aData ) );
@@ -1105,7 +1105,7 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 		}
 
 		if ( !isset( $aData[ 'notice_classes' ] ) ) {
-			$aData[ 'notice_classes' ] = array();
+			$aData[ 'notice_classes' ] = [];
 		}
 		if ( is_array( $aData[ 'notice_classes' ] ) ) {
 			if ( empty( $aData[ 'notice_classes' ] ) ) {
@@ -1145,7 +1145,7 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 	 * @return array
 	 */
 	protected function getDisplayStrings() {
-		return array();
+		return [];
 	}
 
 	/**
@@ -1161,7 +1161,7 @@ abstract class ICWP_APP_FeatureHandler_Base extends ICWP_APP_Foundation {
 	 */
 	public function exportTransferableOptions( $aTransferableOptions ) {
 		if ( !is_array( $aTransferableOptions ) ) {
-			$aTransferableOptions = array();
+			$aTransferableOptions = [];
 		}
 		$aTransferableOptions[ $this->getOptionsStorageKey() ] = $this->getOptionsVo()->getTransferableOptions();
 		return $aTransferableOptions;

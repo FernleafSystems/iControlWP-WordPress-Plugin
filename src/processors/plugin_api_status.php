@@ -19,7 +19,7 @@ class ICWP_APP_Processor_Plugin_Api_Status extends ICWP_APP_Processor_Plugin_Api
 		/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeatureOptions();
 		$oCon = $this->getController();
-		return array(
+		return [
 			'plugin_status'      => 1,
 			'plugin_version'     => $oCon->getVersion(),
 			'plugin_url'         => $oCon->getPluginUrl(),
@@ -28,6 +28,6 @@ class ICWP_APP_Processor_Plugin_Api_Status extends ICWP_APP_Processor_Plugin_Api
 			'supported_channels' => $oFO->getPermittedApiChannels(),
 			'supported_openssl'  => $this->loadEncryptProcessor()->getSupportsOpenSslSign() ? 1 : 0,
 			'wpe_api'            => defined( 'WPE_API' ),
-		);
+		];
 	}
 }

@@ -6,8 +6,8 @@ class ICWP_APP_Processor_BasePlugin extends ICWP_APP_Processor_BaseApp {
 	 */
 	public function init() {
 		$oFO = $this->getFeatureOptions();
-		add_filter( $oFO->doPluginPrefix( 'show_marketing' ), array( $this, 'getIsShowMarketing' ) );
-		add_filter( $oFO->doPluginPrefix( 'delete_on_deactivate' ), array( $this, 'getIsDeleteOnDeactivate' ) );
+		add_filter( $oFO->doPluginPrefix( 'show_marketing' ), [ $this, 'getIsShowMarketing' ] );
+		add_filter( $oFO->doPluginPrefix( 'delete_on_deactivate' ), [ $this, 'getIsDeleteOnDeactivate' ] );
 	}
 
 	/**
@@ -34,16 +34,16 @@ class ICWP_APP_Processor_BasePlugin extends ICWP_APP_Processor_BaseApp {
 
 	public function addNotice_rate_plugin( $aNoticeAttributes ) {
 
-		$aRenderData = array(
+		$aRenderData = [
 			'notice_attributes' => $aNoticeAttributes,
-			'strings'           => array(
+			'strings'           => [
 				'dismiss' => __( "I'd rather not show this support" ).' / '.__( "I've done this already" ).' :D',
 				'forums'  => __( 'Support Forums' )
-			),
-			'hrefs'             => array(
+			],
+			'hrefs'             => [
 				'forums' => 'https://wordpress.org/support/plugin/wp-simple-firewall',
-			)
-		);
+			]
+		];
 		$this->insertAdminNotice( $aRenderData );
 	}
 
@@ -58,20 +58,20 @@ class ICWP_APP_Processor_BasePlugin extends ICWP_APP_Processor_BaseApp {
 		}
 
 		$oCon = $this->getController();
-		$aRenderData = array(
+		$aRenderData = [
 			'notice_attributes' => $aNoticeAttributes,
-			'strings'           => array(
+			'strings'           => [
 				'your_php_version'              => sprintf( __( 'Your PHP version is very (10+ years) old: %s' ), $oDp->getPhpVersion() ),
 				'future_versions_not_supported' => sprintf( __( 'Future versions of the %s plugin will not support your PHP version.' ), $oCon->getHumanName() ),
 				'ask_host_to_upgrade'           => sprintf( __( 'You should ask your host to upgrade or provide a much newer PHP version.' ), $oCon->getHumanName() ),
 				'any_questions'                 => sprintf( __( 'If you have any questions, please leave us a message in the forums.' ), $oCon->getHumanName() ),
 				'dismiss'                       => __( 'Dismiss this notice' ),
 				'forums'                        => __( 'Support Forums' )
-			),
-			'hrefs'             => array(
+			],
+			'hrefs'             => [
 				'forums' => 'https://wordpress.org/support/plugin/wp-simple-firewall',
-			)
-		);
+			]
+		];
 		$this->insertAdminNotice( $aRenderData );
 	}
 
@@ -97,19 +97,19 @@ class ICWP_APP_Processor_BasePlugin extends ICWP_APP_Processor_BaseApp {
 		$sBaseFile = $this->getController()->getPluginBaseFile();
 		if ( !$oWp->getIsPage_Updates() && $oWp->getIsPluginUpdateAvailable( $sBaseFile ) ) { // Don't show on the update page
 
-			$aRenderData = array(
+			$aRenderData = [
 				'notice_attributes' => $aNoticeAttributes,
 				'render_slug'       => 'plugin-update-available',
-				'strings'           => array(
+				'strings'           => [
 					'plugin_update_available' => sprintf( __( 'There is an update available for the "%s" plugin.' ), $this->getController()
 																														  ->getHumanName() ),
 					'click_update'            => __( 'Please click to update immediately' ),
 					'dismiss'                 => __( 'Dismiss this notice' )
-				),
-				'hrefs'             => array(
+				],
+				'hrefs'             => [
 					'upgrade_link' => $oWp->getPluginUpgradeLink( $sBaseFile )
-				)
-			);
+				]
+			];
 			$this->insertAdminNotice( $aRenderData );
 		}
 	}
@@ -121,19 +121,19 @@ class ICWP_APP_Processor_BasePlugin extends ICWP_APP_Processor_BaseApp {
 	protected function addNotice_translate_plugin( $aNoticeAttributes ) {
 
 		if ( $this->getIfShowAdminNotices() ) {
-			$aRenderData = array(
+			$aRenderData = [
 				'notice_attributes' => $aNoticeAttributes,
-				'strings'           => array(
+				'strings'           => [
 					'like_to_help' => sprintf( __( "Would you like to help translate the %s plugin into your language?" ), $this->getController()
 																																->getHumanName() ),
 					'head_over_to' => sprintf( __( 'Head over to: %s' ), '' ),
 					'site_url'     => 'translate.icontrolwp.com',
 					'dismiss'      => __( 'Dismiss this notice' )
-				),
-				'hrefs'             => array(
+				],
+				'hrefs'             => [
 					'translate' => 'http://translate.icontrolwp.com'
-				)
-			);
+				]
+			];
 			$this->insertAdminNotice( $aRenderData );
 		}
 	}
@@ -170,18 +170,18 @@ class ICWP_APP_Processor_BasePlugin extends ICWP_APP_Processor_BaseApp {
 			);
 		}
 
-		$aRenderData = array(
+		$aRenderData = [
 			'notice_attributes' => $aNoticeAttributes,
-			'strings'           => array(
+			'strings'           => [
 				'main_message'  => $sMessage,
 				'read_homepage' => __( 'Click to read about any important updates from the plugin home page.' ),
 				'link_title'    => $sHumanName,
 				'dismiss'       => __( 'Dismiss this notice' )
-			),
-			'hrefs'             => array(
+			],
+			'hrefs'             => [
 				'read_homepage' => 'http://icwp.io/27',
-			),
-		);
+			],
+		];
 		$this->insertAdminNotice( $aRenderData );
 	}
 

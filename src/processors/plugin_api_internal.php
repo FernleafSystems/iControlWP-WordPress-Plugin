@@ -39,7 +39,7 @@ class ICWP_APP_Processor_Plugin_Api_Internal extends ICWP_APP_Processor_Plugin_A
 		$oApi->setRequestParams( $this->getRequestParams() )
 			 ->setStandardResponse( $this->getStandardResponse() );
 		$oApi->preProcess();
-		return call_user_func( array( $oApi, 'process' ) );
+		return call_user_func( [ $oApi, 'process' ] );
 	}
 
 	/**

@@ -25,9 +25,9 @@ class ICWP_APP_Encrypt extends ICWP_APP_Foundation {
 	 */
 	public function getSupportsOpenSslSign() {
 		return function_exists( 'base64_decode' )
-			&& function_exists( 'openssl_sign' )
-			&& function_exists( 'openssl_verify' )
-			&& defined( 'OPENSSL_ALGO_SHA1' );
+			   && function_exists( 'openssl_sign' )
+			   && function_exists( 'openssl_verify' )
+			   && defined( 'OPENSSL_ALGO_SHA1' );
 	}
 
 	/**
@@ -51,7 +51,7 @@ class ICWP_APP_Encrypt extends ICWP_APP_Foundation {
 			$oEncryptResponse->message = 'Data to encrypt was empty';
 			return $oEncryptResponse;
 		}
-		else if ( !$this->getSupportsOpenSslDataEncryption() ) {
+		elseif ( !$this->getSupportsOpenSslDataEncryption() ) {
 			$oEncryptResponse->success = false;
 			$oEncryptResponse->message = 'Does not support OpenSSL data encryption';
 		}
@@ -69,8 +69,8 @@ class ICWP_APP_Encrypt extends ICWP_APP_Foundation {
 			$oEncryptResponse->serialized = false;
 		}
 
-		$aPasswordKeys = array();
-		$nResult = openssl_seal( $mDataToEncrypt, $sEncryptedData, $aPasswordKeys, array( $sPublicKey ) );
+		$aPasswordKeys = [];
+		$nResult = openssl_seal( $mDataToEncrypt, $sEncryptedData, $aPasswordKeys, [ $sPublicKey ] );
 
 		$oEncryptResponse->result = $nResult;
 		$oEncryptResponse->success = is_int( $nResult ) && $nResult > 0 && !is_null( $sEncryptedData );

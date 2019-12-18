@@ -12,10 +12,13 @@ abstract class ICWP_APP_Processor_Base extends ICWP_APP_Foundation {
 	 */
 	public function __construct( $oFeatureOptions ) {
 		$this->oFeatureOptions = $oFeatureOptions;
-		add_action( $oFeatureOptions->doPluginPrefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureProcessorShutdown' ) );
-		add_action( $oFeatureOptions->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'autoAddToAdminNotices' ) );
+		add_action( $oFeatureOptions->doPluginPrefix( 'plugin_shutdown' ), [
+			$this,
+			'action_doFeatureProcessorShutdown'
+		] );
+		add_action( $oFeatureOptions->doPluginPrefix( 'generate_admin_notices' ), [ $this, 'autoAddToAdminNotices' ] );
 		if ( method_exists( $this, 'addToAdminNotices' ) ) {
-			add_action( $oFeatureOptions->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'addToAdminNotices' ) );
+			add_action( $oFeatureOptions->doPluginPrefix( 'generate_admin_notices' ), [ $this, 'addToAdminNotices' ] );
 		}
 		$this->init();
 	}
@@ -41,7 +44,7 @@ abstract class ICWP_APP_Processor_Base extends ICWP_APP_Foundation {
 				 && isset( $aNoticeAttributes[ 'valid_admin' ] ) && $aNoticeAttributes[ 'valid_admin' ] && $oCon->getIsValidAdminArea() ) {
 
 				$aNoticeAttributes[ 'notice_id' ] = $sNoticeId;
-				call_user_func( array( $this, $sMethodName ), $aNoticeAttributes );
+				call_user_func( [ $this, $sMethodName ], $aNoticeAttributes );
 			}
 		}
 	}
@@ -53,7 +56,11 @@ abstract class ICWP_APP_Processor_Base extends ICWP_APP_Foundation {
 	protected function getIfDisplayAdminNotice( $aNoticeAttributes ) {
 		$oWpNotices = $this->loadAdminNoticesProcessor();
 
-		if ( empty( $aNoticeAttributes['schedule'] ) || !in_array( $aNoticeAttributes['schedule'], array( 'once', 'conditions', 'version' ) ) ) {
+		if ( empty( $aNoticeAttributes[ 'schedule' ] ) || !in_array( $aNoticeAttributes[ 'schedule' ], [
+				'once',
+				'conditions',
+				'version'
+			] ) ) {
 			$aNoticeAttributes[ 'schedule' ] = 'conditions';
 		}
 
@@ -66,7 +73,8 @@ abstract class ICWP_APP_Processor_Base extends ICWP_APP_Foundation {
 		}
 
 		if ( $aNoticeAttributes[ 'schedule' ] == 'version'
-			 && ( $this->getFeatureOptions()->getVersion() == $oWpNotices->getAdminNoticeMeta( $aNoticeAttributes[ 'id' ] ) ) ) {
+			 && ( $this->getFeatureOptions()
+					   ->getVersion() == $oWpNotices->getAdminNoticeMeta( $aNoticeAttributes[ 'id' ] ) ) ) {
 			return false;
 		}
 
@@ -148,7 +156,7 @@ abstract class ICWP_APP_Processor_Base extends ICWP_APP_Foundation {
 					return true;
 				}
 			}
-			else if ( count( $aIps ) == 2 ) {
+			elseif ( count( $aIps ) == 2 ) {
 				if ( $aIps[ 0 ] <= $nIpAddress && $nIpAddress <= $aIps[ 1 ] ) {
 					$outsLabel = $aIpList[ 'meta' ][ md5( $mWhitelistAddress ) ];
 					return true;
@@ -164,7 +172,7 @@ abstract class ICWP_APP_Processor_Base extends ICWP_APP_Foundation {
 	 */
 	protected function parseIpAddress( $sIpAddress ) {
 
-		$aIps = array();
+		$aIps = [];
 		if ( empty( $sIpAddress ) ) {
 			return $aIps;
 		}
@@ -177,7 +185,7 @@ abstract class ICWP_APP_Processor_Base extends ICWP_APP_Foundation {
 		}
 		else {
 			//we remove the first character in case this is '-'
-			$aParts = array( substr( $sIpAddress, 0, 1 ), substr( $sIpAddress, 1 ) );
+			$aParts = [ substr( $sIpAddress, 0, 1 ), substr( $sIpAddress, 1 ) ];
 			list( $sStart, $sEnd ) = explode( '-', $aParts[ 1 ], 2 );
 			$aIps[] = $aParts[ 0 ].$sStart;
 			$aIps[] = $sEnd;
@@ -190,7 +198,8 @@ abstract class ICWP_APP_Processor_Base extends ICWP_APP_Foundation {
 	 */
 	public function getPluginDefaultRecipientAddress() {
 		$oWp = $this->loadWP();
-		return apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'report_email_address' ), $oWp->getSiteAdminEmail() );
+		return apply_filters( $this->getFeatureOptions()
+								   ->doPluginPrefix( 'report_email_address' ), $oWp->getSiteAdminEmail() );
 	}
 
 	/**

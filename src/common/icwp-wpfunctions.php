@@ -139,10 +139,10 @@ class ICWP_APP_WpFunctions extends ICWP_APP_Foundation {
 			$aChecksumData = get_core_checksums( $sCurrentVersion, $this->getLocale( true ) );
 		}
 		else {
-			$aQueryArgs = array(
+			$aQueryArgs = [
 				'version' => $sCurrentVersion,
 				'locale'  => $this->getLocale( true )
-			);
+			];
 			$sQueryUrl = add_query_arg( $aQueryArgs, 'https://api.wordpress.org/core/checksums/1.0/' );
 			$sResponse = $this->loadFS()->getUrlContent( $sQueryUrl );
 			if ( !empty( $sResponse ) ) {
@@ -214,7 +214,7 @@ class ICWP_APP_WpFunctions extends ICWP_APP_Foundation {
 		if ( !function_exists( 'get_plugins' ) ) {
 			require_once( ABSPATH.'wp-admin/includes/plugin.php' );
 		}
-		return function_exists( 'get_plugins' ) ? get_plugins() : array();
+		return function_exists( 'get_plugins' ) ? get_plugins() : [];
 	}
 
 	/**
@@ -225,7 +225,7 @@ class ICWP_APP_WpFunctions extends ICWP_APP_Foundation {
 		if ( !function_exists( 'get_plugin_data' ) ) {
 			require_once( ABSPATH.'wp-admin/includes/plugin.php' );
 		}
-		return function_exists( 'get_plugin_data' ) ? get_plugin_data( $sRootPluginFile, false, false ) : array();
+		return function_exists( 'get_plugin_data' ) ? get_plugin_data( $sRootPluginFile, false, false ) : [];
 	}
 
 	/**
@@ -302,11 +302,11 @@ class ICWP_APP_WpFunctions extends ICWP_APP_Foundation {
 	 */
 	public function getPluginActivateLink( $sPluginFile ) {
 		$sUrl = self_admin_url( 'plugins.php' );
-		$aQueryArgs = array(
+		$aQueryArgs = [
 			'action'   => 'activate',
 			'plugin'   => urlencode( $sPluginFile ),
 			'_wpnonce' => wp_create_nonce( 'activate-plugin_'.$sPluginFile )
-		);
+		];
 		return add_query_arg( $aQueryArgs, $sUrl );
 	}
 
@@ -316,11 +316,11 @@ class ICWP_APP_WpFunctions extends ICWP_APP_Foundation {
 	 */
 	public function getPluginDeactivateLink( $sPluginFile ) {
 		$sUrl = self_admin_url( 'plugins.php' );
-		$aQueryArgs = array(
+		$aQueryArgs = [
 			'action'   => 'deactivate',
 			'plugin'   => urlencode( $sPluginFile ),
 			'_wpnonce' => wp_create_nonce( 'deactivate-plugin_'.$sPluginFile )
-		);
+		];
 		return add_query_arg( $aQueryArgs, $sUrl );
 	}
 
@@ -330,11 +330,11 @@ class ICWP_APP_WpFunctions extends ICWP_APP_Foundation {
 	 */
 	public function getPluginUpgradeLink( $sPluginFile ) {
 		$sUrl = self_admin_url( 'update.php' );
-		$aQueryArgs = array(
+		$aQueryArgs = [
 			'action'   => 'upgrade-plugin',
 			'plugin'   => urlencode( $sPluginFile ),
 			'_wpnonce' => wp_create_nonce( 'upgrade-plugin_'.$sPluginFile )
-		);
+		];
 		return add_query_arg( $aQueryArgs, $sUrl );
 	}
 
@@ -347,7 +347,7 @@ class ICWP_APP_WpFunctions extends ICWP_APP_Foundation {
 		if ( is_object( $mItem ) && isset( $mItem->{$sContext} ) ) { // WP 3.8.2+
 			$mItem = $mItem->{$sContext};
 		}
-		else if ( !is_string( $mItem ) ) { // WP pre-3.8.2
+		elseif ( !is_string( $mItem ) ) { // WP pre-3.8.2
 			$mItem = '';
 		}
 		return $mItem;
@@ -360,7 +360,7 @@ class ICWP_APP_WpFunctions extends ICWP_APP_Foundation {
 		if ( !function_exists( 'wp_get_themes' ) ) {
 			require_once( ABSPATH.'wp-admin/includes/theme.php' );
 		}
-		return function_exists( 'wp_get_themes' ) ? wp_get_themes() : array();
+		return function_exists( 'wp_get_themes' ) ? wp_get_themes() : [];
 	}
 
 	/**
@@ -369,7 +369,7 @@ class ICWP_APP_WpFunctions extends ICWP_APP_Foundation {
 	 */
 	public function getWordpressUpdates( $sType = 'plugins' ) {
 		$oCurrent = $this->getTransient( 'update_'.$sType );
-		return ( is_object( $oCurrent ) && isset( $oCurrent->response ) ) ? $oCurrent->response : array();
+		return ( is_object( $oCurrent ) && isset( $oCurrent->response ) ) ? $oCurrent->response : [];
 	}
 
 	/**
@@ -498,21 +498,21 @@ class ICWP_APP_WpFunctions extends ICWP_APP_Foundation {
 	/**
 	 * @param array $aQueryParams
 	 */
-	public function redirectToLogin( $aQueryParams = array() ) {
+	public function redirectToLogin( $aQueryParams = [] ) {
 		$this->doRedirect( wp_login_url(), $aQueryParams );
 	}
 
 	/**
 	 * @param array $aQueryParams
 	 */
-	public function redirectToAdmin( $aQueryParams = array() ) {
+	public function redirectToAdmin( $aQueryParams = [] ) {
 		$this->doRedirect( is_multisite() ? get_admin_url() : admin_url(), $aQueryParams );
 	}
 
 	/**
 	 * @param array $aQueryParams
 	 */
-	public function redirectToHome( $aQueryParams = array() ) {
+	public function redirectToHome( $aQueryParams = [] ) {
 		$this->doRedirect( home_url(), $aQueryParams );
 	}
 
@@ -522,7 +522,7 @@ class ICWP_APP_WpFunctions extends ICWP_APP_Foundation {
 	 * @param bool   $bSafe
 	 * @param bool   $bProtectAgainstInfiniteLoops - if false, ignores the redirect loop protection
 	 */
-	public function doRedirect( $sUrl, $aQueryParams = array(), $bSafe = true, $bProtectAgainstInfiniteLoops = true ) {
+	public function doRedirect( $sUrl, $aQueryParams = [], $bSafe = true, $bProtectAgainstInfiniteLoops = true ) {
 		$sUrl = empty( $aQueryParams ) ? $sUrl : add_query_arg( $aQueryParams, $sUrl );
 
 		$oDp = $this->loadDP();
@@ -587,9 +587,9 @@ class ICWP_APP_WpFunctions extends ICWP_APP_Foundation {
 		if ( $sPage == 'admin.php' ) {
 			$sSubPage = $this->loadDP()->FetchGet( 'page' );
 			if ( !empty( $sSubPage ) ) {
-				$aQueryArgs = array(
+				$aQueryArgs = [
 					'page' => $sSubPage,
-				);
+				];
 				$sUrl = add_query_arg( $aQueryArgs, $sUrl );
 			}
 		}
@@ -736,8 +736,8 @@ class ICWP_APP_WpFunctions extends ICWP_APP_Foundation {
 	 */
 	public function getAllUserLoginUsernames() {
 		/** @var WP_User[] $aUsers */
-		$aUsers = get_users( array( 'fields' => array( 'user_login' ) ) );
-		$aLogins = array();
+		$aUsers = get_users( [ 'fields' => [ 'user_login' ] ] );
+		$aLogins = [];
 		foreach ( $aUsers as $oUser ) {
 			$aLogins[] = $oUser->get( 'user_login' );
 		}
@@ -1019,7 +1019,7 @@ class ICWP_APP_WpFunctions extends ICWP_APP_Foundation {
 	 * @return array|stdClass|false
 	 */
 	public function updatesGather( $sContext = 'plugins', $bForceRecheck = false ) {
-		if ( !in_array( $sContext, array( 'plugins', 'themes', 'core' ) ) ) {
+		if ( !in_array( $sContext, [ 'plugins', 'themes', 'core' ] ) ) {
 			$sContext = 'plugins';
 		}
 
@@ -1044,7 +1044,7 @@ class ICWP_APP_WpFunctions extends ICWP_APP_Foundation {
 		global $_wp_using_ext_object_cache;
 		$_wp_using_ext_object_cache = false;
 
-		if ( !in_array( $sContext, array( 'plugins', 'themes', 'core' ) ) ) {
+		if ( !in_array( $sContext, [ 'plugins', 'themes', 'core' ] ) ) {
 			$sContext = 'plugins';
 		}
 
@@ -1061,10 +1061,10 @@ class ICWP_APP_WpFunctions extends ICWP_APP_Foundation {
 		if ( $sContext == 'plugins' ) {
 			wp_update_plugins();
 		}
-		else if ( $sContext == 'themes' ) {
+		elseif ( $sContext == 'themes' ) {
 			wp_update_themes();
 		}
-		else if ( $sContext == 'core' ) {
+		elseif ( $sContext == 'core' ) {
 			wp_version_check();
 		}
 	}

@@ -9,15 +9,15 @@ class ICWP_APP_Processor_Plugin extends ICWP_APP_Processor_BaseApp {
 		$oFO = $this->getFeatureOptions();
 		$oReqParams = $this->getRequestParams();
 
-		add_filter( $oFO->doPluginPrefix( 'get_service_ips_v4' ), array( $this, 'getServiceIpAddressesV4' ) );
-		add_filter( $oFO->doPluginPrefix( 'get_service_ips_v6' ), array( $this, 'getServiceIpAddressesV6' ) );
+		add_filter( $oFO->doPluginPrefix( 'get_service_ips_v4' ), [ $this, 'getServiceIpAddressesV4' ] );
+		add_filter( $oFO->doPluginPrefix( 'get_service_ips_v6' ), [ $this, 'getServiceIpAddressesV6' ] );
 
-		add_filter( $oFO->doPluginPrefix( 'verify_site_can_handshake' ), array( $this, 'doVerifyCanHandshake' ) );
-		add_filter( $oFO->doPluginPrefix( 'hide_plugin' ), array( $oFO, 'getIfHidePlugin' ) );
-		add_filter( $oFO->doPluginPrefix( 'filter_hidePluginMenu' ), array( $oFO, 'getIfHidePlugin' ) );
+		add_filter( $oFO->doPluginPrefix( 'verify_site_can_handshake' ), [ $this, 'doVerifyCanHandshake' ] );
+		add_filter( $oFO->doPluginPrefix( 'hide_plugin' ), [ $oFO, 'getIfHidePlugin' ] );
+		add_filter( $oFO->doPluginPrefix( 'filter_hidePluginMenu' ), [ $oFO, 'getIfHidePlugin' ] );
 
 		if ( $this->loadDP()->FetchRequest( 'geticwppluginurl', false ) == 1 ) {
-			add_action( 'init', array( $this, 'getPluginUrl' ), -1000 );
+			add_action( 'init', [ $this, 'getPluginUrl' ], -1000 );
 		}
 
 		if ( $oReqParams->getIsApiCall() ) {
@@ -27,15 +27,15 @@ class ICWP_APP_Processor_Plugin extends ICWP_APP_Processor_BaseApp {
 					$this->doApiAction();
 				}
 				else {
-					add_action( $sApiHook, array( $this, 'doApiAction' ), $oReqParams->getApiHookPriority() );
+					add_action( $sApiHook, [ $this, 'doApiAction' ], $oReqParams->getApiHookPriority() );
 				}
 			}
-			else if ( $oReqParams->getIsApiCall_LinkSite() ) {
+			elseif ( $oReqParams->getIsApiCall_LinkSite() ) {
 				if ( $sApiHook == 'immediate' ) {
 					$this->doApiLinkSite();
 				}
 				else {
-					add_action( $sApiHook, array( $this, 'doApiLinkSite' ), $oReqParams->getApiHookPriority() );
+					add_action( $sApiHook, [ $this, 'doApiLinkSite' ], $oReqParams->getApiHookPriority() );
 				}
 			}
 		}
@@ -70,7 +70,7 @@ class ICWP_APP_Processor_Plugin extends ICWP_APP_Processor_BaseApp {
 		if ( isset( $aLists[ $sIps ] ) && is_array( $aLists[ $sIps ] ) && isset( $aLists[ $sIps ][ 'valid' ] ) && is_array( $aLists[ $sIps ][ 'valid' ] ) ) {
 			return $aLists[ $sIps ][ 'valid' ];
 		}
-		return array();
+		return [];
 	}
 
 	/**
@@ -91,11 +91,11 @@ class ICWP_APP_Processor_Plugin extends ICWP_APP_Processor_BaseApp {
 
 		$nTimeout = 20;
 		$sHandshakeVerifyTestUrl = $oFO->getAppUrl( 'handshake_verify_test_url' );
-		$aArgs = array(
+		$aArgs = [
 			'timeout'     => $nTimeout,
 			'redirection' => $nTimeout,
 			'sslverify'   => true //this is default, but just to make sure.
-		);
+		];
 		$sResponse = $this->loadFS()->getUrlContent( $sHandshakeVerifyTestUrl, $aArgs );
 
 		if ( !$sResponse ) {
@@ -213,11 +213,11 @@ class ICWP_APP_Processor_Plugin extends ICWP_APP_Processor_BaseApp {
 
 			if ( $oEncryptedResult->success ) {
 				$oResponse->setData(
-					array(
+					[
 						'is_encrypted' => 1,
 						'password'     => $oEncryptedResult->encrypted_password,
 						'sealed_data'  => $oEncryptedResult->encrypted_data
-					)
+					]
 				);
 			}
 		}

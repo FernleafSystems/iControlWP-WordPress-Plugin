@@ -14,7 +14,7 @@ class ICWP_APP_Processor_Security extends ICWP_APP_Processor_BaseApp {
 			if ( !defined( 'DISALLOW_FILE_EDIT' ) ) {
 				define( 'DISALLOW_FILE_EDIT', true );
 			}
-			add_filter( 'user_has_cap', array( $this, 'disallowFileEditing' ), 100, 3 );
+			add_filter( 'user_has_cap', [ $this, 'disallowFileEditing' ], 100, 3 );
 		}
 
 		if ( $this->getIsOption( 'force_ssl_admin', 'Y' ) && function_exists( 'force_ssl_admin' ) ) {
@@ -59,7 +59,7 @@ class ICWP_APP_Processor_Security extends ICWP_APP_Processor_BaseApp {
 	 */
 	public function disallowFileEditing( $aAllCaps, $aCap, $aArgs ) {
 
-		$aEditCapabilities = array( 'edit_themes', 'edit_plugins', 'edit_files' );
+		$aEditCapabilities = [ 'edit_themes', 'edit_plugins', 'edit_files' ];
 		$sRequestedCapability = $aArgs[ 0 ];
 
 		if ( !in_array( $sRequestedCapability, $aEditCapabilities ) ) {

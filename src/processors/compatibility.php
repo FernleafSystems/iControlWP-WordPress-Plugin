@@ -20,9 +20,9 @@ class ICWP_APP_Processor_Compatibility extends ICWP_APP_Processor_BaseApp {
 	 * @return array
 	 */
 	public function getServiceIps( $nIpVersion = 4 ) {
-		$nVersion = in_array( $nIpVersion, array( 4, 6 ) ) ? $nIpVersion : 4;
-		$aResult = apply_filters( $this->getController()->doPluginPrefix( 'get_service_ips_v'.$nVersion ), array() );
-		return is_array( $aResult ) ? $aResult : array();
+		$nVersion = in_array( $nIpVersion, [ 4, 6 ] ) ? $nIpVersion : 4;
+		$aResult = apply_filters( $this->getController()->doPluginPrefix( 'get_service_ips_v'.$nVersion ), [] );
+		return is_array( $aResult ) ? $aResult : [];
 	}
 
 	/**
@@ -44,7 +44,7 @@ class ICWP_APP_Processor_Compatibility extends ICWP_APP_Processor_BaseApp {
 //			$this->addToWpMaintenanceMode(); // replaced with unhooking of init action
 //			$this->addToIThemesSecurity();
 		// Add WordPress Simple Firewall plugin whitelist
-		add_filter( 'icwp_simple_firewall_whitelist_ips', array( $this, 'addToSimpleFirewallWhitelist' ) );
+		add_filter( 'icwp_simple_firewall_whitelist_ips', [ $this, 'addToSimpleFirewallWhitelist' ] );
 	}
 
 	protected function addToWordfence() {
@@ -97,7 +97,7 @@ class ICWP_APP_Processor_Compatibility extends ICWP_APP_Processor_BaseApp {
 	protected function addToWpMaintenanceMode() {
 		if ( class_exists( 'WP_Maintenance_Mode', false ) ) {
 			$aWpmmOptions = $this->loadWP()->getOption( 'wpmm_settings' );
-			$aExcludes = empty( $aWpmmOptions[ 'general' ][ 'exclude' ] ) ? array() : array_unique( $aWpmmOptions[ 'general' ][ 'exclude' ] );
+			$aExcludes = empty( $aWpmmOptions[ 'general' ][ 'exclude' ] ) ? [] : array_unique( $aWpmmOptions[ 'general' ][ 'exclude' ] );
 			$bAdded = false;
 			foreach ( $this->getServiceIps( 4 ) as $sIp ) {
 				if ( !in_array( $sIp, $aExcludes ) ) {
@@ -148,8 +148,8 @@ class ICWP_APP_Processor_Compatibility extends ICWP_APP_Processor_BaseApp {
 		// Now handle it as the new iThemes Security
 		global $itsec_globals;
 		if ( isset( $itsec_globals ) && is_array( $itsec_globals ) && !empty( $itsec_globals[ 'settings' ] ) ) {
-			$aItsecIpsWhiteList = isset( $itsec_globals[ 'settings' ][ 'white_list' ] ) ? $itsec_globals[ 'settings' ][ 'white_list' ] : array();
-			$aItsecIpsLockoutWhiteList = isset( $itsec_globals[ 'settings' ][ 'lockout_white_list' ] ) ? $itsec_globals[ 'settings' ][ 'lockout_white_list' ] : array();
+			$aItsecIpsWhiteList = isset( $itsec_globals[ 'settings' ][ 'white_list' ] ) ? $itsec_globals[ 'settings' ][ 'white_list' ] : [];
+			$aItsecIpsLockoutWhiteList = isset( $itsec_globals[ 'settings' ][ 'lockout_white_list' ] ) ? $itsec_globals[ 'settings' ][ 'lockout_white_list' ] : [];
 
 			$aServiceIps = $this->getServiceIps( 4 );
 			$bAdded = false;
@@ -206,27 +206,27 @@ class ICWP_APP_Processor_Compatibility extends ICWP_APP_Processor_BaseApp {
 
 		// WP Maintenance Mode Plugin ( https://wordpress.org/plugins/wp-maintenance-mode/ )
 		if ( class_exists( 'WP_Maintenance_Mode', false ) && method_exists( 'WP_Maintenance_Mode', 'get_instance' ) ) {
-			remove_action( 'init', array( WP_Maintenance_Mode::get_instance(), 'init' ) );
+			remove_action( 'init', [ WP_Maintenance_Mode::get_instance(), 'init' ] );
 		}
 
 		//underConstruction plugin
 		global $underConstructionPlugin;
 		if ( class_exists( 'underConstruction', false ) && isset( $underConstructionPlugin ) && is_object( $underConstructionPlugin ) ) {
-			remove_action( 'template_redirect', array( $underConstructionPlugin, 'uc_overrideWP' ) );
-			remove_action( 'admin_init', array( $underConstructionPlugin, 'uc_admin_override_WP' ) );
-			remove_action( 'wp_login', array( $underConstructionPlugin, 'uc_admin_override_WP' ) );
+			remove_action( 'template_redirect', [ $underConstructionPlugin, 'uc_overrideWP' ] );
+			remove_action( 'admin_init', [ $underConstructionPlugin, 'uc_admin_override_WP' ] );
+			remove_action( 'wp_login', [ $underConstructionPlugin, 'uc_admin_override_WP' ] );
 		}
 
 		//Ultimate Maintenance Mode plugin
 		global $seedprod_umm;
 		if ( class_exists( 'SeedProd_Ultimate_Maintenance_Mode' ) && isset( $seedprod_umm ) && is_object( $seedprod_umm ) ) {
-			remove_action( 'template_redirect', array( $seedprod_umm, 'render_maintenancemode_page' ) );
+			remove_action( 'template_redirect', [ $seedprod_umm, 'render_maintenancemode_page' ] );
 		}
 
 		global $seedprod_comingsoon;
 		if ( class_exists( 'SeedProd_Ultimate_Coming_Soon_Page', false ) && isset( $seedprod_comingsoon ) && is_object( $seedprod_comingsoon ) ) {
-			remove_action( 'template_redirect', array( $seedprod_comingsoon, 'render_comingsoon_page' ) );
-			remove_action( 'template_redirect', array( $seedprod_comingsoon, 'render_comingsoon_page' ), 9 );
+			remove_action( 'template_redirect', [ $seedprod_comingsoon, 'render_comingsoon_page' ] );
+			remove_action( 'template_redirect', [ $seedprod_comingsoon, 'render_comingsoon_page' ], 9 );
 		}
 
 		/* doesn't seem to work.
@@ -271,10 +271,10 @@ class ICWP_APP_Processor_Compatibility extends ICWP_APP_Processor_BaseApp {
 		if ( class_exists( 'Redirection', false ) && class_exists( 'WordPress_Module', false ) ) {
 			global $redirection;
 			if ( is_object( $redirection ) && isset( $redirection->wp ) && is_object( $redirection->wp ) ) {
-				remove_action( 'init', array( $redirection->wp, 'init' ) );
-				remove_action( 'send_headers', array( $redirection->wp, 'send_headers' ) );
-				remove_action( 'permalink_redirect_skip', array( $redirection->wp, 'permalink_redirect_skip' ) );
-				remove_action( 'wp_redirect', array( $redirection->wp, 'wp_redirect' ), 1 );
+				remove_action( 'init', [ $redirection->wp, 'init' ] );
+				remove_action( 'send_headers', [ $redirection->wp, 'send_headers' ] );
+				remove_action( 'permalink_redirect_skip', [ $redirection->wp, 'permalink_redirect_skip' ] );
+				remove_action( 'wp_redirect', [ $redirection->wp, 'wp_redirect' ], 1 );
 			}
 		}
 	}
@@ -287,7 +287,7 @@ class ICWP_APP_Processor_Compatibility extends ICWP_APP_Processor_BaseApp {
 	 */
 	protected function removeAiowpsHooks() {
 		if ( class_exists( 'AIO_WP_Security' ) && isset( $GLOBALS[ 'aio_wp_security' ] ) && is_object( $GLOBALS[ 'aio_wp_security' ] ) ) {
-			remove_action( 'init', array( $GLOBALS[ 'aio_wp_security' ], 'wp_security_plugin_init' ), 0 );
+			remove_action( 'init', [ $GLOBALS[ 'aio_wp_security' ], 'wp_security_plugin_init' ], 0 );
 		}
 	}
 
@@ -300,11 +300,11 @@ class ICWP_APP_Processor_Compatibility extends ICWP_APP_Processor_BaseApp {
 	protected function removeSecureWpHooks() {
 		global $SecureWP;
 		if ( class_exists( 'SecureWP' ) && isset( $SecureWP ) && is_object( $SecureWP ) ) {
-			remove_action( 'init', array( $SecureWP, 'replace_wp_version' ), 1 );
-			remove_action( 'init', array( $SecureWP, 'remove_core_update' ), 1 );
-			remove_action( 'init', array( $SecureWP, 'remove_plugin_update' ), 1 );
-			remove_action( 'init', array( $SecureWP, 'remove_theme_update' ), 1 );
-			remove_action( 'init', array( $SecureWP, 'remove_wp_version_on_admin' ), 1 );
+			remove_action( 'init', [ $SecureWP, 'replace_wp_version' ], 1 );
+			remove_action( 'init', [ $SecureWP, 'remove_core_update' ], 1 );
+			remove_action( 'init', [ $SecureWP, 'remove_plugin_update' ], 1 );
+			remove_action( 'init', [ $SecureWP, 'remove_theme_update' ], 1 );
+			remove_action( 'init', [ $SecureWP, 'remove_wp_version_on_admin' ], 1 );
 		}
 	}
 
@@ -330,11 +330,11 @@ class ICWP_APP_Processor_Compatibility extends ICWP_APP_Processor_BaseApp {
 		global $bwps, $bwpsoptions;
 
 		if ( class_exists( 'bwps_secure' ) && isset( $bwps ) && is_object( $bwps ) ) {
-			remove_action( 'plugins_loaded', array( $bwps, 'randomVersion' ) );
-			remove_action( 'plugins_loaded', array( $bwps, 'pluginupdates' ) );
-			remove_action( 'plugins_loaded', array( $bwps, 'themeupdates' ) );
-			remove_action( 'plugins_loaded', array( $bwps, 'coreupdates' ) );
-			remove_action( 'plugins_loaded', array( $bwps, 'siteinit' ) );
+			remove_action( 'plugins_loaded', [ $bwps, 'randomVersion' ] );
+			remove_action( 'plugins_loaded', [ $bwps, 'pluginupdates' ] );
+			remove_action( 'plugins_loaded', [ $bwps, 'themeupdates' ] );
+			remove_action( 'plugins_loaded', [ $bwps, 'coreupdates' ] );
+			remove_action( 'plugins_loaded', [ $bwps, 'siteinit' ] );
 		}
 
 		// Adds our IP addresses to the BWPS whitelist
@@ -343,7 +343,7 @@ class ICWP_APP_Processor_Compatibility extends ICWP_APP_Processor_BaseApp {
 			if ( !isset( $bwpsoptions[ 'id_whitelist' ] ) || strlen( $bwpsoptions[ 'id_whitelist' ] ) == 0 ) {
 				$bwpsoptions[ 'id_whitelist' ] = $sServiceIps;
 			}
-			else if ( strpos( $bwpsoptions[ 'id_whitelist' ], $sServiceIps ) === false ) {
+			elseif ( strpos( $bwpsoptions[ 'id_whitelist' ], $sServiceIps ) === false ) {
 				$bwpsoptions[ 'id_whitelist' ] .= "\n".$sServiceIps;
 			}
 		}

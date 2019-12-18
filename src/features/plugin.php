@@ -9,19 +9,19 @@ class ICWP_APP_FeatureHandler_Plugin extends ICWP_APP_FeatureHandler_Base {
 
 	protected function doPostConstruction() {
 		if ( is_admin() ) {
-			add_action( 'wp_loaded', array( $this, 'doAutoRemoteSiteAdd' ) );
+			add_action( 'wp_loaded', [ $this, 'doAutoRemoteSiteAdd' ] );
 		}
-		add_filter( 'plugin_action_links_'.$this->getController()->getPluginBaseFile(), array(
+		add_filter( 'plugin_action_links_'.$this->getController()->getPluginBaseFile(), [
 			$this,
 			'onWpPluginActionLinks'
-		), 100, 1 );
+		], 100, 1 );
 	}
 
 	/**
 	 */
 	public function displayFeatureConfigPage() {
 		$this->display(
-			array(
+			[
 				'aPluginLabels' => $this->getController()->getPluginLabels(),
 				'sAuthKey'      => $this->getPluginAuthKey(),
 				'sAssignedTo'   => $this->getAssignedTo(),
@@ -29,7 +29,7 @@ class ICWP_APP_FeatureHandler_Plugin extends ICWP_APP_FeatureHandler_Base {
 				'bIsLinked'     => $this->getIsSiteLinked(),
 				'bCanHandshake' => $this->getCanHandshake(),
 				'sExtraContent' => apply_filters( $this->getController()->doPluginPrefix( 'main_extracontent' ), '' ),
-			),
+			],
 			'feature-plugin'
 		);
 	}
@@ -49,14 +49,14 @@ class ICWP_APP_FeatureHandler_Plugin extends ICWP_APP_FeatureHandler_Base {
 	/**
 	 */
 	public function doClearAdminFeedback() {
-		$this->setOpt( 'feedback_admin_notice', array() );
+		$this->setOpt( 'feedback_admin_notice', [] );
 	}
 
 	/**
 	 * @param string $sMessage
 	 */
 	public function doAddAdminFeedback( $sMessage ) {
-		$aFeedback = $this->getOpt( 'feedback_admin_notice', array() );
+		$aFeedback = $this->getOpt( 'feedback_admin_notice', [] );
 		$aFeedback[] = $sMessage;
 		$this->setOpt( 'feedback_admin_notice', $aFeedback );
 	}
@@ -114,7 +114,7 @@ class ICWP_APP_FeatureHandler_Plugin extends ICWP_APP_FeatureHandler_Base {
 			$sPin = $this->getPluginPin();
 
 			if ( !empty( $sTo ) && !empty( $sKey ) && !empty( $sPin ) ) {
-				$aParts = array( urlencode( $sTo ), $sKey, $sPin );
+				$aParts = [ urlencode( $sTo ), $sKey, $sPin ];
 				$this->loadFS()->getUrl( $this->getAppUrl( 'reset_site_url' ).implode( '/', $aParts ) );
 			}
 			$this->setOpt( 'key', '' );
@@ -160,16 +160,16 @@ class ICWP_APP_FeatureHandler_Plugin extends ICWP_APP_FeatureHandler_Base {
 		if ( strlen( $sAuthKey ) == 32 && is_email( $sEmailAddress ) ) {
 
 			//looks good. Now attempt remote link.
-			$aPostVars = array(
+			$aPostVars = [
 				'wordpress_url'         => home_url(),
 				'plugin_url'            => $this->getController()->getPluginUrl(),
 				'account_email_address' => $sEmailAddress,
 				'account_auth_key'      => $sAuthKey,
 				'plugin_key'            => $this->getPluginAuthKey()
-			);
-			$aArgs = array(
+			];
+			$aArgs = [
 				'body' => $aPostVars
-			);
+			];
 			return $this->loadFS()->postUrl( $this->getAppUrl( 'remote_add_site_url' ), $aArgs );
 		}
 		return false;
@@ -199,7 +199,7 @@ class ICWP_APP_FeatureHandler_Plugin extends ICWP_APP_FeatureHandler_Base {
 	 */
 	public function getActivePluginFeatures() {
 		$aActiveFeatures = $this->getOptionsVo()->getRawData_SingleOption( 'active_plugin_features' );
-		$aPluginFeatures = array();
+		$aPluginFeatures = [];
 		if ( empty( $aActiveFeatures[ 'value' ] ) || !is_array( $aActiveFeatures[ 'value' ] ) ) {
 			return $aPluginFeatures;
 		}

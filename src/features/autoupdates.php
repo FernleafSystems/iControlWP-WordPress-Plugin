@@ -7,8 +7,8 @@ class ICWP_APP_FeatureHandler_Autoupdates extends ICWP_APP_FeatureHandler_BaseAp
 	 * @return array
 	 */
 	public function getAutoUpdates( $sContext = 'plugins' ) {
-		$aUpdates = $this->getOpt( 'auto_update_'.$sContext, array() );
-		return is_array( $aUpdates ) ? $aUpdates : array();
+		$aUpdates = $this->getOpt( 'auto_update_'.$sContext, [] );
+		return is_array( $aUpdates ) ? $aUpdates : [];
 	}
 
 	/**
@@ -34,7 +34,7 @@ class ICWP_APP_FeatureHandler_Autoupdates extends ICWP_APP_FeatureHandler_BaseAp
 		if ( $bSetOn && $nInArray === false ) {
 			$aAutoUpdateItems[] = $sSlug;
 		}
-		else if ( !$bSetOn && $nInArray !== false ) {
+		elseif ( !$bSetOn && $nInArray !== false ) {
 			unset( $aAutoUpdateItems[ $nInArray ] );
 		}
 		$this->setAutoUpdates( $aAutoUpdateItems, $sContext );

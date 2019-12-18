@@ -57,7 +57,7 @@ class ICWP_APP_Processor_Plugin_Api_Login extends ICWP_APP_Processor_Plugin_Api 
 		$sUsername = $oReqParams->getStringParam( 'username' );
 		$oUser = $oWpUsers->getUserByUsername( $sUsername );
 		if ( empty( $sUsername ) || empty( $oUser ) ) {
-			$aUserRecords = version_compare( $oWp->getWordpressVersion(), '3.1', '>=' ) ? get_users( 'role=administrator' ) : array();
+			$aUserRecords = version_compare( $oWp->getWordpressVersion(), '3.1', '>=' ) ? get_users( 'role=administrator' ) : [];
 			if ( empty( $aUserRecords[ 0 ] ) ) {
 				$sErrorMessage = 'Failed to find an administrator user.';
 				return $this->setErrorResponse(

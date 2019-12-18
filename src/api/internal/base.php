@@ -51,7 +51,7 @@ class ICWP_APP_Api_Internal_Base extends ICWP_APP_Foundation {
 			if ( !empty( $_POST[ 'public_key' ] ) && !empty( $_POST[ 'private_key' ] ) && !defined( 'FS_METHOD' ) ) {
 				define( 'FS_METHOD', 'ssh' );
 			}
-			else if ( $bUseFtp ) {
+			elseif ( $bUseFtp ) {
 				define( 'FS_METHOD', 'ftpext' );
 			}
 		}

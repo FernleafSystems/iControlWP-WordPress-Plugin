@@ -153,7 +153,7 @@ abstract class ICWP_APP_Processor_Plugin_Api extends ICWP_APP_Processor_BaseApp 
 		$oReqParams = $this->getRequestParams();
 
 		$sChannel = $oReqParams->getApiChannel();
-		if ( empty( $sChannel ) || !in_array( $sChannel, array( 'auth', 'internal', 'retrieve' ) ) ) {
+		if ( empty( $sChannel ) || !in_array( $sChannel, [ 'auth', 'internal', 'retrieve' ] ) ) {
 			return $this->setErrorResponse(
 				sprintf( 'Attempting Site Reassign Failed: %s.', 'Site action method is neither "retrieve" nor "internal".' ),
 				9806
@@ -311,11 +311,11 @@ abstract class ICWP_APP_Processor_Plugin_Api extends ICWP_APP_Processor_BaseApp 
 			if ( empty( $sWpUser ) ) {
 
 				if ( version_compare( $this->loadWP()->getWordpressVersion(), '3.1', '>=' ) ) {
-					$aUserRecords = get_users( array(
+					$aUserRecords = get_users( [
 						'role'    => 'administrator',
 						'number'  => 1,
 						'orderby' => 'ID'
-					) );
+					] );
 					if ( is_array( $aUserRecords ) && count( $aUserRecords ) ) {
 						$oUser = $aUserRecords[ 0 ];
 					}
@@ -362,7 +362,7 @@ abstract class ICWP_APP_Processor_Plugin_Api extends ICWP_APP_Processor_BaseApp 
 		$aInstallerResponse = $oInstaller->run();
 
 		$sMessage = !empty( $aInstallerResponse[ 'message' ] ) ? $aInstallerResponse[ 'message' ] : 'No message';
-		$aResponseData = isset( $aInstallerResponse[ 'data' ] ) ? $aInstallerResponse[ 'data' ] : array();
+		$aResponseData = isset( $aInstallerResponse[ 'data' ] ) ? $aInstallerResponse[ 'data' ] : [];
 
 		if ( isset( $aInstallerResponse[ 'success' ] ) && $aInstallerResponse[ 'success' ] ) {
 			return $this->setSuccessResponse(
@@ -405,7 +405,7 @@ abstract class ICWP_APP_Processor_Plugin_Api extends ICWP_APP_Processor_BaseApp 
 					->setSuccess( true )
 					->setMessage( $sMessage )
 					->setCode( $nSuccessCode )
-					->setData( is_null( $mData ) ? array( 'success' => 1 ) : $mData );
+					->setData( is_null( $mData ) ? [ 'success' => 1 ] : $mData );
 	}
 
 	/**

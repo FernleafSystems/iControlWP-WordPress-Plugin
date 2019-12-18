@@ -54,7 +54,7 @@ class ICWP_APP_Processor_Statistics extends ICWP_APP_BaseDbProcessor {
 			return true;
 		}
 
-		add_action( $this->getController()->doPluginPrefix( 'plugin_shutdown' ), array( $this, 'doStats' ) );
+		add_action( $this->getController()->doPluginPrefix( 'plugin_shutdown' ), [ $this, 'doStats' ] );
 		self::$bStatRegistered = true;
 		return true;
 	}
@@ -160,7 +160,7 @@ class ICWP_APP_Processor_Statistics extends ICWP_APP_BaseDbProcessor {
 	 */
 	public function removeStats() {
 		$this->getFeatureOptions()->setIsMainFeatureEnabled( false );
-		remove_action( $this->getController()->doPluginPrefix( 'plugin_shutdown' ), array( $this, 'doStats' ) );
+		remove_action( $this->getController()->doPluginPrefix( 'plugin_shutdown' ), [ $this, 'doStats' ] );
 		$this->deleteTable();
 		return true;
 	}
@@ -292,7 +292,7 @@ class ICWP_APP_Processor_Statistics extends ICWP_APP_BaseDbProcessor {
 	 */
 	protected function addNewStatForPage( $nPageId, $sUri, $nDay = 0, $nMonth = 0, $nYear = 0 ) {
 
-		$aData = array();
+		$aData = [];
 		$aData[ 'page_id' ] = $nPageId;
 		$aData[ 'uri' ] = $sUri;
 		$aData[ 'day_id' ] = $nDay;
@@ -390,7 +390,7 @@ class ICWP_APP_Processor_Statistics extends ICWP_APP_BaseDbProcessor {
 
 	protected function getTableColumnsByDefinition() {
 		$aDef = $this->getFeatureOptions()->getDefinition( 'statistics_table_columns' );
-		return ( is_array( $aDef ) ? $aDef : array() );
+		return ( is_array( $aDef ) ? $aDef : [] );
 	}
 
 	/**

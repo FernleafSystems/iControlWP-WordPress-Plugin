@@ -24,7 +24,7 @@ abstract class ICWP_APP_BaseDbProcessor extends ICWP_APP_Processor_BaseApp {
 		$this->setTableName( $sTableName );
 		$this->createCleanupCron();
 		$this->initializeTable();
-		add_action( $this->getFeatureOptions()->doPluginPrefix( 'delete_plugin' ), array( $this, 'deleteTable' ) );
+		add_action( $this->getFeatureOptions()->doPluginPrefix( 'delete_plugin' ), [ $this, 'deleteTable' ] );
 	}
 
 	/**
@@ -62,7 +62,7 @@ abstract class ICWP_APP_BaseDbProcessor extends ICWP_APP_Processor_BaseApp {
 			}
 
 			$sFullHookName = $this->getDbCleanupHookName();
-			add_action( $sFullHookName, array( $this, 'cleanupDatabase' ) );
+			add_action( $sFullHookName, [ $this, 'cleanupDatabase' ] );
 		}
 		else {
 			$this->createTable();

@@ -172,7 +172,7 @@ class ICWP_APP_WpFilesystem {
 	 *
 	 * @return array|bool
 	 */
-	public function requestUrl( $sUrl, $aRequestArgs = array() ) {
+	public function requestUrl( $sUrl, $aRequestArgs = [] ) {
 
 		$mResult = wp_remote_request( $sUrl, $aRequestArgs );
 		if ( is_wp_error( $mResult ) ) {
@@ -190,7 +190,7 @@ class ICWP_APP_WpFilesystem {
 	 *
 	 * @return bool
 	 */
-	public function getUrl( $sUrl, $aRequestArgs = array() ) {
+	public function getUrl( $sUrl, $aRequestArgs = [] ) {
 		$aRequestArgs[ 'method' ] = 'GET';
 		return $this->requestUrl( $sUrl, $aRequestArgs );
 	}
@@ -201,7 +201,7 @@ class ICWP_APP_WpFilesystem {
 	 *
 	 * @return false|string
 	 */
-	public function getUrlContent( $sUrl, $aRequestArgs = array() ) {
+	public function getUrlContent( $sUrl, $aRequestArgs = [] ) {
 		$aResponse = $this->getUrl( $sUrl, $aRequestArgs );
 		if ( !$aResponse || !isset( $aResponse[ 'body' ] ) ) {
 			return false;
@@ -215,17 +215,17 @@ class ICWP_APP_WpFilesystem {
 	 *
 	 * @return bool
 	 */
-	public function postUrl( $sUrl, $aRequestArgs = array() ) {
+	public function postUrl( $sUrl, $aRequestArgs = [] ) {
 		$aRequestArgs[ 'method' ] = 'POST';
 		return $this->requestUrl( $sUrl, $aRequestArgs );
 	}
 
 	public function getCanWpRemoteGet() {
-		$aUrlsToTest = array(
+		$aUrlsToTest = [
 			'https://www.microsoft.com',
 			'https://www.google.com',
 			'https://www.facebook.com'
-		);
+		];
 		foreach ( $aUrlsToTest as $sUrl ) {
 			if ( $this->getUrl( $sUrl ) !== false ) {
 				return true;

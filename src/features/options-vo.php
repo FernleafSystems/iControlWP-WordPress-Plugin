@@ -99,7 +99,7 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 
 		$aOptions = $this->getAllOptionsValues();
 		$aRawOptions = $this->getRawData_AllOptions();
-		$aTransferable = array();
+		$aTransferable = [];
 		foreach ( $aRawOptions as $nKey => $aOptionData ) {
 			if ( isset( $aOptionData[ 'transferable' ] ) && $aOptionData[ 'transferable' ] === true ) {
 				$aTransferable[ $aOptionData[ 'key' ] ] = $aOptions[ $aOptionData[ 'key' ] ];
@@ -140,7 +140,7 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 	 */
 	public function getAdminNotices() {
 		$aRawConfig = $this->getRawData_FullFeatureConfig();
-		return ( isset( $aRawConfig[ 'admin_notices' ] ) && is_array( $aRawConfig[ 'admin_notices' ] ) ) ? $aRawConfig[ 'admin_notices' ] : array();
+		return ( isset( $aRawConfig[ 'admin_notices' ] ) && is_array( $aRawConfig[ 'admin_notices' ] ) ) ? $aRawConfig[ 'admin_notices' ] : [];
 	}
 
 	/**
@@ -165,7 +165,7 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 	public function getHiddenOptions() {
 
 		$aRawData = $this->getRawData_FullFeatureConfig();
-		$aOptionsData = array();
+		$aOptionsData = [];
 
 		foreach ( $aRawData[ 'sections' ] as $nPosition => $aRawSection ) {
 
@@ -190,7 +190,7 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 	public function getLegacyOptionsConfigData() {
 
 		$aRawData = $this->getRawData_FullFeatureConfig();
-		$aLegacyData = array();
+		$aLegacyData = [];
 
 		foreach ( $aRawData[ 'sections' ] as $nPosition => $aRawSection ) {
 
@@ -198,10 +198,10 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 				continue;
 			}
 
-			$aLegacySection = array();
+			$aLegacySection = [];
 			$aLegacySection[ 'section_primary' ] = isset( $aRawSection[ 'primary' ] ) && $aRawSection[ 'primary' ];
 			$aLegacySection[ 'section_slug' ] = $aRawSection[ 'slug' ];
-			$aLegacySection[ 'section_options' ] = array();
+			$aLegacySection[ 'section_options' ] = [];
 			foreach ( $this->getRawData_AllOptions() as $aRawOption ) {
 
 				if ( $aRawOption[ 'section' ] != $aRawSection[ 'slug' ] ) {
@@ -212,14 +212,14 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 					continue;
 				}
 
-				$aLegacyRawOption = array();
+				$aLegacyRawOption = [];
 				$aLegacyRawOption[ 'key' ] = $aRawOption[ 'key' ];
 				$aLegacyRawOption[ 'value' ] = ''; //value
 				$aLegacyRawOption[ 'default' ] = $aRawOption[ 'default' ];
 				$aLegacyRawOption[ 'type' ] = $aRawOption[ 'type' ];
 
-				$aLegacyRawOption[ 'value_options' ] = array();
-				if ( in_array( $aLegacyRawOption[ 'type' ], array( 'select', 'multiple_select' ) ) ) {
+				$aLegacyRawOption[ 'value_options' ] = [];
+				if ( in_array( $aLegacyRawOption[ 'type' ], [ 'select', 'multiple_select' ] ) ) {
 					foreach ( $aRawOption[ 'value_options' ] as $aValueOptions ) {
 						$aLegacyRawOption[ 'value_options' ][ $aValueOptions[ 'value_key' ] ] = $aValueOptions[ 'text' ];
 					}
@@ -276,7 +276,7 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 				if ( isset( $aOption[ 'value' ] ) ) {
 					return $aOption[ 'value' ];
 				}
-				else if ( isset( $aOption[ 'default' ] ) ) {
+				elseif ( isset( $aOption[ 'default' ] ) ) {
 					return $aOption[ 'default' ];
 				}
 			}
@@ -300,7 +300,7 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 	 */
 	public function getOptionsKeys() {
 		if ( !isset( $this->aOptionsKeys ) ) {
-			$this->aOptionsKeys = array();
+			$this->aOptionsKeys = [];
 			foreach ( $this->getRawData_AllOptions() as $aOption ) {
 				$this->aOptionsKeys[] = $aOption[ 'key' ];
 			}
@@ -330,7 +330,7 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 			return $this->loadOptionsValuesFromStorage();
 		}
 		catch ( Exception $oE ) {
-			return array();
+			return [];
 		}
 	}
 
@@ -351,7 +351,7 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 	 */
 	protected function getRawData_AllOptions() {
 		$aAllRawOptions = $this->getRawData_FullFeatureConfig();
-		return isset( $aAllRawOptions[ 'options' ] ) ? $aAllRawOptions[ 'options' ] : array();
+		return isset( $aAllRawOptions[ 'options' ] ) ? $aAllRawOptions[ 'options' ] : [];
 	}
 
 	/**
@@ -360,7 +360,7 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 	 */
 	protected function getRawData_Requirements() {
 		$aAllRawOptions = $this->getRawData_FullFeatureConfig();
-		return isset( $aAllRawOptions[ 'requirements' ] ) ? $aAllRawOptions[ 'requirements' ] : array();
+		return isset( $aAllRawOptions[ 'requirements' ] ) ? $aAllRawOptions[ 'requirements' ] : [];
 	}
 
 	/**
@@ -369,7 +369,7 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 	 */
 	protected function getRawData_MenuItems() {
 		$aAllRawOptions = $this->getRawData_FullFeatureConfig();
-		return isset( $aAllRawOptions[ 'menu_items' ] ) ? $aAllRawOptions[ 'menu_items' ] : array();
+		return isset( $aAllRawOptions[ 'menu_items' ] ) ? $aAllRawOptions[ 'menu_items' ] : [];
 	}
 
 	/**
@@ -493,7 +493,7 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 	 */
 	private function trackOption( $sKey ) {
 		if ( !isset( $this->aChangedOptionsTracker ) ) {
-			$this->aChangedOptionsTracker = array();
+			$this->aChangedOptionsTracker = [];
 		}
 		// Meaning we only track once, and we don't overwrite if an option is set multiple times.
 		if ( !isset( $this->aChangedOptionsTracker[ $sKey ] ) && isset( $this->aOptionsValues[ $sKey ] ) ) {
@@ -543,11 +543,11 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 				if ( empty( $sStorageKey ) ) {
 					throw new Exception( 'Options Storage Key Is Empty' );
 				}
-				$this->aOptionsValues = $this->loadWP()->getOption( $sStorageKey, array() );
+				$this->aOptionsValues = $this->loadWP()->getOption( $sStorageKey, [] );
 			}
 		}
 		if ( !is_array( $this->aOptionsValues ) ) {
-			$this->aOptionsValues = array();
+			$this->aOptionsValues = [];
 			$this->setNeedSave( true );
 		}
 		return $this->aOptionsValues;
@@ -578,7 +578,7 @@ class ICWP_APP_OptionsVO extends ICWP_APP_Foundation {
 				if ( $oWp->isDebug() ) {
 					trigger_error( $oE->getMessage() );
 				}
-				$aConfig = array();
+				$aConfig = [];
 			}
 			$aConfig[ 'meta_modts' ] = $this->getConfigModTime();
 			$oWp->updateOption( $this->getConfigStorageKey(), $aConfig );

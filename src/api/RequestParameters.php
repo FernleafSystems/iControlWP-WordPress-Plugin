@@ -17,8 +17,8 @@ class RequestParameters {
 	 * @param array $aPostParams
 	 */
 	public function __construct( $aGetParams, $aPostParams ) {
-		$aGetParams = empty( $aGetParams ) ? array() : maybe_unserialize( base64_decode( $aGetParams ) );
-		$aPostParams = empty( $aPostParams ) ? array() : maybe_unserialize( base64_decode( $aPostParams ) );
+		$aGetParams = empty( $aGetParams ) ? [] : maybe_unserialize( base64_decode( $aGetParams ) );
+		$aPostParams = empty( $aPostParams ) ? [] : maybe_unserialize( base64_decode( $aPostParams ) );
 		$this->aRequestParams = array_merge( $_GET, $_POST, $aGetParams, $aPostParams );
 	}
 
@@ -27,7 +27,7 @@ class RequestParameters {
 	 */
 	public function getActionParams() {
 		$sSerialized = $this->getParam( 'action_params' );
-		return empty( $sSerialized ) ? array() : unserialize( $sSerialized );
+		return empty( $sSerialized ) ? [] : unserialize( $sSerialized );
 	}
 
 	/**
@@ -112,7 +112,7 @@ class RequestParameters {
 	 */
 	public function getApiHookPriority() {
 		$nHookPriority = $this->getParam( 'api_priority' );
-		if ( empty( $nHookPriority ) || !is_numeric( $nHookPriority )) {
+		if ( empty( $nHookPriority ) || !is_numeric( $nHookPriority ) ) {
 			$nHookPriority = is_admin() ? 101 : 1;
 			if ( class_exists( 'ITSEC_Core', false ) ) {
 				$nHookPriority = 100;
@@ -161,7 +161,7 @@ class RequestParameters {
 
 	/**
 	 * @param string $sKey
-	 * @param mixed $mDefault
+	 * @param mixed  $mDefault
 	 * @return mixed
 	 */
 	public function getParam( $sKey, $mDefault = '' ) {

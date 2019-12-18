@@ -142,7 +142,7 @@ class ICWP_APP_Render extends ICWP_APP_Foundation {
 	 * @return $this
 	 */
 	public function clearRenderVars() {
-		return $this->setRenderVars( array() );
+		return $this->setRenderVars( [] );
 	}
 
 	/**
@@ -152,10 +152,10 @@ class ICWP_APP_Render extends ICWP_APP_Foundation {
 		if ( !isset( $this->oTwigEnv ) ) {
 			$this->autoload();
 			$this->oTwigEnv = new Twig_Environment( $this->getTwigLoader(),
-				array(
-					'debug' => true,
+				[
+					'debug'            => true,
 					'strict_variables' => true,
-				)
+				]
 			);
 		}
 		return $this->oTwigEnv;
@@ -186,11 +186,11 @@ class ICWP_APP_Render extends ICWP_APP_Foundation {
 	 */
 	public function getTemplateEngine() {
 		if ( !isset( $this->nTemplateEngine )
-			 || !in_array( $this->nTemplateEngine, array(
+			 || !in_array( $this->nTemplateEngine, [
 				self::TEMPLATE_ENGINE_TWIG,
 				self::TEMPLATE_ENGINE_PHP,
 				self::TEMPLATE_ENGINE_HTML
-			) ) ) {
+			] ) ) {
 			$this->nTemplateEngine = self::TEMPLATE_ENGINE_PHP;
 		}
 		return $this->nTemplateEngine;

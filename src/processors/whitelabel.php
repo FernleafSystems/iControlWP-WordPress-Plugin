@@ -5,9 +5,9 @@ class ICWP_APP_Processor_Whitelabel extends ICWP_APP_Processor_BaseApp {
 	/**
 	 */
 	public function run() {
-		add_filter( $this->getController()->doPluginPrefix( 'plugin_labels' ), array( $this, 'doRelabelPlugin' ) );
-		add_filter( 'plugin_row_meta', array( $this, 'fRemoveDetailsMetaLink' ), 200, 2 );
-		add_filter( $this->getController()->doPluginPrefix( 'main_extracontent' ), array( $this, 'addExtraContent' ) );
+		add_filter( $this->getController()->doPluginPrefix( 'plugin_labels' ), [ $this, 'doRelabelPlugin' ] );
+		add_filter( 'plugin_row_meta', [ $this, 'fRemoveDetailsMetaLink' ], 200, 2 );
+		add_filter( $this->getController()->doPluginPrefix( 'main_extracontent' ), [ $this, 'addExtraContent' ] );
 	}
 
 	/**

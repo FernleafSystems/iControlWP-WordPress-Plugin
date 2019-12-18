@@ -33,37 +33,37 @@ class ICWP_APP_Processor_Autoupdates extends ICWP_APP_Processor_BaseApp {
 			$this->setForceRunAutoupdates( true );
 		}
 
-		add_filter( 'allow_minor_auto_core_updates', array( $this, 'autoupdate_core_minor' ), $nFilterPriority );
-		add_filter( 'allow_major_auto_core_updates', array( $this, 'autoupdate_core_major' ), $nFilterPriority );
+		add_filter( 'allow_minor_auto_core_updates', [ $this, 'autoupdate_core_minor' ], $nFilterPriority );
+		add_filter( 'allow_major_auto_core_updates', [ $this, 'autoupdate_core_major' ], $nFilterPriority );
 
-		add_filter( 'auto_update_translation', array( $this, 'autoupdate_translations' ), $nFilterPriority, 2 );
-		add_filter( 'auto_update_plugin', array( $this, 'autoupdate_plugins' ), $nFilterPriority, 2 );
-		add_filter( 'auto_update_theme', array( $this, 'autoupdate_themes' ), $nFilterPriority, 2 );
+		add_filter( 'auto_update_translation', [ $this, 'autoupdate_translations' ], $nFilterPriority, 2 );
+		add_filter( 'auto_update_plugin', [ $this, 'autoupdate_plugins' ], $nFilterPriority, 2 );
+		add_filter( 'auto_update_theme', [ $this, 'autoupdate_themes' ], $nFilterPriority, 2 );
 
 		if ( $this->getIsOption( 'enable_autoupdate_ignore_vcs', 'Y' ) ) {
-			add_filter( 'automatic_updates_is_vcs_checkout', array( $this, 'disable_for_vcs' ), 10, 2 );
+			add_filter( 'automatic_updates_is_vcs_checkout', [ $this, 'disable_for_vcs' ], 10, 2 );
 		}
 
 		if ( $this->getIsOption( 'enable_autoupdate_disable_all', 'Y' ) ) {
 			add_filter( 'automatic_updater_disabled', '__return_true', $nFilterPriority );
 		}
 
-		add_filter( 'auto_core_update_send_email', array(
+		add_filter( 'auto_core_update_send_email', [
 			$this,
 			'autoupdate_send_email'
-		), $nFilterPriority, 1 ); //more parameter options here for later
-		add_filter( 'auto_core_update_email', array(
+		], $nFilterPriority, 1 ); //more parameter options here for later
+		add_filter( 'auto_core_update_email', [
 			$this,
 			'autoupdate_email_override'
-		), $nFilterPriority, 1 ); //more parameter options here for later
+		], $nFilterPriority, 1 ); //more parameter options here for later
 
-		add_action( 'wp_loaded', array( $this, 'force_run_autoupdates' ) );
+		add_action( 'wp_loaded', [ $this, 'force_run_autoupdates' ] );
 
 		// Adds automatic update indicator icon to all plugin meta in plugin listing.
 //			add_filter( 'plugin_row_meta', array( $this, 'fAddAutomaticUpdatePluginMeta' ), $nFilterPriority, 2 );
 
 		// Adds automatic update indicator column to all plugins in plugin listing.
-		add_filter( 'manage_plugins_columns', array( $this, 'fAddPluginsListAutoUpdateColumn' ) );
+		add_filter( 'manage_plugins_columns', [ $this, 'fAddPluginsListAutoUpdateColumn' ] );
 	}
 
 	/**
@@ -90,7 +90,7 @@ class ICWP_APP_Processor_Autoupdates extends ICWP_APP_Processor_BaseApp {
 		if ( $this->getIsOption( 'autoupdate_core', 'core_never' ) ) {
 			return false;
 		}
-		else if ( $this->getIsOption( 'autoupdate_core', 'core_major' ) ) {
+		elseif ( $this->getIsOption( 'autoupdate_core', 'core_major' ) ) {
 			return true;
 		}
 		return $bUpdate;
@@ -107,7 +107,7 @@ class ICWP_APP_Processor_Autoupdates extends ICWP_APP_Processor_BaseApp {
 		if ( $this->getIsOption( 'autoupdate_core', 'core_never' ) ) {
 			return false;
 		}
-		else if ( $this->getIsOption( 'autoupdate_core', 'core_minor' ) ) {
+		elseif ( $this->getIsOption( 'autoupdate_core', 'core_minor' ) ) {
 			return true;
 		}
 		return $bUpdate;
@@ -147,7 +147,7 @@ class ICWP_APP_Processor_Autoupdates extends ICWP_APP_Processor_BaseApp {
 		if ( is_object( $mItem ) && isset( $mItem->plugin ) ) { // WP 3.8.2+
 			$sItemFile = $mItem->plugin;
 		}
-		else if ( is_string( $mItem ) ) { // WP pre-3.8.2
+		elseif ( is_string( $mItem ) ) { // WP pre-3.8.2
 			$sItemFile = $mItem;
 		}
 		// at this point we don't have a slug to use so we just return the current update setting
@@ -190,7 +190,7 @@ class ICWP_APP_Processor_Autoupdates extends ICWP_APP_Processor_BaseApp {
 		if ( is_object( $mItem ) && isset( $mItem->theme ) ) { // WP 3.8.2+
 			$sItemFile = $mItem->theme;
 		}
-		else if ( is_string( $mItem ) ) { // WP pre-3.8.2
+		elseif ( is_string( $mItem ) ) { // WP pre-3.8.2
 			$sItemFile = $mItem;
 		}
 		// at this point we don't have a slug to use so we just return the current update setting
@@ -265,16 +265,15 @@ class ICWP_APP_Processor_Autoupdates extends ICWP_APP_Processor_BaseApp {
 	 * Adds the column to the plugins listing table to indicate whether WordPress will automatically update the plugins
 	 *
 	 * @param array $aColumns
-	 *
 	 * @return array
 	 */
 	public function fAddPluginsListAutoUpdateColumn( $aColumns ) {
 		if ( !isset( $aColumns[ 'icwp_autoupdate' ] ) ) {
 			$aColumns[ 'icwp_autoupdate' ] = 'Auto Update';
-			add_action( 'manage_plugins_custom_column', array(
+			add_action( 'manage_plugins_custom_column', [
 				$this,
 				'aPrintPluginsListAutoUpdateColumnContent'
-			), $this->getHookPriority(), 2 );
+			], $this->getHookPriority(), 2 );
 		}
 		return $aColumns;
 	}
@@ -308,7 +307,7 @@ class ICWP_APP_Processor_Autoupdates extends ICWP_APP_Processor_BaseApp {
 	 * Removes all filters that have been added from auto-update related WordPress filters
 	 */
 	protected function removeAllAutoupdateFilters() {
-		$aFilters = array(
+		$aFilters = [
 			'allow_minor_auto_core_updates',
 			'allow_major_auto_core_updates',
 			'auto_update_translation',
@@ -316,7 +315,7 @@ class ICWP_APP_Processor_Autoupdates extends ICWP_APP_Processor_BaseApp {
 			'auto_update_theme',
 			'automatic_updates_is_vcs_checkout',
 			'automatic_updater_disabled'
-		);
+		];
 		foreach ( $aFilters as $sFilter ) {
 			remove_all_filters( $sFilter );
 		}
