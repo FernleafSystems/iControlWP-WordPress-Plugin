@@ -132,9 +132,8 @@ class ICWP_APP_Processor_Autoupdates extends ICWP_APP_Processor_BaseApp {
 	 * This is a filter method designed to say whether WordPress plugin upgrades should be permitted,
 	 * based on the plugin settings.
 	 *
-	 * @param boolean         $bDoAutoUpdate
-	 * @param StdClass|string $mItem
-	 *
+	 * @param bool         $bDoAutoUpdate
+	 * @param \stdClass|string $mItem
 	 * @return boolean
 	 */
 	public function autoupdate_plugins( $bDoAutoUpdate, $mItem ) {
