@@ -1,29 +1,66 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\iControlWP\Modules\Autoupdates;
+
 class ICWP_APP_Api_Internal_Theme_Update extends ICWP_APP_Api_Internal_Base {
 
 	/**
 	 * @return ApiResponse
 	 */
 	public function process() {
+		$bSuccess = false;
 		$aActionParams = $this->getActionParams();
+
 		$sAssetFile = $aActionParams[ 'theme_file' ];
-
-		if ( $aActionParams[ 'do_rollback_prep' ] ) {
-			$oPluginsCommon = new ICWP_APP_Api_Internal_Common_Plugins();
-			$bRollback = $oPluginsCommon->prepRollbackData( $sAssetFile, 'plugins' );
-		}
-
-		$aResult = $this->loadWpFunctionsThemes()->update( $sAssetFile );
-		if ( empty( $aResult[ 'successful' ] ) ) {
-			return $this->fail( implode( ' | ', $aResult[ 'errors' ] ), -1, $aResult );
-		}
-
 		$aData = [
-			'rollback' => $bRollback ?? false,
-			'result'   => $aResult,
-			'normal'   => $sAssetFile,
+			'rollback'      => false,
+			'method_auto'   => false,
+			'method_legacy' => false,
 		];
-		return $this->success( $aData );
+
+		$oWpThemes = $this->loadWpFunctionsThemes();
+		$oTheme = $oWpThemes->getTheme( $sAssetFile );
+		if ( !empty( $oTheme ) ) {
+			$aData[ 'rollback' ] = $aActionParams[ 'do_rollback_prep' ]
+								   && ( new ICWP_APP_Api_Internal_Common_Plugins() )
+									   ->prepRollbackData( $sAssetFile, 'plugins' );
+
+			$sPreV = $oTheme->get( 'Version' );
+
+			$bUseAuto = $this->loadWP()->getWordpressIsAtLeastVersion( '3.8.2' )
+						&& empty( $aActionParams[ 'use_legacy' ] );
+			if ( $bUseAuto ) {
+				$this->processAutoMethod( $sAssetFile );
+				$oTheme = $oWpThemes->getTheme( $sAssetFile );
+				$bSuccess = !empty( $oTheme ) && $sPreV !== $oTheme->get( 'Version' );
+				$aData[ 'method_auto' ] = $bSuccess;
+			}
+
+			if ( !empty( $oTheme ) && !$bSuccess && $bUseAuto ) {
+				$this->processLegacy( $sAssetFile );
+				$oTheme = $oWpThemes->getTheme( $sAssetFile );
+				$bSuccess = !empty( $oTheme ) && $sPreV !== $oTheme->get( 'Version' );
+				$aData[ 'method_legacy' ] = $bSuccess;
+			}
+		}
+
+		return $bSuccess ?
+			$this->success( $aData )
+			: $this->fail( 'Update failed', -1, $aData );
+	}
+
+	/**
+	 * @param string $sAssetFile
+	 */
+	public function processAutoMethod( $sAssetFile ) {
+		( new Autoupdates\Lib\RunAutoupdates() )->theme( $sAssetFile );
+	}
+
+	/**
+	 * @param string $sAssetFile
+	 * @return mixed[]
+	 */
+	public function processLegacy( $sAssetFile ) {
+		return $this->loadWpFunctionsThemes()->update( $sAssetFile );
 	}
 }

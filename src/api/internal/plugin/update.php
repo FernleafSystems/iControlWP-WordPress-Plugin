@@ -55,14 +55,14 @@ class ICWP_APP_Api_Internal_Plugin_Update extends ICWP_APP_Api_Internal_Base {
 	}
 
 	/**
-	 * @param $sAssetFile
+	 * @param string $sAssetFile
 	 */
 	public function processAutoMethod( $sAssetFile ) {
 		( new Autoupdates\Lib\RunAutoupdates() )->plugin( $sAssetFile );
 	}
 
 	/**
-	 * @param $sAssetFile
+	 * @param string $sAssetFile
 	 * @return mixed[]
 	 */
 	public function processLegacy( $sAssetFile ) {
