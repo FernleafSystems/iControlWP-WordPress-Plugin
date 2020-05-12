@@ -69,8 +69,8 @@ class ICWP_APP_WpFunctions_Plugins extends ICWP_APP_Foundation {
 	public function install( $sUrlToInstall, $bOverwrite = true ) {
 		$this->loadWpUpgrades();
 
-		$oSkin = $this->loadWP()->getWordpressIsAtLeastVersion( '5.3' ) ?
-			new \ICWP_Upgrader_Skin()
+		$oSkin = $this->loadWP()->getWordpressIsAtLeastVersion( '3.7' ) ?
+			new \Automatic_Upgrader_Skin()
 			: new \ICWP_Upgrader_Skin_Legacy();
 		$oUpgrader = new Plugin_Upgrader( $oSkin );
 		add_filter( 'upgrader_package_options', function ( $aOptions ) use ( $bOverwrite ) {
@@ -95,11 +95,10 @@ class ICWP_APP_WpFunctions_Plugins extends ICWP_APP_Foundation {
 	public function update( $sFile ) {
 		$this->loadWpUpgrades();
 
-		$oSkin = $this->loadWP()->getWordpressIsAtLeastVersion( '5.3' ) ?
-			new \ICWP_Upgrader_Skin()
+		$oSkin = $this->loadWP()->getWordpressIsAtLeastVersion( '3.7' ) ?
+			new \Automatic_Upgrader_Skin()
 			: new \ICWP_Upgrader_Skin_Legacy();
-		$oUpgrader = new Plugin_Upgrader( $oSkin );
-		$mResult = $oUpgrader->bulk_upgrade( [ $sFile ] );
+		$mResult = ( new Plugin_Upgrader( $oSkin ) )->bulk_upgrade( [ $sFile ] );
 
 		$aErrors = [];
 		/** @var array|\WP_Error $mDetails */
@@ -116,7 +115,7 @@ class ICWP_APP_WpFunctions_Plugins extends ICWP_APP_Foundation {
 			'successful' => empty( $aErrors ),
 			'errors'     => $aErrors,
 			'details'    => $mDetails,
-			'feedback'   => method_exists( $oSkin, 'getIcwpFeedback' ) ? $oSkin->getIcwpFeedback() : [],
+			'feedback'   => method_exists( $oSkin, 'get_upgrade_messages' ) ? $oSkin->get_upgrade_messages() : [],
 		];
 	}
 

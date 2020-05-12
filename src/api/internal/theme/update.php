@@ -28,25 +28,22 @@ class ICWP_APP_Api_Internal_Theme_Update extends ICWP_APP_Api_Internal_Base {
 			$sPreV = $oTheme->get( 'Version' );
 
 			$bUseAuto = $this->loadWP()->getWordpressIsAtLeastVersion( '3.8.2' )
-						&& empty( $aActionParams[ 'use_legacy' ] );
+						&& $aActionParams[ 'update_method' ] !== 'legacy';
 			if ( $bUseAuto ) {
 				$this->processAutoMethod( $sAssetFile );
 				$oTheme = $oWpThemes->getTheme( $sAssetFile );
 				$bSuccess = !empty( $oTheme ) && $sPreV !== $oTheme->get( 'Version' );
-				$aData[ 'method_auto' ] = $bSuccess;
+				$aData[ 'update_method' ] = 'auto';
 			}
-
-			if ( !empty( $oTheme ) && !$bSuccess && $bUseAuto ) {
+			else {
 				$this->processLegacy( $sAssetFile );
 				$oTheme = $oWpThemes->getTheme( $sAssetFile );
 				$bSuccess = !empty( $oTheme ) && $sPreV !== $oTheme->get( 'Version' );
-				$aData[ 'method_legacy' ] = $bSuccess;
+				$aData[ 'update_method' ] = 'legacy';
 			}
 		}
 
-		return $bSuccess ?
-			$this->success( $aData )
-			: $this->fail( 'Update failed', -1, $aData );
+		return $bSuccess ? $this->success( $aData ) : $this->fail( 'Update failed', -1, $aData );
 	}
 
 	/**

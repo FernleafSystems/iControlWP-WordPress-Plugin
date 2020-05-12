@@ -29,11 +29,11 @@ class RunAutoupdates {
 	/**
 	 * Untested
 	 */
-	public function core() {
+	public function core( $sVersion ) {
 		$this->prepFilters( false );
 		add_filter( 'auto_update_core', function ( $bDoAutoUpdate, $mItem ) {
 			return true;
-		}, PHP_INT_MAX, 1 );
+		}, PHP_INT_MAX, 2 );
 		wp_maybe_auto_update();
 	}
 

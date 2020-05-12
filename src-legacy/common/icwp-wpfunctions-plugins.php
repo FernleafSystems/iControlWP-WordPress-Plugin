@@ -114,22 +114,25 @@ class ICWP_APP_WpFunctions_Plugins extends ICWP_APP_Foundation {
 			'errors'     => array()
 		);
 
-		$oUpgraderSkin = new ICWP_Bulk_Plugin_Upgrader_Skin();
-		$oUpgrader = new Plugin_Upgrader( $oUpgraderSkin );
+		$oSkin = $this->loadWP()->getWordpressIsAtLeastVersion( '3.7' ) ?
+			new \Automatic_Upgrader_Skin()
+			: new \ICWP_Upgrader_Skin_Legacy();
+		$oUpgrader = new Plugin_Upgrader( $oSkin );
 		ob_start();
-		$oUpgrader->bulk_upgrade( array( $sFile ) );
-		if ( ob_get_contents() ) {
-			// for some reason this errors with no buffer present
-			ob_end_clean();
-		}
+		$mResult = $oUpgrader->bulk_upgrade( array( $sFile ) );
 
-		if ( isset( $oUpgraderSkin->m_aErrors[ 0 ] ) ) {
-			if ( is_wp_error( $oUpgraderSkin->m_aErrors[ 0 ] ) ) {
+		if ( isset( $oSkin->m_aErrors[ 0 ] ) ) {
+			if ( is_wp_error( $oSkin->m_aErrors[ 0 ] ) ) {
 				$aResult[ 'successful' ] = 0;
-				$aResult[ 'errors' ] = $oUpgraderSkin->m_aErrors[ 0 ]->get_error_messages();
+				$aResult[ 'errors' ] = $oSkin->m_aErrors[ 0 ]->get_error_messages();
 			}
 		}
-		$aResult[ 'feedback' ] = $oUpgraderSkin->getFeedback();
+
+		if ( is_wp_error( $mResult ) ) {
+			$aResult[ 'successful' ] = 0;
+		}
+
+		$aResult[ 'feedback' ] =method_exists( $oSkin, 'get_upgrade_messages' ) ? $oSkin->get_upgrade_messages() : array();
 		return $aResult;
 	}
 
