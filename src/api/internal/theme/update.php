@@ -11,28 +11,24 @@ class ICWP_APP_Api_Internal_Theme_Update extends ICWP_APP_Api_Internal_Base {
 	 */
 	public function process() {
 		$bSuccess = false;
-		$aActionParams = $this->getActionParams();
 
-		$sFile = $aActionParams[ 'theme_file' ];
+		$sFile = $this->getActionParam( 'theme_file' );
 		$aData = [
-			'rollback'      => false,
-			'method_auto'   => false,
-			'method_legacy' => false,
+			'rollback' => false,
 		];
 
 		$oWpThemes = $this->loadWpFunctionsThemes();
 		$oTheme = $oWpThemes->getTheme( $sFile );
 		if ( !empty( $oTheme ) ) {
-			$aData[ 'rollback' ] = $aActionParams[ 'do_rollback_prep' ]
-								   && ( new ICWP_APP_Api_Internal_Common_Plugins() )
-									   ->prepRollbackData( $sFile, 'plugins' );
+			$aData[ 'rollback' ] = $this->getActionParam( 'do_rollback_prep' )
+								   && ( new ICWP_APP_Api_Internal_Common_Plugins() )->prepRollbackData( $sFile, 'themes' );
 
-			$sPreV = $oTheme->get( 'Version' );
+			$sPreVersion = $oTheme->get( 'Version' );
 
 			$this->isMethodAuto() ? $this->processAuto( $sFile ) : $this->processLegacy( $sFile );
 
 			$oTheme = $oWpThemes->getTheme( $sFile );
-			$bSuccess = !empty( $oTheme ) && $sPreV !== $oTheme->get( 'Version' );
+			$bSuccess = !empty( $oTheme ) && $sPreVersion !== $oTheme->get( 'Version' );
 		}
 
 		return $bSuccess ? $this->success( $aData ) : $this->fail( 'Update failed', -1, $aData );

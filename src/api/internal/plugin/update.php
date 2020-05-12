@@ -11,29 +11,25 @@ class ICWP_APP_Api_Internal_Plugin_Update extends ICWP_APP_Api_Internal_Base {
 	 */
 	public function process() {
 		$bSuccess = false;
-		$aActionParams = $this->getActionParams();
 
-		$sFile = $aActionParams[ 'plugin_file' ];
+		$sFile = $this->getActionParam( 'plugin_file' );
 		$aData = [
-			'rollback'      => false,
-			'method_auto'   => false,
-			'method_legacy' => false,
+			'rollback' => false,
 		];
 
 		$oWpPlugins = $this->loadWpFunctionsPlugins();
 		$aPlugin = $oWpPlugins->getPlugin( $sFile );
 		if ( !empty( $aPlugin ) ) {
-			$aData[ 'rollback' ] = $aActionParams[ 'do_rollback_prep' ]
-								   && ( new ICWP_APP_Api_Internal_Common_Plugins() )
-									   ->prepRollbackData( $sFile, 'plugins' );
+			$aData[ 'rollback' ] = $this->getActionParam( 'do_rollback_prep' )
+								   && ( new ICWP_APP_Api_Internal_Common_Plugins() )->prepRollbackData( $sFile, 'plugins' );
 
 			$bWasActive = $oWpPlugins->getIsActive( $sFile );
-			$sPreV = $aPlugin[ 'Version' ];
+			$sPreVersion = $aPlugin[ 'Version' ];
 
 			$this->isMethodAuto() ? $this->processAuto( $sFile ) : $this->processLegacy( $sFile );
 
 			$aPlugin = $oWpPlugins->getPlugin( $sFile );
-			$bSuccess = !empty( $aPlugin ) && $sPreV !== $aPlugin[ 'Version' ];
+			$bSuccess = !empty( $aPlugin ) && $sPreVersion !== $aPlugin[ 'Version' ];
 
 			if ( $bSuccess && $bWasActive && !$oWpPlugins->getIsActive( $sFile ) ) {
 				activate_plugin( $sFile );
