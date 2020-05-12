@@ -4,6 +4,8 @@ use FernleafSystems\Wordpress\Plugin\iControlWP\Modules\Autoupdates;
 
 class ICWP_APP_Api_Internal_Plugin_Update extends ICWP_APP_Api_Internal_Base {
 
+	use Autoupdates\Lib\AutoOrLegacyUpdater;
+
 	/**
 	 * @return ApiResponse
 	 */
@@ -11,7 +13,7 @@ class ICWP_APP_Api_Internal_Plugin_Update extends ICWP_APP_Api_Internal_Base {
 		$bSuccess = false;
 		$aActionParams = $this->getActionParams();
 
-		$sAssetFile = $aActionParams[ 'plugin_file' ];
+		$sFile = $aActionParams[ 'plugin_file' ];
 		$aData = [
 			'rollback'      => false,
 			'method_auto'   => false,
@@ -19,32 +21,22 @@ class ICWP_APP_Api_Internal_Plugin_Update extends ICWP_APP_Api_Internal_Base {
 		];
 
 		$oWpPlugins = $this->loadWpFunctionsPlugins();
-		$aPlugin = $oWpPlugins->getPlugin( $sAssetFile );
+		$aPlugin = $oWpPlugins->getPlugin( $sFile );
 		if ( !empty( $aPlugin ) ) {
 			$aData[ 'rollback' ] = $aActionParams[ 'do_rollback_prep' ]
 								   && ( new ICWP_APP_Api_Internal_Common_Plugins() )
-									   ->prepRollbackData( $sAssetFile, 'plugins' );
+									   ->prepRollbackData( $sFile, 'plugins' );
 
-			$bWasActive = $oWpPlugins->getIsActive( $sAssetFile );
+			$bWasActive = $oWpPlugins->getIsActive( $sFile );
 			$sPreV = $aPlugin[ 'Version' ];
 
-			$bUseAuto = $this->loadWP()->getWordpressIsAtLeastVersion( '3.8.2' )
-						&& $aActionParams[ 'update_method' ] !== 'legacy';
-			if ( $bUseAuto ) {
-				$aData[ 'action_response' ] = $this->processAutoMethod( $sAssetFile );
-				$aPlugin = $oWpPlugins->getPlugin( $sAssetFile );
-				$bSuccess = !empty( $aPlugin ) && $sPreV !== $aPlugin[ 'Version' ];
-				$aData[ 'update_method' ] = 'auto';
-			}
-			else {
-				$aData[ 'action_response' ] = $this->processLegacy( $sAssetFile );
-				$aPlugin = $oWpPlugins->getPlugin( $sAssetFile );
-				$bSuccess = !empty( $aPlugin ) && $sPreV !== $aPlugin[ 'Version' ];
-				$aData[ 'update_method' ] = 'legacy';
-			}
+			$this->isMethodAuto() ? $this->processAuto( $sFile ) : $this->processLegacy( $sFile );
 
-			if ( $bSuccess && $bWasActive && !$oWpPlugins->getIsActive( $sAssetFile ) ) {
-				activate_plugin( $sAssetFile );
+			$aPlugin = $oWpPlugins->getPlugin( $sFile );
+			$bSuccess = !empty( $aPlugin ) && $sPreV !== $aPlugin[ 'Version' ];
+
+			if ( $bSuccess && $bWasActive && !$oWpPlugins->getIsActive( $sFile ) ) {
+				activate_plugin( $sFile );
 			}
 		}
 
@@ -52,17 +44,17 @@ class ICWP_APP_Api_Internal_Plugin_Update extends ICWP_APP_Api_Internal_Base {
 	}
 
 	/**
-	 * @param string $sAssetFile
+	 * @param string $mAsset
 	 */
-	public function processAutoMethod( $sAssetFile ) {
-		( new Autoupdates\Lib\RunAutoupdates() )->plugin( $sAssetFile );
+	protected function processAuto( $mAsset ) {
+		( new Autoupdates\Lib\RunAutoupdates() )->plugin( $mAsset );
 	}
 
 	/**
-	 * @param string $sAssetFile
+	 * @param string $mAsset
 	 * @return mixed[]
 	 */
-	public function processLegacy( $sAssetFile ) {
+	protected function processLegacy( $mAsset ) {
 
 		// handles manual Third Party Update Checking.
 //			$oWpUpdatesHandler->prepThirdPartyPlugins();
@@ -70,10 +62,10 @@ class ICWP_APP_Api_Internal_Plugin_Update extends ICWP_APP_Api_Internal_Base {
 		// For some reason, certain updates don't appear and we may have to force an update check to ensure WordPress
 		// knows about the update.
 		$oAvailableUpdates = $this->loadWP()->updatesGather( 'plugins' );
-		if ( empty( $oAvailableUpdates ) || empty( $oAvailableUpdates->response[ $sAssetFile ] ) ) {
+		if ( empty( $oAvailableUpdates ) || empty( $oAvailableUpdates->response[ $mAsset ] ) ) {
 			$this->loadWP()->updatesCheck( 'plugins', true );
 		}
 
-		return $this->loadWpFunctionsPlugins()->update( $sAssetFile );
+		return $this->loadWpFunctionsPlugins()->update( $mAsset );
 	}
 }

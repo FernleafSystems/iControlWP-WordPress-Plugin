@@ -27,12 +27,13 @@ class RunAutoupdates {
 	}
 
 	/**
-	 * Untested
+	 * @param \stdClass $oCoreUpdate
 	 */
-	public function core( $sVersion ) {
+	public function core( $oCoreUpdate ) {
 		$this->prepFilters( false );
-		add_filter( 'auto_update_core', function ( $bDoAutoUpdate, $mItem ) {
-			return true;
+		add_filter( 'auto_update_core', function ( $bDoAutoUpdate, $mItem ) use ( $oCoreUpdate ) {
+			return isset( $oCoreUpdate->current ) && isset( $mItem->current )
+				   && $oCoreUpdate->current === $mItem->current;
 		}, PHP_INT_MAX, 2 );
 		wp_maybe_auto_update();
 	}

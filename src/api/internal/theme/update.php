@@ -4,6 +4,8 @@ use FernleafSystems\Wordpress\Plugin\iControlWP\Modules\Autoupdates;
 
 class ICWP_APP_Api_Internal_Theme_Update extends ICWP_APP_Api_Internal_Base {
 
+	use Autoupdates\Lib\AutoOrLegacyUpdater;
+
 	/**
 	 * @return ApiResponse
 	 */
@@ -11,7 +13,7 @@ class ICWP_APP_Api_Internal_Theme_Update extends ICWP_APP_Api_Internal_Base {
 		$bSuccess = false;
 		$aActionParams = $this->getActionParams();
 
-		$sAssetFile = $aActionParams[ 'theme_file' ];
+		$sFile = $aActionParams[ 'theme_file' ];
 		$aData = [
 			'rollback'      => false,
 			'method_auto'   => false,
@@ -19,45 +21,35 @@ class ICWP_APP_Api_Internal_Theme_Update extends ICWP_APP_Api_Internal_Base {
 		];
 
 		$oWpThemes = $this->loadWpFunctionsThemes();
-		$oTheme = $oWpThemes->getTheme( $sAssetFile );
+		$oTheme = $oWpThemes->getTheme( $sFile );
 		if ( !empty( $oTheme ) ) {
 			$aData[ 'rollback' ] = $aActionParams[ 'do_rollback_prep' ]
 								   && ( new ICWP_APP_Api_Internal_Common_Plugins() )
-									   ->prepRollbackData( $sAssetFile, 'plugins' );
+									   ->prepRollbackData( $sFile, 'plugins' );
 
 			$sPreV = $oTheme->get( 'Version' );
 
-			$bUseAuto = $this->loadWP()->getWordpressIsAtLeastVersion( '3.8.2' )
-						&& $aActionParams[ 'update_method' ] !== 'legacy';
-			if ( $bUseAuto ) {
-				$this->processAutoMethod( $sAssetFile );
-				$oTheme = $oWpThemes->getTheme( $sAssetFile );
-				$bSuccess = !empty( $oTheme ) && $sPreV !== $oTheme->get( 'Version' );
-				$aData[ 'update_method' ] = 'auto';
-			}
-			else {
-				$this->processLegacy( $sAssetFile );
-				$oTheme = $oWpThemes->getTheme( $sAssetFile );
-				$bSuccess = !empty( $oTheme ) && $sPreV !== $oTheme->get( 'Version' );
-				$aData[ 'update_method' ] = 'legacy';
-			}
+			$this->isMethodAuto() ? $this->processAuto( $sFile ) : $this->processLegacy( $sFile );
+
+			$oTheme = $oWpThemes->getTheme( $sFile );
+			$bSuccess = !empty( $oTheme ) && $sPreV !== $oTheme->get( 'Version' );
 		}
 
 		return $bSuccess ? $this->success( $aData ) : $this->fail( 'Update failed', -1, $aData );
 	}
 
 	/**
-	 * @param string $sAssetFile
+	 * @param string $mAsset
 	 */
-	public function processAutoMethod( $sAssetFile ) {
-		( new Autoupdates\Lib\RunAutoupdates() )->theme( $sAssetFile );
+	protected function processAuto( $mAsset ) {
+		( new Autoupdates\Lib\RunAutoupdates() )->theme( $mAsset );
 	}
 
 	/**
-	 * @param string $sAssetFile
+	 * @param string $mAsset
 	 * @return mixed[]
 	 */
-	public function processLegacy( $sAssetFile ) {
-		return $this->loadWpFunctionsThemes()->update( $sAssetFile );
+	protected function processLegacy( $mAsset ) {
+		return $this->loadWpFunctionsThemes()->update( $mAsset );
 	}
 }

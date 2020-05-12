@@ -115,6 +115,16 @@ class ICWP_APP_Api_Internal_Base extends ICWP_APP_Foundation {
 	}
 
 	/**
+	 * @param string     $sKey
+	 * @param mixed|null $mDefault
+	 * @return mixed|null
+	 */
+	protected function getActionParam( string $sKey, $mDefault = null ) {
+		$aP = $this->getActionParams();
+		return $aP[ $sKey ] ?? null;
+	}
+
+	/**
 	 * @return RequestParameters
 	 */
 	public function getRequestParams() {

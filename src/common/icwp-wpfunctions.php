@@ -445,11 +445,12 @@ class ICWP_APP_WpFunctions extends ICWP_APP_Foundation {
 	}
 
 	/**
+	 * @param bool $sForceUpdate
 	 * @return string
 	 */
-	public function getWordpressVersion() {
+	public function getWordpressVersion( $sForceUpdate = false ) {
 
-		if ( empty( $this->sWpVersion ) ) {
+		if ( $sForceUpdate || empty( $this->sWpVersion ) ) {
 			$sVersionFile = ABSPATH.WPINC.'/version.php';
 			$sVersionContents = file_get_contents( $sVersionFile );
 
