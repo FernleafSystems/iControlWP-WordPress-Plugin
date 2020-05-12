@@ -12,8 +12,7 @@ class ICWP_APP_Api_Internal_Core_Update extends ICWP_APP_Api_Internal_Base {
 	public function process() {
 		$this->loadWpUpgrades();
 		$oWP = $this->loadWP();
-		$aActionParams = $this->getActionParams();
-		$sVersion = $aActionParams[ 'version' ];
+		$sVersion = $this->getActionParam( 'version' );
 
 		if ( !$oWP->getIfCoreUpdateExists( $sVersion ) ) {
 			return $this->success( [], 'The requested version is not currently available to install.' );
@@ -25,17 +24,15 @@ class ICWP_APP_Api_Internal_Core_Update extends ICWP_APP_Api_Internal_Base {
 		}
 
 		$oResult = $this->isMethodAuto() ? $this->processAuto( $oCoreUpdate ) : $this->processLegacy( $oCoreUpdate );
-		$bSuccess = $sVersion === $oWP->getWordpressVersion( true );
 
-		// This was added because some sites didn't upgrade the database
-		if ( $bSuccess ) {
-			$this->loadWP()->doWpUpgrade();
-		}
-		else {
+		if ( !$sVersion === $oWP->getWordpressVersion( true ) ) {
 			return $this->fail( 'Upgrade Failed', -1, [
 				'result' => $oResult,
 			] );
 		}
+
+		// This was added because some sites didn't upgrade the database
+		$this->loadWP()->doWpUpgrade();
 
 		return $this->success( [
 			'success' => 1,
