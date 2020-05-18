@@ -21,20 +21,18 @@ abstract class ICWP_APP_Processor_Plugin_Api extends ICWP_APP_Processor_BaseApp 
 	 * @return LegacyApi\ApiResponse
 	 */
 	public function run() {
-		$oActionExecutionResponse = $this->preActionVerify();
-		if ( $oActionExecutionResponse->success ) {
+		$oActionResponse = self::getStandardResponse();
+		$this->preActionVerify();
+		if ( $oActionResponse->success ) {
 			$this->preActionEnvironmentSetup();
-			$oActionExecutionResponse = $this->processAction();
+			$this->processAction();
 		}
 		$this->postProcessAction();
-		return $oActionExecutionResponse;
+		return $oActionResponse;
 	}
 
-	/**
-	 * @return LegacyApi\ApiResponse
-	 */
 	protected function preActionVerify() {
-		/** @var ICWP_APP_FeatureHandler_Plugin $oMod */
+		/** @var \ICWP_APP_FeatureHandler_Plugin $oMod */
 		$oMod = $this->getFeatureOptions();
 
 		$oResponse = $this->getStandardResponse();
@@ -44,7 +42,7 @@ abstract class ICWP_APP_Processor_Plugin_Api extends ICWP_APP_Processor_BaseApp 
 
 		if ( !$oResponse->success ) {
 			if ( !$this->attemptSiteReassign()->success ) {
-				return $oResponse;
+				return;
 			}
 		}
 
@@ -55,8 +53,6 @@ abstract class ICWP_APP_Processor_Plugin_Api extends ICWP_APP_Processor_BaseApp 
 				$oMod->setCanHandshake(); //recheck ability to handshake
 			}
 		}
-
-		return $oResponse;
 	}
 
 	protected function postProcessAction() {
@@ -87,12 +83,12 @@ abstract class ICWP_APP_Processor_Plugin_Api extends ICWP_APP_Processor_BaseApp 
 	 * @return LegacyApi\ApiResponse
 	 */
 	protected function preApiCheck() {
-		/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeatureOptions();
+		/** @var ICWP_APP_FeatureHandler_Plugin $oMod */
+		$oMod = $this->getFeatureOptions();
 		$oReqParams = $this->getRequestParams();
 		$oResponse = $this->getStandardResponse();
 
-		if ( !$oFO->getIsSiteLinked() ) {
+		if ( !$oMod->getIsSiteLinked() ) {
 			$sErrorMessage = 'NotAssigned';
 			return $this->setErrorResponse(
 				$sErrorMessage,
@@ -108,7 +104,7 @@ abstract class ICWP_APP_Processor_Plugin_Api extends ICWP_APP_Processor_BaseApp 
 				9995
 			);
 		}
-		$sKey = $oFO->getPluginAuthKey();
+		$sKey = $oMod->getPluginAuthKey();
 		if ( $sRequestKey != $sKey ) {
 			$sErrorMessage = 'InvalidKey';
 			return $this->setErrorResponse(
@@ -125,7 +121,7 @@ abstract class ICWP_APP_Processor_Plugin_Api extends ICWP_APP_Processor_BaseApp 
 				9994
 			);
 		}
-		$sPin = $oFO->getPluginPin();
+		$sPin = $oMod->getPluginPin();
 		if ( md5( $sRequestPin ) != $sPin ) {
 			$sErrorMessage = 'InvalidPin';
 			return $this->setErrorResponse(
@@ -147,8 +143,8 @@ abstract class ICWP_APP_Processor_Plugin_Api extends ICWP_APP_Processor_BaseApp 
 	 * @return LegacyApi\ApiResponse
 	 */
 	protected function attemptSiteReassign() {
-		/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeatureOptions();
+		/** @var ICWP_APP_FeatureHandler_Plugin $oMod */
+		$oMod = $this->getFeatureOptions();
 		$oReqParams = $this->getRequestParams();
 
 		$sChannel = $oReqParams->getApiChannel();
@@ -160,14 +156,15 @@ abstract class ICWP_APP_Processor_Plugin_Api extends ICWP_APP_Processor_BaseApp 
 		}
 
 		// We first verify fully if we CAN handshake
-		if ( !$oFO->getCanHandshake( true ) ) {
+		if ( !$oMod->getCanHandshake( true ) ) {
 			return $this->setErrorResponse(
 				sprintf( 'Attempting Site Reassign Failed: %s.', 'Site cannot handshake' ),
 				9801
 			);
 		}
 
-		$oResponse = $this->handshake();
+		$this->handshake();
+		$oResponse = $this->getStandardResponse();
 
 		if ( !$oResponse->success ) {
 			return $this->setErrorResponse(
@@ -200,10 +197,10 @@ abstract class ICWP_APP_Processor_Plugin_Api extends ICWP_APP_Processor_BaseApp 
 			);
 		}
 
-		$oFO->setOpt( 'key', $sRequestedKey );
-		$oFO->setAssignedAccount( $sRequestedAcc );
-		$oFO->setPluginPin( $sRequestPin );
-		$oFO->savePluginOptions();
+		$oMod->setOpt( 'key', $sRequestedKey );
+		$oMod->setAssignedAccount( $sRequestedAcc );
+		$oMod->setPluginPin( $sRequestPin );
+		$oMod->savePluginOptions();
 
 		return $this->setSuccessResponse(
 			'Attempting Site Reassign Succeeded.',
