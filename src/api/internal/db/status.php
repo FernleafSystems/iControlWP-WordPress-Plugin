@@ -3,7 +3,7 @@
 class ICWP_APP_Api_Internal_Db_Status extends ICWP_APP_Api_Internal_Db_Base {
 
 	/**
-	 * @return ApiResponse
+	 * @inheritDoc
 	 */
 	public function process() {
 		try {

@@ -3,7 +3,7 @@
 class ICWP_APP_Api_Internal_Collect_Plugins extends ICWP_APP_Api_Internal_Collect_Base {
 
 	/**
-	 * @return ApiResponse
+	 * @inheritDoc
 	 */
 	public function process() {
 		return $this->success( [ 'wordpress-plugins' => $this->collect() ] );

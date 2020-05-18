@@ -1,9 +1,11 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\iControlWP\LegacyApi;
+
 class ICWP_APP_FeatureHandler_Plugin extends ICWP_APP_FeatureHandler_Base {
 
 	/**
-	 * @var RequestParameters
+	 * @var LegacyApi\RequestParameters
 	 */
 	protected $oRequestParams;
 
@@ -331,12 +333,14 @@ class ICWP_APP_FeatureHandler_Plugin extends ICWP_APP_FeatureHandler_Base {
 	}
 
 	/**
-	 * @return RequestParameters
+	 * @return LegacyApi\RequestParameters
 	 */
 	public function getRequestParams() {
 		if ( !isset( $this->oRequestParams ) ) {
 			$oDp = $this->loadDP();
-			$this->oRequestParams = new RequestParameters( $oDp->FetchGet( 'reqpars', '' ), $oDp->FetchPost( 'reqpars', '' ) );
+			$this->oRequestParams = new LegacyApi\RequestParameters(
+				$oDp->FetchGet( 'reqpars', '' ), $oDp->FetchPost( 'reqpars', '' )
+			);
 		}
 		return $this->oRequestParams;
 	}

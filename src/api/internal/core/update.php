@@ -1,13 +1,13 @@
 <?php
 
-use FernleafSystems\Wordpress\Plugin\iControlWP\Modules\Autoupdates;
+use FernleafSystems\Wordpress\Plugin\iControlWP\LegacyApi\Internal\Common;
 
 class ICWP_APP_Api_Internal_Core_Update extends ICWP_APP_Api_Internal_Base {
 
-	use Autoupdates\Lib\AutoOrLegacyUpdater;
+	use Common\AutoOrLegacyUpdater;
 
 	/**
-	 * @return ApiResponse
+	 * @inheritDoc
 	 */
 	public function process() {
 		$this->loadWpUpgrades();
@@ -44,7 +44,7 @@ class ICWP_APP_Api_Internal_Core_Update extends ICWP_APP_Api_Internal_Base {
 	 * @param string|object $oCoreUpdate
 	 */
 	protected function processAuto( $oCoreUpdate ) {
-		( new Autoupdates\Lib\RunAutoupdates() )->core( $oCoreUpdate );
+		( new Common\RunAutoupdates() )->core( $oCoreUpdate );
 	}
 
 	/**

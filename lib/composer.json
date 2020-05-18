@@ -19,7 +19,8 @@
     }
   },
   "require":           {
-    "php": "^7.0"
+    "php":                                "^7.0",
+    "fernleafsystems/wordpress-services": "^1.0.11"
   },
   "require-dev":       {
   },

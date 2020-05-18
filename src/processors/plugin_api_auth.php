@@ -1,19 +1,21 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\iControlWP\LegacyApi;
+
 /**
  * Class ICWP_APP_Processor_Plugin_Api_Index
  */
 class ICWP_APP_Processor_Plugin_Api_Auth extends ICWP_APP_Processor_Plugin_Api {
 
 	/**
-	 * @return ApiResponse
+	 * @return LegacyApi\ApiResponse
 	 */
 	protected function processAction() {
 		return $this->doAuth();
 	}
 
 	/**
-	 * @return ApiResponse
+	 * @return LegacyApi\ApiResponse
 	 */
 	protected function doAuth() {
 		return $this->setSuccessResponse(

@@ -3,7 +3,7 @@
 class ICWP_APP_Api_Internal_Core_Reinstall extends ICWP_APP_Api_Internal_Base {
 
 	/**
-	 * @return ApiResponse
+	 * @inheritDoc
 	 * @see wp-admin/update-core.php
 	 */
 	public function process() {

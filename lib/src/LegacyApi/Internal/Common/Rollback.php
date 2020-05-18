@@ -1,6 +1,8 @@
 <?php
 
-class ICWP_APP_Api_Internal_Common_Plugins extends ICWP_APP_Api_Internal_Base {
+namespace FernleafSystems\Wordpress\Plugin\iControlWP\LegacyApi\Internal\Common;
+
+trait Rollback {
 
 	/**
 	 * @param string $sFile
@@ -13,7 +15,7 @@ class ICWP_APP_Api_Internal_Common_Plugins extends ICWP_APP_Api_Internal_Base {
 
 		$sDestinationPath = path_join( $this->getRollbackBaseDir(), $sContext.DIRECTORY_SEPARATOR.$sPluginDirName );
 		if ( is_dir( $sDestinationPath ) ) {
-			/** @var WP_Filesystem_Base $wp_filesystem */
+			/** @var \WP_Filesystem_Base $wp_filesystem */
 			global $wp_filesystem;
 			$wp_filesystem->rmdir( $sDestinationPath, true );
 		}
@@ -26,12 +28,5 @@ class ICWP_APP_Api_Internal_Common_Plugins extends ICWP_APP_Api_Internal_Base {
 	 */
 	protected function getRollbackBaseDir() {
 		return path_join( WP_CONTENT_DIR, 'icwp/rollback/' );
-	}
-
-	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\iControlWP\LegacyApi\ApiResponse
-	 */
-	public function process() {
-		// TODO: Implement process() method.
 	}
 }

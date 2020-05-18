@@ -1,13 +1,16 @@
 <?php
 
+namespace FernleafSystems\Wordpress\Plugin\iControlWP\LegacyApi\Internal\Theme;
+
 use FernleafSystems\Wordpress\Plugin\iControlWP\LegacyApi;
 
-class ICWP_APP_Api_Internal_Theme_Update extends ICWP_APP_Api_Internal_Base {
+class Update extends LegacyApi\Internal\Base {
 
 	use LegacyApi\Internal\Common\AutoOrLegacyUpdater;
+	use LegacyApi\Internal\Common\Rollback;
 
 	/**
-	 * @inheritDoc
+	 * @return LegacyApi\ApiResponse
 	 */
 	public function process() {
 		$bSuccess = false;
@@ -21,7 +24,7 @@ class ICWP_APP_Api_Internal_Theme_Update extends ICWP_APP_Api_Internal_Base {
 		$oTheme = $oWpThemes->getTheme( $sFile );
 		if ( !empty( $oTheme ) ) {
 			$aData[ 'rollback' ] = $this->getActionParam( 'do_rollback_prep' )
-								   && ( new ICWP_APP_Api_Internal_Common_Plugins() )->prepRollbackData( $sFile, 'themes' );
+								   && $this->prepRollbackData( $sFile, 'themes' );
 
 			$sPreVersion = $oTheme->get( 'Version' );
 

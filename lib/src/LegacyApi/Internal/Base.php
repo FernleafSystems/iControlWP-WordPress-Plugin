@@ -1,8 +1,10 @@
 <?php
 
+namespace FernleafSystems\Wordpress\Plugin\iControlWP\LegacyApi\Internal;
+
 use FernleafSystems\Wordpress\Plugin\iControlWP\LegacyApi;
 
-abstract class ICWP_APP_Api_Internal_Base extends ICWP_APP_Foundation {
+abstract class Base extends \ICWP_APP_Foundation {
 
 	/**
 	 * @var LegacyApi\ApiResponse
@@ -141,14 +143,15 @@ abstract class ICWP_APP_Api_Internal_Base extends ICWP_APP_Foundation {
 	 */
 	public function setRequestParams( $oRequestParams ) {
 		$this->oRequestParams = $oRequestParams;
+
 		return $this;
 	}
 
 	/**
-	 * @return ICWP_APP_WpCollectInfo
+	 * @return \ICWP_APP_WpCollectInfo
 	 */
 	protected function getWpCollector() {
-		return ICWP_APP_WpCollectInfo::GetInstance();
+		return \ICWP_APP_WpCollectInfo::GetInstance();
 	}
 
 	/**

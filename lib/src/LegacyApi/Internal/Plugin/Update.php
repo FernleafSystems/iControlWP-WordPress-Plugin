@@ -1,13 +1,16 @@
 <?php
 
-use FernleafSystems\Wordpress\Plugin\iControlWP\LegacyApi\Internal\Common;
+namespace FernleafSystems\Wordpress\Plugin\iControlWP\LegacyApi\Internal\Plugin;
 
-class ICWP_APP_Api_Internal_Plugin_Update extends ICWP_APP_Api_Internal_Base {
+use FernleafSystems\Wordpress\Plugin\iControlWP\LegacyApi;
 
-	use Common\AutoOrLegacyUpdater;
+class Update extends LegacyApi\Internal\Base {
+
+	use LegacyApi\Internal\Common\AutoOrLegacyUpdater;
+	use LegacyApi\Internal\Common\Rollback;
 
 	/**
-	 * @inheritDoc
+	 * @return LegacyApi\ApiResponse
 	 */
 	public function process() {
 		$bSuccess = false;
@@ -21,7 +24,7 @@ class ICWP_APP_Api_Internal_Plugin_Update extends ICWP_APP_Api_Internal_Base {
 		$aPlugin = $oWpPlugins->getPlugin( $sFile );
 		if ( !empty( $aPlugin ) ) {
 			$aData[ 'rollback' ] = $this->getActionParam( 'do_rollback_prep' )
-								   && ( new ICWP_APP_Api_Internal_Common_Plugins() )->prepRollbackData( $sFile, 'plugins' );
+								   && $this->prepRollbackData( $sFile, 'plugins' );
 
 			$bWasActive = $oWpPlugins->getIsActive( $sFile );
 			$sPreVersion = $aPlugin[ 'Version' ];
@@ -43,7 +46,7 @@ class ICWP_APP_Api_Internal_Plugin_Update extends ICWP_APP_Api_Internal_Base {
 	 * @param string $mAsset
 	 */
 	protected function processAuto( $mAsset ) {
-		( new Common\RunAutoupdates() )->plugin( $mAsset );
+		( new LegacyApi\Internal\Common\RunAutoupdates() )->plugin( $mAsset );
 	}
 
 	/**

@@ -6,5 +6,16 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'Twig\\' => array($vendorDir . '/twig/twig/src'),
+    'Symfony\\Polyfill\\Mbstring\\' => array($vendorDir . '/symfony/polyfill-mbstring'),
+    'Symfony\\Polyfill\\Ctype\\' => array($vendorDir . '/symfony/polyfill-ctype'),
+    'Symfony\\Component\\Yaml\\' => array($vendorDir . '/symfony/yaml'),
+    'Symfony\\Component\\Translation\\' => array($vendorDir . '/symfony/translation'),
+    'ReCaptcha\\' => array($vendorDir . '/google/recaptcha/src/ReCaptcha'),
+    'Psr\\Container\\' => array($vendorDir . '/psr/container/src'),
+    'Html2Text\\' => array($vendorDir . '/soundasleep/html2text/src'),
+    'FernleafSystems\\Wordpress\\Services\\' => array($vendorDir . '/fernleafsystems/wordpress-services/src'),
     'FernleafSystems\\Wordpress\\Plugin\\iControlWP\\' => array($baseDir . '/src'),
+    'FernleafSystems\\Utilities\\' => array($vendorDir . '/fernleafsystems/utilities/src'),
+    '' => array($vendorDir . '/nesbot/carbon/src'),
 );

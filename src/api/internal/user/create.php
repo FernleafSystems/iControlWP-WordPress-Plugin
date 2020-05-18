@@ -18,7 +18,7 @@
 class ICWP_APP_Api_Internal_User_Create extends ICWP_APP_Api_Internal_Base {
 
 	/**
-	 * @return ApiResponse
+	 * @inheritDoc
 	 */
 	public function process() {
 

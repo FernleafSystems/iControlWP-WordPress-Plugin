@@ -1,6 +1,6 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\iControlWP\Modules\Autoupdates\Lib;
+namespace FernleafSystems\Wordpress\Plugin\iControlWP\LegacyApi\Internal\Common;
 
 class RunAutoupdates {
 

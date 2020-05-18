@@ -1,12 +1,14 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\iControlWP\LegacyApi;
+
 /**
  * Class ICWP_APP_Processor_Plugin_Api_Index
  */
 class ICWP_APP_Processor_Plugin_Api_Status extends ICWP_APP_Processor_Plugin_Api {
 
 	/**
-	 * @return ApiResponse
+	 * @return LegacyApi\ApiResponse
 	 */
 	protected function processAction() {
 		return $this->setSuccessResponse( 'Status', 0, $this->getStatusData() );

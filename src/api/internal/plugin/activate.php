@@ -3,7 +3,7 @@
 class ICWP_APP_Api_Internal_Plugin_Activate extends ICWP_APP_Api_Internal_Base {
 
 	/**
-	 * @return ApiResponse
+	 * @inheritDoc
 	 */
 	public function process() {
 		$aActionParams = $this->getActionParams();

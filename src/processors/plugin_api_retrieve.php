@@ -1,12 +1,14 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\iControlWP\LegacyApi;
+
 /**
  * Class ICWP_APP_Processor_Plugin_Api_Retrieve
  */
 class ICWP_APP_Processor_Plugin_Api_Retrieve extends ICWP_APP_Processor_Plugin_Api {
 
 	/**
-	 * @return ApiResponse
+	 * @return LegacyApi\ApiResponse
 	 */
 	protected function processAction() {
 		/** @var ICWP_APP_FeatureHandler_Plugin $oFO */

@@ -1,20 +1,20 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\iControlWP\LegacyApi;
+
 class ICWP_APP_Processor_Plugin extends ICWP_APP_Processor_BaseApp {
 
-	/**
-	 */
 	public function run() {
-		/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeatureOptions();
+		/** @var \ICWP_APP_FeatureHandler_Plugin $oMod */
+		$oMod = $this->getFeatureOptions();
 		$oReqParams = $this->getRequestParams();
 
-		add_filter( $oFO->doPluginPrefix( 'get_service_ips_v4' ), [ $this, 'getServiceIpAddressesV4' ] );
-		add_filter( $oFO->doPluginPrefix( 'get_service_ips_v6' ), [ $this, 'getServiceIpAddressesV6' ] );
+		add_filter( $oMod->doPluginPrefix( 'get_service_ips_v4' ), [ $this, 'getServiceIpAddressesV4' ] );
+		add_filter( $oMod->doPluginPrefix( 'get_service_ips_v6' ), [ $this, 'getServiceIpAddressesV6' ] );
 
-		add_filter( $oFO->doPluginPrefix( 'verify_site_can_handshake' ), [ $this, 'doVerifyCanHandshake' ] );
-		add_filter( $oFO->doPluginPrefix( 'hide_plugin' ), [ $oFO, 'getIfHidePlugin' ] );
-		add_filter( $oFO->doPluginPrefix( 'filter_hidePluginMenu' ), [ $oFO, 'getIfHidePlugin' ] );
+		add_filter( $oMod->doPluginPrefix( 'verify_site_can_handshake' ), [ $this, 'doVerifyCanHandshake' ] );
+		add_filter( $oMod->doPluginPrefix( 'hide_plugin' ), [ $oMod, 'getIfHidePlugin' ] );
+		add_filter( $oMod->doPluginPrefix( 'filter_hidePluginMenu' ), [ $oMod, 'getIfHidePlugin' ] );
 
 		if ( $this->loadDP()->FetchRequest( 'geticwppluginurl', false ) == 1 ) {
 			add_action( 'init', [ $this, 'getPluginUrl' ], -1000 );
@@ -78,11 +78,11 @@ class ICWP_APP_Processor_Plugin extends ICWP_APP_Processor_BaseApp {
 	 * @return boolean
 	 */
 	public function doVerifyCanHandshake( $bCanHandshake ) {
-		/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeatureOptions();
+		/** @var ICWP_APP_FeatureHandler_Plugin $oMod */
+		$oMod = $this->getFeatureOptions();
 		$oDp = $this->loadDP();
 
-		$oFO->setOpt( 'time_last_check_can_handshake', $oDp->time() );
+		$oMod->setOpt( 'time_last_check_can_handshake', $oDp->time() );
 
 		// First simply check SSL support
 		if ( $this->loadEncryptProcessor()->getSupportsOpenSslSign() ) {
@@ -90,7 +90,7 @@ class ICWP_APP_Processor_Plugin extends ICWP_APP_Processor_BaseApp {
 		}
 
 		$nTimeout = 20;
-		$sHandshakeVerifyTestUrl = $oFO->getAppUrl( 'handshake_verify_test_url' );
+		$sHandshakeVerifyTestUrl = $oMod->getAppUrl( 'handshake_verify_test_url' );
 		$aArgs = [
 			'timeout'     => $nTimeout,
 			'redirection' => $nTimeout,
@@ -187,47 +187,44 @@ class ICWP_APP_Processor_Plugin extends ICWP_APP_Processor_BaseApp {
 	}
 
 	/**
-	 * @param ApiResponse|string $oResponse
-	 * @param bool               $bDoBinaryEncode
-	 * @param bool               $bEncrypt
+	 * @param LegacyApi\ApiResponse $oResponse
+	 * @param bool                  $bDoBinaryEncode
+	 * @param bool                  $bEncrypt
 	 * @uses die() / wp_die()
 	 */
 	protected function sendApiResponse( $oResponse, $bDoBinaryEncode = true, $bEncrypt = false ) {
 
-		if ( $oResponse->isDie() ) {
-			wp_die( $oResponse->getErrorMessage() );
-			return;
+		if ( $oResponse->die ) {
+			wp_die( $oResponse->error_message );
 		}
 
-		$oResponse->setAuthenticated( $this->loadWpUsers()->isUserLoggedIn() );
+		/** @var \ICWP_APP_FeatureHandler_Plugin $oMod */
+		$oMod = $this->getFeatureOptions();
 
-		/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oResponse->authenticated = $this->loadWpUsers()->isUserLoggedIn();
 
-		$aDataBody = $oResponse->getData();
-		if ( $bEncrypt && !empty( $aDataBody ) ) {
+		$oToSend = clone $oResponse;
+
+		if ( $bEncrypt && !empty( $oToSend->data ) ) {
 			$oEncryptedResult = $this->loadEncryptProcessor()->encryptDataPublicKey(
-				$aDataBody,
-				$oFO->getIcwpPublicKey()
+				$oToSend->data,
+				$oMod->getIcwpPublicKey()
 			);
 
 			if ( $oEncryptedResult->success ) {
-				$oResponse->setData(
-					[
-						'is_encrypted' => 1,
-						'password'     => $oEncryptedResult->encrypted_password,
-						'sealed_data'  => $oEncryptedResult->encrypted_data
-					]
-				);
+				$oToSend->data = [
+					'is_encrypted' => 1,
+					'password'     => $oEncryptedResult->encrypted_password,
+					'sealed_data'  => $oEncryptedResult->encrypted_data
+				];
 			}
 		}
 
-		$sResponseBody = $oResponse->getResponsePackage();
+		$oBody = $oToSend->getResponsePackage();
 		if ( $bDoBinaryEncode ) {
-			$sResponseBody = base64_encode( $this->loadDP()
-												 ->encodeJson( $oResponse->getResponsePackage() ) );
+			$oBody = base64_encode( $this->loadDP()->encodeJson( $oBody ) );
 		}
-		$this->flushResponse( $sResponseBody, $bDoBinaryEncode ? 'json' : 'none', $bDoBinaryEncode );
+		$this->flushResponse( $oBody, $bDoBinaryEncode ? 'json' : 'none', $bDoBinaryEncode );
 	}
 
 	/**
@@ -236,19 +233,19 @@ class ICWP_APP_Processor_Plugin extends ICWP_APP_Processor_BaseApp {
 	 * @param bool   $bBinary
 	 */
 	private function flushResponse( $sContent, $sEncoding = 'json', $bBinary = true ) {
-		/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeatureOptions();
+		/** @var ICWP_APP_FeatureHandler_Plugin $oMod */
+		$oMod = $this->getFeatureOptions();
 
 		$this->sendHeaders( $bBinary );
 		echo sprintf( "<icwp>%s</icwp>", $sContent );
 		echo sprintf( "<icwpencoding>%s</icwpencoding>", $sEncoding );
-		echo sprintf( "<icwpversion>%s</icwpversion>", $oFO->getVersion() );
-		if ( !$oFO->getIsSiteLinked() && $this->loadEncryptProcessor()->getSupportsOpenSslSign() ) {
+		echo sprintf( "<icwpversion>%s</icwpversion>", $oMod->getVersion() );
+		if ( !$oMod->getIsSiteLinked() && $this->loadEncryptProcessor()->getSupportsOpenSslSign() ) {
 			/**
 			 * displaying the key here is irrelevant because its use is essentially completely
 			 * redundant for sites that support OpenSSL signatures.
 			 */
-			echo sprintf( "<icwpauth>%s</icwpauth>", $oFO->getPluginAuthKey() );
+			echo sprintf( "<icwpauth>%s</icwpauth>", $oMod->getPluginAuthKey() );
 		}
 		die();
 	}
@@ -264,15 +261,6 @@ class ICWP_APP_Processor_Plugin extends ICWP_APP_Processor_BaseApp {
 		else {
 			header( "Content-type: text/html" );
 			header( "Content-Transfer-Encoding: quoted-printable" );
-		}
-	}
-
-	/**
-	 * @return void
-	 */
-	public function printPluginUri() {
-		if ( $this->getOption( 'assigned' ) !== 'Y' ) {
-			echo '<!-- Worpit Plugin: '.$this->getController()->getPluginUrl().' -->';
 		}
 	}
 }

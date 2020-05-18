@@ -8,7 +8,7 @@ class ICWP_APP_Api_Internal_Collect_Capabilities extends ICWP_APP_Api_Internal_C
 	private $bCanWrite;
 
 	/**
-	 * @return ApiResponse
+	 * @inheritDoc
 	 */
 	public function process() {
 		return $this->success( [ 'capabilities' => $this->collect() ] );

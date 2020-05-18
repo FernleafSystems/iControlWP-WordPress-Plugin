@@ -111,7 +111,7 @@ class ApiResponse {
 	/**
 	 * @param string $sItem
 	 * @param mixed  $mValue
-	 * @return ApiResponse
+	 * @return $this
 	 */
 	public function setDataItem( $sItem, $mValue ) {
 		$aData = $this->getData();

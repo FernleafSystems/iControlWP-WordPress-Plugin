@@ -3,7 +3,7 @@
 abstract class ICWP_APP_Processor_BaseApp extends ICWP_APP_Processor_Base {
 
 	/**
-	 * @return RequestParameters
+	 * @return \FernleafSystems\Wordpress\Plugin\iControlWP\LegacyApi\RequestParameters
 	 */
 	protected function getRequestParams() {
 		return $this->getFeatureOptions()->getRequestParams();

@@ -3,7 +3,7 @@
 class ICWP_APP_Api_Internal_Comments_Retrieve extends ICWP_APP_Api_Internal_Base {
 
 	/**
-	 * @return ApiResponse
+	 * @inheritDoc
 	 */
 	public function process() {
 

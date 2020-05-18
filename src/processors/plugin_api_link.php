@@ -1,9 +1,11 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\iControlWP\LegacyApi;
+
 class ICWP_APP_Processor_Plugin_SiteLink extends ICWP_APP_Processor_Plugin_Api {
 
 	/**
-	 * @return ApiResponse
+	 * @return LegacyApi\ApiResponse
 	 */
 	public function run() {
 		$this->preActionEnvironmentSetup();
@@ -14,15 +16,15 @@ class ICWP_APP_Processor_Plugin_SiteLink extends ICWP_APP_Processor_Plugin_Api {
 	}
 
 	/**
-	 * @return ApiResponse
+	 * @return LegacyApi\ApiResponse
 	 */
 	public function processAction() {
-		/** @var ICWP_APP_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeatureOptions();
+		/** @var ICWP_APP_FeatureHandler_Plugin $oMod */
+		$oMod = $this->getFeatureOptions();
 		$oReqParams = $this->getRequestParams();
 		$oResponse = $this->getStandardResponse();
 
-		if ( $oFO->getIsSiteLinked() ) {
+		if ( $oMod->getIsSiteLinked() ) {
 			return $oResponse->setMessage( 'Assigned To:'.$this->getOption( 'assigned_to' ) )
 							 ->setStatus( 'AlreadyAssigned' )
 							 ->setCode( 1 )
@@ -34,7 +36,7 @@ class ICWP_APP_Processor_Plugin_SiteLink extends ICWP_APP_Processor_Plugin_Api {
 			return $oResponse->setMessage( 'KeyEmpty:'.'.' )
 							 ->setCode( 2 );
 		}
-		if ( $sRequestedKey != $oFO->getPluginAuthKey() ) {
+		if ( $sRequestedKey != $oMod->getPluginAuthKey() ) {
 			return $oResponse->setMessage( 'KeyMismatch:'.$sRequestedKey.'.' )
 							 ->setCode( 3 );
 		}
@@ -60,19 +62,20 @@ class ICWP_APP_Processor_Plugin_SiteLink extends ICWP_APP_Processor_Plugin_Api {
 		if ( $oEncryptProcessor->getSupportsOpenSslSign() ) {
 
 			$sSignature = $oReqParams->getOpenSslSignature();
-			$sPublicKey = $oFO->getIcwpPublicKey();
+			$sPublicKey = $oMod->getIcwpPublicKey();
 			if ( !empty( $sSignature ) && !empty( $sPublicKey ) ) {
 				$nSslSuccess = $oEncryptProcessor->verifySslSignature( $sVerificationCode, $sSignature, $sPublicKey );
-				$oResponse->setOpensslVerify( $nSslSuccess );
+				$oResponse->openssl_verify = $nSslSuccess;
 				if ( $nSslSuccess !== 1 ) {
-					return $oResponse->setMessage( 'Failed to Verify SSL Signature.' )
-									 ->setCode( 7 );
+					$oResponse->message = 'Failed to Verify SSL Signature.';
+					$oResponse->code = 7;
+					return $oResponse;
 				}
 			}
 		}
 
-		$oFO->setPluginPin( $sRequestPin );
-		$oFO->setAssignedAccount( $sRequestedAcc );
+		$oMod->setPluginPin( $sRequestPin );
+		$oMod->setAssignedAccount( $sRequestedAcc );
 		return $oResponse->setSuccess( true );
 	}
 }

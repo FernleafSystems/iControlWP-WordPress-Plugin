@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\iControlWP\LegacyApi;
+
 /**
  * Class ICWP_APP_Processor_Plugin_Api_Login
  */
@@ -9,7 +11,7 @@ class ICWP_APP_Processor_Plugin_Api_Login extends ICWP_APP_Processor_Plugin_Api 
 
 	/**
 	 * Override so that we don't run the handshaking etc.
-	 * @return ApiResponse
+	 * @return LegacyApi\ApiResponse
 	 */
 	public function run() {
 		$this->preActionEnvironmentSetup();
@@ -17,13 +19,13 @@ class ICWP_APP_Processor_Plugin_Api_Login extends ICWP_APP_Processor_Plugin_Api 
 	}
 
 	/**
-	 * @return ApiResponse
+	 * @return LegacyApi\ApiResponse
 	 */
 	protected function processAction() {
 		$oReqParams = $this->getRequestParams();
 		$oWp = $this->loadWP();
 
-		$this->getStandardResponse()->setDie( true );
+		$this->getStandardResponse()->die = true;
 
 		$sRequestToken = $oReqParams->getStringParam( 'token' );
 		if ( empty( $sRequestToken ) ) {
